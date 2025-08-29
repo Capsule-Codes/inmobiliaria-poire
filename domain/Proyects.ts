@@ -1,0 +1,91 @@
+import 'server-only';
+import { supabase } from "@/lib/supabase";
+
+type Project = {
+    id: string
+    name: string
+    description: string
+    location: string
+    status: string
+    progress: number
+    total_units: number
+    available_units: number
+    price_from: number
+    price_to: number
+    delivery_date: string
+    amenities: string[]
+    images: string[]
+    is_featured: boolean
+    created_at: string
+    updated_at: string
+}
+
+// Funciones para Emprendimientos
+export async function getProjects(filters?: {
+    status?: string
+    location?: string
+}) {
+
+    let query = supabase.from("projects").select("*")
+
+    if (filters?.status) {
+        query = query.eq("status", filters.status)
+    }
+    if (filters?.location) {
+        query = query.ilike("location", `%${filters.location}%`)
+    }
+
+    const { data, error } = await query.order("created_at", { ascending: false })
+
+    if (error) throw error
+    return data as Project[]
+}
+
+export async function getFeaturedProjects() {
+
+    const { data, error } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("is_featured", true)
+        .order("created_at", { ascending: false })
+        .limit(6)
+
+    if (error) throw error
+    return data as Project[]
+}
+
+export async function getProjectById(id: string) {
+
+    const { data, error } = await supabase.from("projects").select("*").eq("id", id).single()
+
+    if (error) throw error
+    return data as Project
+}
+
+export async function createProject(project: Omit<Project, "id" | "created_at" | "updated_at">) {
+
+    const { data, error } = await supabase.from("projects").insert(project).select().single()
+
+    if (error) throw error
+    return data as Project
+}
+
+export async function updateProject(id: string, updates: Partial<Project>) {
+
+    const { data, error } = await supabase
+        .from("projects")
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq("id", id)
+        .select()
+        .single()
+
+    if (error) throw error
+    return data as Project
+}
+
+export async function deleteProject(id: string) {
+
+    const { error } = await supabase.from("projects").delete().eq("id", id)
+
+    if (error) throw error
+}
