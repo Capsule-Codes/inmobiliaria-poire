@@ -25,7 +25,7 @@ export async function createContact(contact: Omit<Contact, "id" | "created_at" |
         .single()
 
     if (error) {
-        console.log('Error creating contact:', error);
+        console.error('Error creating contact:', error);
         throw error
     }
 
