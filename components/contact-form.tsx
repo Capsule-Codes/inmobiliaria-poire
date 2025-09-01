@@ -32,16 +32,29 @@ export function ContactForm({ defaultService }: ContactFormProps) {
   const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
 
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    setIsLoading(true);
+    setIsSubmitted(false);
 
-    console.log("Form submitted:", formData)
-    setIsSubmitted(true)
-    setIsLoading(false)
-  }
+    const url = '/api/contacto';
+    let request = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) };
+
+    fetch(url, request)
+      .then(res => {
+        if (!res.ok) {
+          return res.json()
+            .then(j => Promise.reject(new Error(j?.message ?? `HTTP ${res.status}`)));
+        }
+        return res.json();
+      })
+      .then(data => console.log('Creado:', data))
+      .catch(err => console.error(err))
+      .finally(() => {
+        setIsSubmitted(true);
+        setIsLoading(false);
+      });
+  };
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }))

@@ -7,19 +7,11 @@ import { Badge } from "@/components/ui/badge"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { Building2, Star, TrendingUp, Eye, Plus, Edit } from "lucide-react"
 import Link from "next/link"
+import { DashboardStats } from "@/domain/services/dashboardStats"
 
-export function AdminDashboard() {
+
+export function AdminDashboard({ stats }: { stats: DashboardStats }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-
-  // Mock data - esto se reemplazará con datos reales
-  const stats = {
-    totalProperties: 24,
-    featuredProperties: 9,
-    totalProjects: 6,
-    activeProjects: 4,
-    totalViews: 1247,
-    monthlyGrowth: 12.5,
-  }
 
   const recentActivity = [
     { id: 1, action: "Nueva propiedad agregada", item: "Casa en Belgrano", time: "Hace 2 horas" },
@@ -82,7 +74,7 @@ export function AdminDashboard() {
                 <Eye className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats.totalViews.toLocaleString()}</div>
+                <div className="text-2xl font-bold">{stats.totalViews}</div>
                 <p className="text-xs text-muted-foreground">Este mes</p>
               </CardContent>
             </Card>
