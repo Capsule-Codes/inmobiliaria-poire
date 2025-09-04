@@ -110,7 +110,7 @@ export function FeaturedProperties() {
             >
               {featuredProperties.map((property, index) => {
                 const slideIndex = Math.floor(index / itemsPerSlide)
-                const offset = slideIndex - currentSlide
+                const offset = slideIndex - currentSlide 
                 const isActive = slideIndex === currentSlide
 
                 return (
@@ -123,7 +123,7 @@ export function FeaturedProperties() {
                       transform: `
                         translateZ(${isActive ? "0px" : "-50px"}) 
                         rotateY(${offset * 10}deg) 
-                        scale(${isActive ? 1 : 0.95})
+                        scale(0.95)
                       `,
                       opacity: Math.abs(offset) > 1 && totalSlides > 1 ? 0.6 : 1,
                       transition: "all 0.7s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -143,7 +143,9 @@ export function FeaturedProperties() {
                       </div>
 
                       <CardContent className="p-6">
+                      <div className="h-[95px]">
                         <h3 className="text-xl font-semibold text-foreground mb-2">{property.title}</h3>
+                      </div>
 
                         <div className="flex items-center text-muted-foreground mb-4">
                           <MapPin className="h-4 w-4 mr-1 text-accent" />
