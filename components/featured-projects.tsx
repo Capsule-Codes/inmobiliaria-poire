@@ -255,7 +255,7 @@ export function FeaturedProjects() {
                       transform: `
                         translateZ(${isActive ? "0px" : "-50px"}) 
                         rotateY(${offset * 10}deg) 
-                        scale(${isActive ? 1 : 0.95})
+                        scale(0.95)
                       `,
                       opacity: Math.abs(offset) > 1 ? 0.4 : 1,
                       transition: "all 0.7s cubic-bezier(0.4, 0, 0.2, 1)",
