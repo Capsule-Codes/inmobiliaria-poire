@@ -25,7 +25,8 @@ export async function getProperties(filters?: {
     minPrice?: number
     maxPrice?: number
     location?: string
-}) {
+    bedrooms?: number
+}) {    
 
     let query = supabase.from("properties").select("*").eq("status", "available")
 
@@ -40,6 +41,9 @@ export async function getProperties(filters?: {
     }
     if (filters?.location) {
         query = query.ilike("location", `%${filters.location}%`)
+    }
+    if (filters?.bedrooms) {
+        query = query.eq("bedrooms", filters.bedrooms)
     }
 
     const { data, error } = await query.order("created_at", { ascending: false })
