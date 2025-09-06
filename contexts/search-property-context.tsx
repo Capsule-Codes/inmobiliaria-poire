@@ -78,7 +78,7 @@ export function SearchPropertyProvider({ children }: { children: ReactNode }) {
 }
 
 
-export function usePropertyContext() {
+export function useSearchPropertyContext() {
   const context = useContext(SearchPropertyContext)
   if (!context) {
     throw new Error("usePropertyContext debe estar dentro de un <SearchPropertyProvider/>")

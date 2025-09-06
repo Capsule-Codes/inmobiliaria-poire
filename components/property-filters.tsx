@@ -6,11 +6,11 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent } from "@/components/ui/card"
 import { Search, SlidersHorizontal } from "lucide-react"
-import { usePropertyContext } from "@/contexts/search-property-context"
+import { useSearchPropertyContext } from "@/contexts/search-property-context"
 import { configStore } from "@/lib/config-store"
 
 export function PropertyFilters() {
-  const { filters, setFilters, fetchProperties } = usePropertyContext()
+  const { filters, setFilters, fetchProperties } = useSearchPropertyContext()
   const [showFilters, setShowFilters] = useState(false)
   const [availableLocations, setAvailableLocations] = useState<string[]>([])
 

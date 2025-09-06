@@ -1,6 +1,6 @@
 "use client"
 
-import { usePropertyContext } from "@/contexts/search-property-context"
+import { useSearchPropertyContext } from "@/contexts/search-property-context"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -8,7 +8,7 @@ import { MapPin, Bed, Bath, Square, Heart, Eye } from "lucide-react"
 import Link from "next/link"
 
 export function PropertyGrid() {
-  const { properties, currentPage, totalPages, setCurrentPage, currentProperties } = usePropertyContext()
+  const { properties, currentPage, totalPages, setCurrentPage, currentProperties } = useSearchPropertyContext()
 
   return (
     <div>
