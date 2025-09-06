@@ -1,6 +1,7 @@
 import { Navigation } from "@/components/navigation"
 import { PropertyFilters } from "@/components/property-filters"
 import { PropertyGrid } from "@/components/property-grid"
+import { SearchPropertyProvider } from "@/contexts/search-property-context"
 
 export default function PropiedadesPage() {
   return (
@@ -19,13 +20,15 @@ export default function PropiedadesPage() {
         </div>
       </section>
 
-      {/* Filters and Properties */}
-      <section className="py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <PropertyFilters />
-          <PropertyGrid />
-        </div>
-      </section>
+      <SearchPropertyProvider>
+        {/* Filters and Properties */}
+        <section className="py-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <PropertyFilters />
+            <PropertyGrid />
+          </div>
+        </section>
+      </SearchPropertyProvider>
     </main>
   )
 }
