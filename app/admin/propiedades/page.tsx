@@ -2,11 +2,14 @@
 
 import { AdminRouteGuard } from "@/components/admin-route-guard"
 import { PropertiesManagement } from "@/components/properties-management"
+import { SearchPropertyProvider } from "@/contexts/search-property-context"
 
 export default function AdminPropertiesPage() {
   return (
     <AdminRouteGuard>
-      <PropertiesManagement />
+      <SearchPropertyProvider>
+        <PropertiesManagement />
+      </SearchPropertyProvider>
     </AdminRouteGuard>
   )
 }
