@@ -6,8 +6,7 @@ export async function POST(req: Request) {
 
     try {
         var nuevaPropiedad = await req.json();
-        console.log("Creando nueva propiedad desde el server:", nuevaPropiedad);
-
+        
         const data = await createProperty(nuevaPropiedad);
 
         return NextResponse.json(data, { status: 201 });

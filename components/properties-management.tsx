@@ -53,7 +53,24 @@ export function PropertiesManagement() {
   }
 
   const handleToggleFeatured = (id: number) => {
-    //TODO: Update featured setProperties(properties.map((p) => (p.id === id ? { ...p, featured: !p.featured } : p)))
+    const property = properties.find((p) => p.id === id);
+    if (property) {
+      const updatedProperty = { ...property, is_featured: !property.is_featured };
+
+      fetch(`/api/admin/propiedades/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedProperty),
+      }).then((res) => {
+        if (res.ok) {
+          console.log('Propiedad actualizada', res);
+        } else {
+          console.error('Error al actualizar la propiedad');
+        }
+      });
+    }
   }
 
   const handleSaveProperty = (propertyData: any) => {
