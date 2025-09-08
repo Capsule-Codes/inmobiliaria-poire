@@ -30,7 +30,7 @@ export function PropertyForm({ property, onSave, onCancel }: PropertyFormProps) 
     area: property?.area || 0,
     type: property?.type || "Casa",
     status: property?.status || "Disponible",
-    featured: property?.featured || false,
+    is_featured: property?.is_featured || false,
     description: property?.description || "",
     images: property?.images || [],
   })
@@ -203,11 +203,11 @@ export function PropertyForm({ property, onSave, onCancel }: PropertyFormProps) 
 
                   <div className="flex items-center space-x-2">
                     <Switch
-                      id="featured"
-                      checked={formData.featured}
-                      onCheckedChange={(checked) => handleInputChange("featured", checked)}
+                      id="is_featured"
+                      checked={formData.is_featured}
+                      onCheckedChange={(checked) => handleInputChange("is_featured", checked)}
                     />
-                    <Label htmlFor="featured">Marcar como destacada</Label>
+                    <Label htmlFor="is_featured">Marcar como destacada</Label>
                   </div>
 
                   <div>

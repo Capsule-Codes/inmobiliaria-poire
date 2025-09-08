@@ -144,7 +144,7 @@ export function PropertiesManagement() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-muted-foreground">Destacadas</p>
-                    <p className="text-2xl font-bold">{properties.filter((p) => p.featured).length}</p>
+                    <p className="text-2xl font-bold">{properties.filter((p) => p.is_featured).length}</p>
                   </div>
                   <Star className="h-8 w-8 text-secondary" />
                 </div>
@@ -163,7 +163,7 @@ export function PropertiesManagement() {
                     className="w-full h-48 object-cover"
                   />
                   <div className="absolute top-2 right-2 flex gap-2">
-                    {property.featured && (
+                    {property.is_featured && (
                       <Badge className="bg-secondary text-secondary-foreground">
                         <Star className="h-3 w-3 mr-1" />
                         Destacada
@@ -208,8 +208,8 @@ export function PropertiesManagement() {
                       onClick={() => handleToggleFeatured(property.id)}
                       className="flex-1"
                     >
-                      {property.featured ? <StarOff className="h-4 w-4 mr-1" /> : <Star className="h-4 w-4 mr-1" />}
-                      {property.featured ? "Quitar" : "Destacar"}
+                      {property.is_featured ? <StarOff className="h-4 w-4 mr-1" /> : <Star className="h-4 w-4 mr-1" />}
+                      {property.is_featured ? "Quitar" : "Destacar"}
                     </Button>
                     <Button variant="outline" size="sm" onClick={() => handleEditProperty(property)}>
                       <Edit className="h-4 w-4" />
