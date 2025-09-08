@@ -59,9 +59,23 @@ export function PropertiesManagement() {
   const handleSaveProperty = (propertyData: any) => {
 
     if (editingProperty) {
-      //TODO: Actualizar propiedad
+      fetch(`/api/admin/propiedades/${editingProperty.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(propertyData),
+      }).then((res) => {
+        if (res.ok) {
+          console.log('Propiedad actualizada');
+        } else {
+          console.error('Error al actualizar la propiedad');
+        }
+      }).finally(() => {
+        setShowForm(false);
+        setEditingProperty(null);
+      });
     } else {
-
       fetch('/api/admin/propiedades', {
         method: 'POST',
         headers: {
@@ -75,8 +89,8 @@ export function PropertiesManagement() {
           console.error('Error al crear la propiedad');
         }
       }).finally(() => {
-        setShowForm(false)
-        setEditingProperty(null)
+        setShowForm(false);
+        setEditingProperty(null);
       });
     }
   }
