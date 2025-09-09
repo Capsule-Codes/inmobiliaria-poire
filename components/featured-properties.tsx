@@ -5,16 +5,29 @@ import { Button } from "@/components/ui/button"
 import { MapPin, Bed, Bath, Square, ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { useState, useEffect, useCallback } from "react"
-import { featuredPropertiesStore } from "@/lib/featured-data"
 import { configStore } from "@/lib/config-store"
 
-export function FeaturedProperties() {
+interface Property {
+  id: string;
+  title: string;
+  location: string;
+  price: number;
+  bedrooms: number;
+  bathrooms: number;
+  area: number;
+  image: string;
+}
+
+interface FeaturedPropertiesProps {
+  allFeaturedProperties: Property[];
+}
+
+export function FeaturedProperties({ allFeaturedProperties }: FeaturedPropertiesProps) {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
   const [itemsPerSlide, setItemsPerSlide] = useState(1)
   const [config, setConfig] = useState(configStore.getConfig())
 
-  const allFeaturedProperties = featuredPropertiesStore.getFeaturedProperties()
   const featuredProperties = allFeaturedProperties.slice(0, config.maxFeaturedProperties)
   const totalSlides = Math.ceil(featuredProperties.length / itemsPerSlide)
 
@@ -110,15 +123,14 @@ export function FeaturedProperties() {
             >
               {featuredProperties.map((property, index) => {
                 const slideIndex = Math.floor(index / itemsPerSlide)
-                const offset = slideIndex - currentSlide 
+                const offset = slideIndex - currentSlide
                 const isActive = slideIndex === currentSlide
 
                 return (
                   <div
                     key={property.id}
-                    className={`flex-shrink-0 px-2 ${
-                      itemsPerSlide === 1 ? "w-full" : itemsPerSlide === 2 ? "w-1/2" : "w-1/3"
-                    }`}
+                    className={`flex-shrink-0 px-2 ${itemsPerSlide === 1 ? "w-full" : itemsPerSlide === 2 ? "w-1/2" : "w-1/3"
+                      }`}
                     style={{
                       transform: `
                         translateZ(${isActive ? "0px" : "-50px"}) 
@@ -143,9 +155,9 @@ export function FeaturedProperties() {
                       </div>
 
                       <CardContent className="p-6">
-                      <div className="h-[95px]">
-                        <h3 className="text-xl font-semibold text-foreground mb-2">{property.title}</h3>
-                      </div>
+                        <div className="h-[95px]">
+                          <h3 className="text-xl font-semibold text-foreground mb-2">{property.title}</h3>
+                        </div>
 
                         <div className="flex items-center text-muted-foreground mb-4">
                           <MapPin className="h-4 w-4 mr-1 text-accent" />
@@ -182,11 +194,10 @@ export function FeaturedProperties() {
             {Array.from({ length: totalSlides }).map((_, index) => (
               <button
                 key={index}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  index === currentSlide
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentSlide
                     ? "bg-accent scale-125 shadow-lg"
                     : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
-                }`}
+                  }`}
                 onClick={() => goToSlide(index)}
               />
             ))}
