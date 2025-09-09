@@ -35,7 +35,7 @@ export function PropertiesManagement() {
     setShowForm(true)
   }
 
-  const handleDeleteProperty = (id: number) => {
+  const handleDeleteProperty = (id: string) => {
     if (confirm("¿Estás seguro de que quieres eliminar esta propiedad?")) {
       console.log('Eliminando propiedad con id:', id);
 
@@ -52,7 +52,7 @@ export function PropertiesManagement() {
     }
   }
 
-  const handleToggleFeatured = (id: number) => {
+  const handleToggleFeatured = (id: string) => {
     const property = properties.find((p) => p.id === id);
     if (property) {
       const updatedProperty = { ...property, is_featured: !property.is_featured };

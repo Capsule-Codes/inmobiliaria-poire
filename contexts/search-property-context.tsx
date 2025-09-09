@@ -34,7 +34,7 @@ export function SearchPropertyProvider({ children }: { children: ReactNode }) {
   const [currentPage, setCurrentPage] = useState(1)
   const propertiesPerPage = 6
 
-  const obtenerPropiedades = async () => {
+  const searchProperties = async () => {
     const queryParams = new URLSearchParams(filters).toString()
     const response = await fetch(`/api/propiedades?${queryParams}`)
 
@@ -48,7 +48,7 @@ export function SearchPropertyProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
-    obtenerPropiedades()
+    searchProperties()
   }, [])
 
   const totalPages = Math.ceil(properties.length / propertiesPerPage)
@@ -69,7 +69,7 @@ export function SearchPropertyProvider({ children }: { children: ReactNode }) {
         setCurrentPage,
         totalPages,
         currentProperties,
-        fetchProperties: obtenerPropiedades,
+        fetchProperties: searchProperties,
       }}
     >
       {children}

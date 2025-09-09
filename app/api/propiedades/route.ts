@@ -5,15 +5,15 @@ import { type SearchPropertyFilters } from '@/contexts/search-property-context';
 export async function GET(req: NextRequest) {
 
     try {
-        var searchParams = req.nextUrl.searchParams;
+        const searchParams = req.nextUrl.searchParams;
 
-        var location = searchParams.get('location');
-        var type = searchParams.get('type');
-        var minPrice = Number(searchParams.get('minPrice')) || undefined;
-        var maxPrice = Number(searchParams.get('maxPrice')) || undefined;
-        var bedrooms = Number(searchParams.get('bedrooms')) || undefined;
+        const location = searchParams.get('location');
+        const type = searchParams.get('type');
+        const minPrice = Number(searchParams.get('minPrice')) || undefined;
+        const maxPrice = Number(searchParams.get('maxPrice')) || undefined;
+        const bedrooms = Number(searchParams.get('bedrooms')) || undefined;
 
-        var filters = {
+        const filters = {
             type,
             minPrice,
             maxPrice,
