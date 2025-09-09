@@ -24,23 +24,21 @@ import {
 } from "lucide-react"
 
 interface Property {
-  id: number
+  id: string
   title: string
+  description: string
+  price: number
   location: string
-  fullAddress: string
-  price: string
   type: string
   bedrooms: number
   bathrooms: number
   area: number
-  lotSize: number | null
-  yearBuilt: number
-  status: string
-  description: string
   features: string[]
-  amenities: string[]
   images: string[]
-  coordinates: { lat: number; lng: number }
+  is_featured: boolean
+  status: string
+  created_at: string
+  updated_at: string
 }
 
 interface PropertyDetailProps {
@@ -55,6 +53,7 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
     phone: "",
     message: "",
   })
+  const [yearBuilt] = useState(new Date(property.created_at).getFullYear())
 
   useEffect(() => {
     setCurrentImageIndex(0)
@@ -163,11 +162,10 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
                   <button
                     key={index}
                     onClick={() => selectImage(index)}
-                    className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200 hover:scale-105 ${
-                      index === currentImageIndex
-                        ? "border-accent shadow-lg"
-                        : "border-transparent hover:border-accent/50"
-                    }`}
+                    className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200 hover:scale-105 ${index === currentImageIndex
+                      ? "border-accent shadow-lg"
+                      : "border-transparent hover:border-accent/50"
+                      }`}
                     aria-label={`Ver imagen ${index + 1}`}
                   >
                     <img
@@ -190,7 +188,7 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
                   <h1 className="text-3xl font-bold text-foreground mb-2">{property.title}</h1>
                   <div className="flex items-center text-muted-foreground mb-2">
                     <MapPin className="h-4 w-4 mr-1" />
-                    <span>{property.fullAddress}</span>
+                    <span>{property.location}</span>
                   </div>
                   <Badge variant="outline" className="text-sm">
                     {property.type}
@@ -228,7 +226,7 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
                 </div>
                 <div className="text-center p-4 bg-muted/30 rounded-lg">
                   <Calendar className="h-6 w-6 mx-auto mb-2 text-accent" />
-                  <div className="font-semibold">{property.yearBuilt}</div>
+                  <div className="font-semibold">{yearBuilt}</div>
                   <div className="text-sm text-muted-foreground">Año</div>
                 </div>
               </div>
@@ -256,9 +254,9 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
               <div>
                 <h3 className="text-xl font-semibold mb-3">Amenities</h3>
                 <div className="flex flex-wrap gap-2">
-                  {property.amenities.map((amenity, index) => (
+                  {property.features.map((feature, index) => (
                     <Badge key={index} variant="secondary">
-                      {amenity}
+                      {feature}
                     </Badge>
                   ))}
                 </div>
