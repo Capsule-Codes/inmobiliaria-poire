@@ -5,7 +5,7 @@ import Link from "next/link"
 
 const relatedProperties = [
   {
-    id: 3,
+    id: '10e96653-25d5-42b4-a0f9-30b20137f4bb',
     title: "Villa de Lujo en Nordelta",
     location: "Nordelta, Buenos Aires",
     price: "USD 950.000",
@@ -15,7 +15,7 @@ const relatedProperties = [
     image: "/luxury-villa-pool-garden.png",
   },
   {
-    id: 4,
+    id: '34c842a3-fe4e-44ab-8d54-5b441c381351',
     title: "Departamento en Recoleta",
     location: "Recoleta, Buenos Aires",
     price: "USD 650.000",
@@ -25,7 +25,7 @@ const relatedProperties = [
     image: "/elegant-apartment-living.png",
   },
   {
-    id: 5,
+    id: '6eb4172b-d702-451e-98ba-2491f1863525',
     title: "Loft Industrial en San Telmo",
     location: "San Telmo, Buenos Aires",
     price: "USD 480.000",
@@ -37,7 +37,7 @@ const relatedProperties = [
 ]
 
 interface RelatedPropertiesProps {
-  currentPropertyId: number
+  currentPropertyId: string
 }
 
 export function RelatedProperties({ currentPropertyId }: RelatedPropertiesProps) {

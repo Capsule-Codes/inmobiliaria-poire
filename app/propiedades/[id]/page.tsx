@@ -16,7 +16,7 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
     <main className="min-h-screen bg-background">
       <Navigation />
       <PropertyDetail property={property} />
-      {/* <RelatedProperties currentPropertyId={property.id} /> */}
+      {<RelatedProperties currentPropertyId={property.id} />}
     </main>
   )
 }
