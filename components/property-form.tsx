@@ -22,7 +22,7 @@ interface PropertyFormProps {
 
 export function PropertyForm({ property, onSave, onCancel }: PropertyFormProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [formData, setFormData] = useState<Omit<Property, "id" | "created_at" | "updated_at">>({
+  const [formData, setFormData] = useState<Omit<Property, "id">>({
     title: property?.title || "",
     location: property?.location || "",
     price: property?.price || 0,
