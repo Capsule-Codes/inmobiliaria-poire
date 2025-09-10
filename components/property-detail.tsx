@@ -53,8 +53,7 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
     phone: "",
     message: "",
   })
-  const [yearBuilt] = useState(new Date(property.created_at).getFullYear())
-
+  
   useEffect(() => {
     setCurrentImageIndex(0)
 
@@ -208,27 +207,22 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
               </div>
 
               {/* Property Stats */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
                 <div className="text-center p-4 bg-muted/30 rounded-lg">
-                  <Bed className="h-6 w-6 mx-auto mb-2 text-accent" />
+                  <Bed className="h-6 w-6 mx-auto mb-3 text-accent" />
                   <div className="font-semibold">{property.bedrooms}</div>
                   <div className="text-sm text-muted-foreground">Dormitorios</div>
                 </div>
                 <div className="text-center p-4 bg-muted/30 rounded-lg">
-                  <Bath className="h-6 w-6 mx-auto mb-2 text-accent" />
+                  <Bath className="h-6 w-6 mx-auto mb-3 text-accent" />
                   <div className="font-semibold">{property.bathrooms}</div>
                   <div className="text-sm text-muted-foreground">Baños</div>
                 </div>
                 <div className="text-center p-4 bg-muted/30 rounded-lg">
-                  <Square className="h-6 w-6 mx-auto mb-2 text-accent" />
+                  <Square className="h-6 w-6 mx-auto mb-3 text-accent" />
                   <div className="font-semibold">{property.area}m²</div>
                   <div className="text-sm text-muted-foreground">Superficie</div>
-                </div>
-                <div className="text-center p-4 bg-muted/30 rounded-lg">
-                  <Calendar className="h-6 w-6 mx-auto mb-2 text-accent" />
-                  <div className="font-semibold">{yearBuilt}</div>
-                  <div className="text-sm text-muted-foreground">Año</div>
-                </div>
+                </div>                
               </div>
 
               {/* Description */}
