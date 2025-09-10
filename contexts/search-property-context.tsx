@@ -1,5 +1,6 @@
 "use client"
 
+import { Property } from "@/types/Propery"
 import { ReactNode, createContext, useContext, useState, useEffect } from "react"
 
 export type SearchPropertyFilters = {
@@ -14,7 +15,7 @@ export type SearchPropertyFilters = {
 interface SearchPropertyContextType {
   filters: SearchPropertyFilters
   setFilters: React.Dispatch<React.SetStateAction<SearchPropertyFilters>>
-  properties: any[]
+  properties: Property[]
   currentPage: number
   setCurrentPage: React.Dispatch<React.SetStateAction<number>>
   totalPages: number

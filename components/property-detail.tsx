@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import { type Property } from "@/types/Propery"
 import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -13,7 +14,6 @@ import {
   Bed,
   Bath,
   Square,
-  Calendar,
   Heart,
   Share2,
   ChevronLeft,
@@ -22,24 +22,6 @@ import {
   Mail,
   MessageCircle,
 } from "lucide-react"
-
-interface Property {
-  id: string
-  title: string
-  description: string
-  price: number
-  location: string
-  type: string
-  bedrooms: number
-  bathrooms: number
-  area: number
-  features: string[]
-  images: string[]
-  is_featured: boolean
-  status: string
-  created_at: string
-  updated_at: string
-}
 
 interface PropertyDetailProps {
   property: Property
@@ -53,7 +35,7 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
     phone: "",
     message: "",
   })
-  
+
   useEffect(() => {
     setCurrentImageIndex(0)
 
@@ -222,7 +204,7 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
                   <Square className="h-6 w-6 mx-auto mb-3 text-accent" />
                   <div className="font-semibold">{property.area}m²</div>
                   <div className="text-sm text-muted-foreground">Superficie</div>
-                </div>                
+                </div>
               </div>
 
               {/* Description */}

@@ -12,19 +12,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { ArrowLeft, X, Plus } from "lucide-react"
+import { Property } from "@/types/Propery"
 
 interface PropertyFormProps {
-  property?: any
+  property?: Property | null
   onSave: (property: any) => void
   onCancel: () => void
 }
 
 export function PropertyForm({ property, onSave, onCancel }: PropertyFormProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<Omit<Property, "id" | "created_at" | "updated_at">>({
     title: property?.title || "",
     location: property?.location || "",
-    price: property?.price || "",
+    price: property?.price || 0,
     bedrooms: property?.bedrooms || 1,
     bathrooms: property?.bathrooms || 1,
     area: property?.area || 0,
@@ -33,6 +34,7 @@ export function PropertyForm({ property, onSave, onCancel }: PropertyFormProps) 
     is_featured: property?.is_featured || false,
     description: property?.description || "",
     images: property?.images || [],
+    features: [],
   })
 
   const handleInputChange = (field: string, value: any) => {

@@ -6,17 +6,8 @@ import { MapPin, Bed, Bath, Square, ChevronLeft, ChevronRight } from "lucide-rea
 import Link from "next/link"
 import { useState, useEffect, useCallback } from "react"
 import { configStore } from "@/lib/config-store"
+import { Property } from "@/types/Propery"
 
-interface Property {
-  id: string;
-  title: string;
-  location: string;
-  price: number;
-  bedrooms: number;
-  bathrooms: number;
-  area: number;
-  image: string;
-}
 
 interface FeaturedPropertiesProps {
   allFeaturedProperties: Property[];
@@ -144,7 +135,7 @@ export function FeaturedProperties({ allFeaturedProperties }: FeaturedProperties
                     <Card className="overflow-hidden hover:shadow-2xl transition-all duration-500 transform-gpu hover:scale-105 bg-card/80 backdrop-blur-sm">
                       <div className="relative">
                         <img
-                          src={property.image || "/placeholder.svg"}
+                          src={property.images ? property.images[0] : "/placeholder.svg"}
                           alt={property.title}
                           className="w-full h-64 object-cover transition-transform duration-700 hover:scale-110"
                         />
@@ -195,8 +186,8 @@ export function FeaturedProperties({ allFeaturedProperties }: FeaturedProperties
               <button
                 key={index}
                 className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentSlide
-                    ? "bg-accent scale-125 shadow-lg"
-                    : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                  ? "bg-accent scale-125 shadow-lg"
+                  : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
                   }`}
                 onClick={() => goToSlide(index)}
               />

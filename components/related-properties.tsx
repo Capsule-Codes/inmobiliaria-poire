@@ -2,25 +2,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { MapPin, Bed, Bath, Square } from "lucide-react"
 import Link from "next/link"
-
-
-interface Property {
-  id: string
-  title: string
-  description: string
-  price: number
-  location: string
-  type: string
-  bedrooms: number
-  bathrooms: number
-  area: number
-  features: string[]
-  images: string[]
-  is_featured: boolean
-  status: string
-  created_at: string
-  updated_at: string
-}
+import { Property } from "@/types/Propery"
 
 interface RelatedPropertyDetailProps {
   relatedProperties: Property[]

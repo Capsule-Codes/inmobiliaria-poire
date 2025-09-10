@@ -9,12 +9,13 @@ import { PropertyForm } from "@/components/property-form"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { Building2, Plus, Search, Edit, Trash2, Star, StarOff, MapPin, Bed, Bath, Square } from "lucide-react"
 import { useSearchPropertyContext } from "@/contexts/search-property-context"
+import { Property } from "@/types/Propery"
 
 
 export function PropertiesManagement() {
   const [searchTerm, setSearchTerm] = useState("")
   const [showForm, setShowForm] = useState(false)
-  const [editingProperty, setEditingProperty] = useState<any>(null)
+  const [editingProperty, setEditingProperty] = useState<Property | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const { properties } = useSearchPropertyContext()
@@ -30,7 +31,7 @@ export function PropertiesManagement() {
     setShowForm(true)
   }
 
-  const handleEditProperty = (property: any) => {
+  const handleEditProperty = (property: Property) => {
     setEditingProperty(property)
     setShowForm(true)
   }
