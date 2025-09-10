@@ -12,6 +12,4 @@ export interface Property {
     images: string[]
     is_featured: boolean
     status: string
-    created_at: string
-    updated_at: string
 }
