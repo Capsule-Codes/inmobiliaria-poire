@@ -2,11 +2,14 @@ import { Navigation } from "@/components/navigation"
 import { PropertyDetail } from "@/components/property-detail"
 import { RelatedProperties } from "@/components/related-properties"
 import { notFound } from "next/navigation"
-import { getPropertyById } from "@/domain/Property"
+import { getPropertyById, getRelatedProperties } from "@/domain/Property"
 
 
 export default async function PropertyDetailPage({ params }: { params: { id: string } }) {
-  const property = await getPropertyById(params.id)
+
+  const { id } = await params;
+  const property = await getPropertyById(id)
+  const relatedProperties = await getRelatedProperties(id)
 
   if (!property) {
     notFound()
@@ -16,7 +19,7 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
     <main className="min-h-screen bg-background">
       <Navigation />
       <PropertyDetail property={property} />
-      {<RelatedProperties currentPropertyId={property.id} />}
+      {<RelatedProperties relatedProperties={relatedProperties} />}
     </main>
   )
 }

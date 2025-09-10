@@ -26,7 +26,7 @@ export async function getProperties(filters?: {
     maxPrice?: number
     location?: string
     bedrooms?: number
-}) {    
+}) {
 
     let query = supabase.from("properties").select("*").eq("status", "available")
 
@@ -100,4 +100,26 @@ export async function deleteProperty(id: string) {
     const { error } = await supabase.from("properties").delete().eq("id", id)
 
     if (error) throw error
+}
+
+export async function getRelatedProperties(id: string) {
+
+    const currentProperty = await getPropertyById(id);
+
+    if (!currentProperty) {
+        throw new Error("Propiedad no encontrada");
+    }
+
+    const safeLocation = String(currentProperty.location).replace(/"/g, '\\"');
+
+    const { data, error } = await supabase
+        .from("properties")
+        .select("*")
+        .neq("id", id)        
+        .or(`bedrooms.eq.${currentProperty.bedrooms},location.eq."${safeLocation}"`)
+        .limit(3);
+
+    if (error) throw error;
+
+    return data as Property[];
 }
