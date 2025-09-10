@@ -3,21 +3,13 @@ import { HeroSection } from "@/components/hero-section"
 import { FeaturedProperties } from "@/components/featured-properties"
 import { FeaturedProjects } from "@/components/featured-projects"
 import { getFeaturedProperties } from "@/domain/Property"
+import { Property } from "@/types/Propery"
 
 export default async function HomePage() {
 
   const featuredProperties = await getFeaturedProperties();
 
-  const allFeaturedProperties = featuredProperties.map(f => ({
-    id: f.id,
-    title: f.title,
-    location: f.location,
-    price: f.price,
-    bedrooms: f.bedrooms,
-    bathrooms: f.bathrooms,
-    area: f.area,
-    image: f.images[0] || ''
-  }));
+  const allFeaturedProperties = featuredProperties as Property[];
 
   return (
     <main className="min-h-screen">
