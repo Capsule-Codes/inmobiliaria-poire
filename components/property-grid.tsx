@@ -26,7 +26,7 @@ export function PropertyGrid() {
           <Card key={property.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 group">
             <div className="relative">
               <img
-                src={property.image || "/placeholder.svg"}
+                src={property.images[0] || "/placeholder.svg"}
                 alt={property.title}
                 className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
               />
@@ -54,7 +54,7 @@ export function PropertyGrid() {
             </div>
 
             <CardContent className="p-6">
-              <div className="flex justify-between items-start mb-2">
+              <div className="flex justify-between items-start mb-2 h-[4rem]">
                 <h3 className="text-xl font-semibold text-foreground group-hover:text-accent transition-colors">
                   {property.title}
                 </h3>
