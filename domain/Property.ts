@@ -28,7 +28,7 @@ export async function getProperties(filters?: {
     bedrooms?: number
 }) {
 
-    let query = supabase.from("properties").select("*").eq("status", "available")
+    let query = supabase.from("properties").select("*").eq("status", "Disponible")
 
     if (filters?.type) {
         query = query.eq("type", filters.type)
@@ -58,7 +58,7 @@ export async function getFeaturedProperties() {
         .from("properties")
         .select("*")
         .eq("is_featured", true)
-        .eq("status", "available")
+        .eq("status", "Disponible")
         .order("created_at", { ascending: false })
         .limit(9)
 

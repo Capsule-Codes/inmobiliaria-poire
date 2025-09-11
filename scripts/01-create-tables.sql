@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS properties (
   features JSONB DEFAULT '[]', -- array de características
   images JSONB DEFAULT '[]', -- array de URLs de imágenes
   is_featured BOOLEAN DEFAULT FALSE,
-  status VARCHAR(50) DEFAULT 'available', -- available, sold, rented
+  status VARCHAR(50) DEFAULT 'Disponible', -- Disponible, Vendido, Alquilado
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
