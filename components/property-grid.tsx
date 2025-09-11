@@ -33,7 +33,7 @@ export function PropertyGrid() {
 
               {/* Property badges */}
               <div className="absolute top-4 left-4 flex gap-2">
-                {property.featured && <Badge className="bg-accent text-accent-foreground">Destacada</Badge>}
+                {property.is_featured && <Badge className="bg-accent text-accent-foreground">Destacada</Badge>}
                 <Badge variant="secondary">{property.status}</Badge>
               </div>
 
