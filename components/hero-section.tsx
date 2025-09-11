@@ -17,7 +17,7 @@ export function HeroSection() {
       {/* Content */}
       <div className="relative z-10 text-center text-white max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-          Bienvenidos a<span className="block text-accent">Premium Propiedades</span>
+          Bienvenidos a<span className="block text-accent">Poire Propiedades</span>
         </h1>
 
         <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-2xl mx-auto leading-relaxed">

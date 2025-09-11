@@ -17,11 +17,11 @@ const defaultConfig: SiteConfig = {
   maxFeaturedProjects: 9,
   maxPropertiesPerSlide: 3,
   maxProjectsPerSlide: 3,
-  companyName: "Inmobiliaria Premium",
+  companyName: "Inmobiliaria Poire",
   companyEmail: "info@inmobiliaria.com",
   companyPhone: "+54 11 1234-5678",
   companyAddress: "Av. Corrientes 1234, CABA, Argentina",
-  siteTitle: "Inmobiliaria Premium - Propiedades de Lujo",
+  siteTitle: "Inmobiliaria Poire - Propiedades de Lujo",
   siteDescription: "La mejor selección de propiedades premium en Buenos Aires",
   availableLocations: [
     "Palermo",

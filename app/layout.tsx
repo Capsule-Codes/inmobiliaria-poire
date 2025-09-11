@@ -17,7 +17,7 @@ const manrope = Manrope({
 })
 
 export const metadata: Metadata = {
-  title: "Inmobiliaria Premium - Propiedades de Lujo",
+  title: "Inmobiliaria Poire - Propiedades de Lujo",
   description: "Encuentra tu propiedad ideal con nuestra selección exclusiva de inmuebles premium",
   generator: "v0.app",
 }
