@@ -60,7 +60,7 @@ const featuredProjects = [
     totalUnits: 120,
     availableUnits: 28,
     type: "Emprendimiento",
-    image: "/luxury-towers-river-view.png",
+    image: "/luxury-villa-pool-garden.png",
     featured: true,
   },
   {
@@ -74,7 +74,7 @@ const featuredProjects = [
     totalUnits: 45,
     availableUnits: 45,
     type: "Emprendimiento",
-    image: "/gated-community-lake-access.png",
+    image: "/luxury-penthouse-interior.png",
     featured: true,
   },
   {
@@ -88,7 +88,7 @@ const featuredProjects = [
     totalUnits: 60,
     availableUnits: 60,
     type: "Emprendimiento",
-    image: "/eco-village-sustainable-homes.png",
+    image: "/modern-house-exterior.png",
     featured: true,
   },
 ]

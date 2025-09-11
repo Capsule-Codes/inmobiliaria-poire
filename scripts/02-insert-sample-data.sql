@@ -10,5 +10,5 @@ INSERT INTO properties (title, description, price, location, type, bedrooms, bat
 
 -- Insertar emprendimientos de ejemplo
 INSERT INTO projects (name, description, location, status, progress, total_units, available_units, price_from, price_to, delivery_date, amenities, images, is_featured) VALUES 
-('Torres del Río', 'Complejo residencial de lujo frente al río', 'Puerto Madero, CABA', 'en-construccion', 65, 120, 45, 250000, 800000, '2025-12-01', '["Pileta", "Gym", "Spa", "Concierge"]', '["/luxury-towers-river-view.png"]', true),
-('Green Village', 'Desarrollo sustentable con espacios verdes', 'Tigre, Buenos Aires', 'en-venta', 100, 80, 12, 180000, 350000, '2024-06-01', '["Parque", "Senderos", "Club House"]', '["/green-residential-complex.png"]', true);
+('Torres del Río', 'Complejo residencial de lujo frente al río', 'Puerto Madero, CABA', 'en-construccion', 65, 120, 45, 250000, 800000, '2025-12-01', '["Pileta", "Gym", "Spa", "Concierge"]', '["/luxury-villa-pool-garden.png"]', true),
+('Green Village', 'Desarrollo sustentable con espacios verdes', 'Tigre, Buenos Aires', 'en-venta', 100, 80, 12, 180000, 350000, '2024-06-01', '["Parque", "Senderos", "Club House"]', '["/luxury-modern-living-room.png"]', true);

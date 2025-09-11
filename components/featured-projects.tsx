@@ -21,7 +21,7 @@ const allFeaturedProjects = [
     totalUnits: 120,
     availableUnits: 28,
     priceFrom: "USD 450.000",
-    image: "/luxury-towers-river-view.png",
+    image: "/luxury-villa-pool-garden.png",
     amenities: ["Piscina", "Gimnasio", "SUM", "Cocheras"],
   },
   {
@@ -35,7 +35,7 @@ const allFeaturedProjects = [
     totalUnits: 80,
     availableUnits: 12,
     priceFrom: "USD 380.000",
-    image: "/green-residential-complex.png",
+    image: "/luxury-modern-living-room.png",
     amenities: ["Jardín Vertical", "Coworking", "Bicicletas", "Terraza Verde"],
   },
   {
@@ -49,7 +49,7 @@ const allFeaturedProjects = [
     totalUnits: 45,
     availableUnits: 45,
     priceFrom: "USD 650.000",
-    image: "/gated-community-lake-access.png",
+    image: "/luxury-penthouse-interior.png",
     amenities: ["Club House", "Muelle Privado", "Cancha de Tenis", "Parque"],
   },
   {
@@ -63,7 +63,7 @@ const allFeaturedProjects = [
     totalUnits: 35,
     availableUnits: 18,
     priceFrom: "USD 320.000",
-    image: "/industrial-lofts-conversion.png",
+    image: "/modern-house-exterior.png",
     amenities: ["Terraza Común", "Estudio Arte", "Café", "Galería"],
   },
   {
@@ -77,7 +77,7 @@ const allFeaturedProjects = [
     totalUnits: 200,
     availableUnits: 35,
     priceFrom: "USD 520.000",
-    image: "/twin-towers-belgrano.png",
+    image: "/luxury-penthouse-interior.png",
     amenities: ["Spa", "Pileta Climatizada", "Concierge", "Sky Bar"],
   },
   {
@@ -91,7 +91,7 @@ const allFeaturedProjects = [
     totalUnits: 60,
     availableUnits: 60,
     priceFrom: "USD 420.000",
-    image: "/eco-village-sustainable-homes.png",
+    image: "/modern-house-exterior.png",
     amenities: ["Huerta Comunitaria", "Centro Wellness", "Senderos", "Laguna"],
   },
   {
@@ -105,7 +105,7 @@ const allFeaturedProjects = [
     totalUnits: 150,
     availableUnits: 85,
     priceFrom: "USD 480.000",
-    image: "/luxury-towers-river-view.png",
+    image: "/luxury-villa-pool-garden.png",
     amenities: ["Shopping", "Oficinas", "Restaurantes", "Cine"],
   },
   {
@@ -119,7 +119,7 @@ const allFeaturedProjects = [
     totalUnits: 90,
     availableUnits: 22,
     priceFrom: "USD 410.000",
-    image: "/green-residential-complex.png",
+    image: "/luxury-modern-living-room.png",
     amenities: ["Jardines", "Quincho", "Playroom", "Seguridad 24hs"],
   },
   {
@@ -133,7 +133,7 @@ const allFeaturedProjects = [
     totalUnits: 180,
     availableUnits: 180,
     priceFrom: "USD 350.000",
-    image: "/twin-towers-belgrano.png",
+    image: "/luxury-penthouse-interior.png",
     amenities: ["Business Center", "Gimnasio", "Lavandería", "Valet Parking"],
   },
 ]
