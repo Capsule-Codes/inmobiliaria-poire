@@ -49,7 +49,7 @@ export function AdminSidebar({ sidebarOpen, setSidebarOpen, currentPage }: Admin
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="p-6 border-b border-border">
-            <h1 className="text-xl font-bold text-foreground">Panel Admin</h1>
+            <h1 className="text-xl font-bold text-foreground">Panel Administración</h1>
             <p className="text-sm text-muted-foreground">Gestión Inmobiliaria</p>
           </div>
 

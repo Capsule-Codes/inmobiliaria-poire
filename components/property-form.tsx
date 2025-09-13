@@ -12,27 +12,29 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { ArrowLeft, X, Plus } from "lucide-react"
+import { Property } from "@/types/Property"
 
 interface PropertyFormProps {
-  property?: any
+  property?: Property | null
   onSave: (property: any) => void
   onCancel: () => void
 }
 
 export function PropertyForm({ property, onSave, onCancel }: PropertyFormProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<Omit<Property, "id">>({
     title: property?.title || "",
     location: property?.location || "",
-    price: property?.price || "",
+    price: property?.price || 0,
     bedrooms: property?.bedrooms || 1,
     bathrooms: property?.bathrooms || 1,
     area: property?.area || 0,
     type: property?.type || "Casa",
     status: property?.status || "Disponible",
-    featured: property?.featured || false,
+    is_featured: property?.is_featured || false,
     description: property?.description || "",
     images: property?.images || [],
+    features: [],
   })
 
   const handleInputChange = (field: string, value: any) => {
@@ -203,11 +205,11 @@ export function PropertyForm({ property, onSave, onCancel }: PropertyFormProps) 
 
                   <div className="flex items-center space-x-2">
                     <Switch
-                      id="featured"
-                      checked={formData.featured}
-                      onCheckedChange={(checked) => handleInputChange("featured", checked)}
+                      id="is_featured"
+                      checked={formData.is_featured}
+                      onCheckedChange={(checked) => handleInputChange("is_featured", checked)}
                     />
-                    <Label htmlFor="featured">Marcar como destacada</Label>
+                    <Label htmlFor="is_featured">Marcar como destacada</Label>
                   </div>
 
                   <div>

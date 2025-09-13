@@ -25,9 +25,10 @@ export async function getProperties(filters?: {
     minPrice?: number
     maxPrice?: number
     location?: string
+    bedrooms?: number
 }) {
 
-    let query = supabase.from("properties").select("*").eq("status", "available")
+    let query = supabase.from("properties").select("*").eq("status", "Disponible")
 
     if (filters?.type) {
         query = query.eq("type", filters.type)
@@ -40,6 +41,9 @@ export async function getProperties(filters?: {
     }
     if (filters?.location) {
         query = query.ilike("location", `%${filters.location}%`)
+    }
+    if (filters?.bedrooms) {
+        query = query.eq("bedrooms", filters.bedrooms)
     }
 
     const { data, error } = await query.order("created_at", { ascending: false })
@@ -54,7 +58,7 @@ export async function getFeaturedProperties() {
         .from("properties")
         .select("*")
         .eq("is_featured", true)
-        .eq("status", "available")
+        .eq("status", "Disponible")
         .order("created_at", { ascending: false })
         .limit(9)
 
@@ -96,4 +100,26 @@ export async function deleteProperty(id: string) {
     const { error } = await supabase.from("properties").delete().eq("id", id)
 
     if (error) throw error
+}
+
+export async function getRelatedProperties(id: string) {
+
+    const currentProperty = await getPropertyById(id);
+
+    if (!currentProperty) {
+        throw new Error("Propiedad no encontrada");
+    }
+
+    const safeLocation = String(currentProperty.location).replace(/"/g, '\\"');
+
+    const { data, error } = await supabase
+        .from("properties")
+        .select("*")
+        .neq("id", id)        
+        .or(`bedrooms.eq.${currentProperty.bedrooms},location.eq."${safeLocation}"`)
+        .limit(3);
+
+    if (error) throw error;
+
+    return data as Property[];
 }

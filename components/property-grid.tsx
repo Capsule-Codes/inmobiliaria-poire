@@ -1,164 +1,39 @@
 "use client"
 
-import { useState } from "react"
+import { useSearchPropertyContext } from "@/contexts/search-property-context"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { MapPin, Bed, Bath, Square, Heart, Eye } from "lucide-react"
 import Link from "next/link"
 
-const properties = [
-  {
-    id: 1,
-    title: "Casa Moderna en Palermo",
-    location: "Palermo, Buenos Aires",
-    price: "USD 850.000",
-    type: "Casa",
-    bedrooms: 4,
-    bathrooms: 3,
-    area: 280,
-    image: "/modern-house-exterior.png",
-    featured: true,
-    status: "Venta",
-  },
-  {
-    id: 2,
-    title: "Penthouse con Vista al Río",
-    location: "Puerto Madero, Buenos Aires",
-    price: "USD 1.200.000",
-    type: "Penthouse",
-    bedrooms: 3,
-    bathrooms: 2,
-    area: 180,
-    image: "/luxury-penthouse-interior.png",
-    featured: true,
-    status: "Venta",
-  },
-  {
-    id: 3,
-    title: "Villa de Lujo en Nordelta",
-    location: "Nordelta, Buenos Aires",
-    price: "USD 950.000",
-    type: "Villa",
-    bedrooms: 5,
-    bathrooms: 4,
-    area: 350,
-    image: "/luxury-villa-pool-garden.png",
-    featured: false,
-    status: "Venta",
-  },
-  {
-    id: 4,
-    title: "Departamento en Recoleta",
-    location: "Recoleta, Buenos Aires",
-    price: "USD 650.000",
-    type: "Departamento",
-    bedrooms: 3,
-    bathrooms: 2,
-    area: 120,
-    image: "/elegant-apartment-living.png",
-    featured: false,
-    status: "Venta",
-  },
-  {
-    id: 5,
-    title: "Loft Industrial en San Telmo",
-    location: "San Telmo, Buenos Aires",
-    price: "USD 480.000",
-    type: "Loft",
-    bedrooms: 2,
-    bathrooms: 1,
-    area: 95,
-    image: "/industrial-loft-design.png",
-    featured: false,
-    status: "Venta",
-  },
-  {
-    id: 6,
-    title: "Casa con Jardín en Belgrano",
-    location: "Belgrano, Buenos Aires",
-    price: "USD 720.000",
-    type: "Casa",
-    bedrooms: 4,
-    bathrooms: 3,
-    area: 200,
-    image: "/family-house-garden.png",
-    featured: false,
-    status: "Venta",
-  },
-  {
-    id: 7,
-    title: "Penthouse Dúplex en Barrio Norte",
-    location: "Barrio Norte, Buenos Aires",
-    price: "USD 1.100.000",
-    type: "Penthouse",
-    bedrooms: 4,
-    bathrooms: 3,
-    area: 220,
-    image: "/duplex-penthouse-terrace.png",
-    featured: false,
-    status: "Venta",
-  },
-  {
-    id: 8,
-    title: "Departamento Moderno en Caballito",
-    location: "Caballito, Buenos Aires",
-    price: "USD 380.000",
-    type: "Departamento",
-    bedrooms: 2,
-    bathrooms: 1,
-    area: 85,
-    image: "/modern-apartment-kitchen.png",
-    featured: false,
-    status: "Venta",
-  },
-  {
-    id: 9,
-    title: "Casa Estilo Colonial en San Isidro",
-    location: "San Isidro, Buenos Aires",
-    price: "USD 890.000",
-    type: "Casa",
-    bedrooms: 5,
-    bathrooms: 4,
-    area: 320,
-    image: "/colonial-house-patio.png",
-    featured: false,
-    status: "Venta",
-  },
-]
-
 export function PropertyGrid() {
-  const [currentPage, setCurrentPage] = useState(1)
-  const propertiesPerPage = 6
-
-  const totalPages = Math.ceil(properties.length / propertiesPerPage)
-  const startIndex = (currentPage - 1) * propertiesPerPage
-  const currentProperties = properties.slice(startIndex, startIndex + propertiesPerPage)
+  const { properties, currentPage, totalPages, setCurrentPage, currentProperties } = useSearchPropertyContext()
 
   return (
     <div>
       {/* Results Header */}
       <div className="flex justify-between items-center mb-6">
         <p className="text-muted-foreground">
-          Mostrando {startIndex + 1}-{Math.min(startIndex + propertiesPerPage, properties.length)} de{" "}
+          Mostrando {currentProperties.startIndex + 1}-{Math.min(currentProperties.startIndex + currentProperties.perPage, properties.length)} de{" "}
           {properties.length} propiedades
         </p>
       </div>
 
       {/* Properties Grid */}
       <div className="grid gap-6 mb-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {currentProperties.map((property) => (
+        {currentProperties.data.map((property) => (
           <Card key={property.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 group">
             <div className="relative">
               <img
-                src={property.image || "/placeholder.svg"}
+                src={property.images[0] || "/placeholder.svg"}
                 alt={property.title}
                 className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
               />
 
               {/* Property badges */}
               <div className="absolute top-4 left-4 flex gap-2">
-                {property.featured && <Badge className="bg-accent text-accent-foreground">Destacada</Badge>}
+                {property.is_featured && <Badge className="bg-accent text-accent-foreground">Destacada</Badge>}
                 <Badge variant="secondary">{property.status}</Badge>
               </div>
 
@@ -179,7 +54,7 @@ export function PropertyGrid() {
             </div>
 
             <CardContent className="p-6">
-              <div className="flex justify-between items-start mb-2">
+              <div className="flex justify-between items-start mb-2 h-[4rem]">
                 <h3 className="text-xl font-semibold text-foreground group-hover:text-accent transition-colors">
                   {property.title}
                 </h3>

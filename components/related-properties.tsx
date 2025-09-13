@@ -2,46 +2,13 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { MapPin, Bed, Bath, Square } from "lucide-react"
 import Link from "next/link"
+import { Property } from "@/types/Property"
 
-const relatedProperties = [
-  {
-    id: 3,
-    title: "Villa de Lujo en Nordelta",
-    location: "Nordelta, Buenos Aires",
-    price: "USD 950.000",
-    bedrooms: 5,
-    bathrooms: 4,
-    area: 350,
-    image: "/luxury-villa-pool-garden.png",
-  },
-  {
-    id: 4,
-    title: "Departamento en Recoleta",
-    location: "Recoleta, Buenos Aires",
-    price: "USD 650.000",
-    bedrooms: 3,
-    bathrooms: 2,
-    area: 120,
-    image: "/elegant-apartment-living.png",
-  },
-  {
-    id: 5,
-    title: "Loft Industrial en San Telmo",
-    location: "San Telmo, Buenos Aires",
-    price: "USD 480.000",
-    bedrooms: 2,
-    bathrooms: 1,
-    area: 95,
-    image: "/industrial-loft-design.png",
-  },
-]
-
-interface RelatedPropertiesProps {
-  currentPropertyId: number
+interface RelatedPropertyDetailProps {
+  relatedProperties: Property[]
 }
 
-export function RelatedProperties({ currentPropertyId }: RelatedPropertiesProps) {
-  const filteredProperties = relatedProperties.filter((property) => property.id !== currentPropertyId)
+export function RelatedProperties({ relatedProperties }: RelatedPropertyDetailProps) {
 
   return (
     <section className="py-16 bg-muted/30">
@@ -52,11 +19,11 @@ export function RelatedProperties({ currentPropertyId }: RelatedPropertiesProps)
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredProperties.map((property) => (
+          {relatedProperties.map((property) => (
             <Card key={property.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
               <div className="relative">
                 <img
-                  src={property.image || "/placeholder.svg"}
+                  src={property.images[0] || "/placeholder.svg"}
                   alt={property.title}
                   className="w-full h-48 object-cover"
                 />
@@ -66,7 +33,9 @@ export function RelatedProperties({ currentPropertyId }: RelatedPropertiesProps)
               </div>
 
               <CardContent className="p-6">
+                <div className="h-[4rem]">
                 <h3 className="text-lg font-semibold text-foreground mb-2">{property.title}</h3>
+                </div>
 
                 <div className="flex items-center text-muted-foreground mb-4">
                   <MapPin className="h-4 w-4 mr-1" />

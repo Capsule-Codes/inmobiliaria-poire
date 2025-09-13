@@ -38,8 +38,8 @@ export function ContactInfo() {
             <Mail className="h-5 w-5 text-accent mt-1" />
             <div>
               <h4 className="font-semibold text-foreground">Email</h4>
-              <p className="text-muted-foreground">info@premiumpropiedades.com</p>
-              <p className="text-muted-foreground">ventas@premiumpropiedades.com</p>
+              <p className="text-muted-foreground">info@poirepropiedades.com</p>
+              <p className="text-muted-foreground">ventas@poirepropiedades.com</p>
             </div>
           </div>
 

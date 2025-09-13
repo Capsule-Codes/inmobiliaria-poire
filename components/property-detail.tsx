@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import { type Property } from "@/types/Property"
 import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -13,7 +14,6 @@ import {
   Bed,
   Bath,
   Square,
-  Calendar,
   Heart,
   Share2,
   ChevronLeft,
@@ -22,26 +22,6 @@ import {
   Mail,
   MessageCircle,
 } from "lucide-react"
-
-interface Property {
-  id: number
-  title: string
-  location: string
-  fullAddress: string
-  price: string
-  type: string
-  bedrooms: number
-  bathrooms: number
-  area: number
-  lotSize: number | null
-  yearBuilt: number
-  status: string
-  description: string
-  features: string[]
-  amenities: string[]
-  images: string[]
-  coordinates: { lat: number; lng: number }
-}
 
 interface PropertyDetailProps {
   property: Property
@@ -163,11 +143,10 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
                   <button
                     key={index}
                     onClick={() => selectImage(index)}
-                    className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200 hover:scale-105 ${
-                      index === currentImageIndex
-                        ? "border-accent shadow-lg"
-                        : "border-transparent hover:border-accent/50"
-                    }`}
+                    className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200 hover:scale-105 ${index === currentImageIndex
+                      ? "border-accent shadow-lg"
+                      : "border-transparent hover:border-accent/50"
+                      }`}
                     aria-label={`Ver imagen ${index + 1}`}
                   >
                     <img
@@ -190,7 +169,7 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
                   <h1 className="text-3xl font-bold text-foreground mb-2">{property.title}</h1>
                   <div className="flex items-center text-muted-foreground mb-2">
                     <MapPin className="h-4 w-4 mr-1" />
-                    <span>{property.fullAddress}</span>
+                    <span>{property.location}</span>
                   </div>
                   <Badge variant="outline" className="text-sm">
                     {property.type}
@@ -210,26 +189,21 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
               </div>
 
               {/* Property Stats */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
                 <div className="text-center p-4 bg-muted/30 rounded-lg">
-                  <Bed className="h-6 w-6 mx-auto mb-2 text-accent" />
+                  <Bed className="h-6 w-6 mx-auto mb-3 text-accent" />
                   <div className="font-semibold">{property.bedrooms}</div>
                   <div className="text-sm text-muted-foreground">Dormitorios</div>
                 </div>
                 <div className="text-center p-4 bg-muted/30 rounded-lg">
-                  <Bath className="h-6 w-6 mx-auto mb-2 text-accent" />
+                  <Bath className="h-6 w-6 mx-auto mb-3 text-accent" />
                   <div className="font-semibold">{property.bathrooms}</div>
                   <div className="text-sm text-muted-foreground">Baños</div>
                 </div>
                 <div className="text-center p-4 bg-muted/30 rounded-lg">
-                  <Square className="h-6 w-6 mx-auto mb-2 text-accent" />
+                  <Square className="h-6 w-6 mx-auto mb-3 text-accent" />
                   <div className="font-semibold">{property.area}m²</div>
                   <div className="text-sm text-muted-foreground">Superficie</div>
-                </div>
-                <div className="text-center p-4 bg-muted/30 rounded-lg">
-                  <Calendar className="h-6 w-6 mx-auto mb-2 text-accent" />
-                  <div className="font-semibold">{property.yearBuilt}</div>
-                  <div className="text-sm text-muted-foreground">Año</div>
                 </div>
               </div>
 
@@ -256,9 +230,9 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
               <div>
                 <h3 className="text-xl font-semibold mb-3">Amenities</h3>
                 <div className="flex flex-wrap gap-2">
-                  {property.amenities.map((amenity, index) => (
+                  {property.features.map((feature, index) => (
                     <Badge key={index} variant="secondary">
-                      {amenity}
+                      {feature}
                     </Badge>
                   ))}
                 </div>

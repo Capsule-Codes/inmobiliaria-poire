@@ -16,7 +16,7 @@ export async function getDashboardStats() {
     //TODO: En lugar de hacer un select y luego filtrar, se podira hacer el select count(*) group by
     
     const [propertiesResult, projectsResult] = await Promise.all([
-        supabase.from("properties").select("id, type, status"),
+        supabase.from("properties").select("id, type, status, is_featured"),
         supabase.from("projects").select("id, status")
         //TODO: agregar consulta para las vistas        
     ])
@@ -26,7 +26,7 @@ export async function getDashboardStats() {
 
     // Calcular estadísticas
     const totalProperties = properties.length
-    const featuredProperties = Math.round(totalProperties * 0.10) //TODO: Agregar lógica para obtener propiedades destacadas
+    const featuredProperties = properties.filter(p => p.is_featured).length
     const totalProjects = projects.length
     const activeProjects = projects.filter((p) => p.status === "en-construccion").length
     const totalViews = Math.round(Math.random() * 1000) //TODO: Agregar lógica para obtener vistas reales

@@ -8,59 +8,17 @@ import { Input } from "@/components/ui/input"
 import { PropertyForm } from "@/components/property-form"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { Building2, Plus, Search, Edit, Trash2, Star, StarOff, MapPin, Bed, Bath, Square } from "lucide-react"
+import { useSearchPropertyContext } from "@/contexts/search-property-context"
+import { Property } from "@/types/Property"
 
-// Mock data - esto se reemplazará con datos reales
-const initialProperties = [
-  {
-    id: 1,
-    title: "Casa Moderna en Palermo",
-    location: "Palermo, Buenos Aires",
-    price: "USD 850.000",
-    bedrooms: 4,
-    bathrooms: 3,
-    area: 280,
-    type: "Casa",
-    status: "Disponible",
-    featured: true,
-    images: ["/modern-house-exterior.png"],
-    description: "Hermosa casa moderna con todas las comodidades",
-  },
-  {
-    id: 2,
-    title: "Penthouse con Vista al Río",
-    location: "Puerto Madero, Buenos Aires",
-    price: "USD 1.200.000",
-    bedrooms: 3,
-    bathrooms: 2,
-    area: 180,
-    type: "Departamento",
-    status: "Disponible",
-    featured: true,
-    images: ["/luxury-penthouse-interior.png"],
-    description: "Penthouse exclusivo con vista panorámica",
-  },
-  {
-    id: 3,
-    title: "Villa de Lujo en Nordelta",
-    location: "Nordelta, Buenos Aires",
-    price: "USD 950.000",
-    bedrooms: 5,
-    bathrooms: 4,
-    area: 350,
-    type: "Casa",
-    status: "Disponible",
-    featured: false,
-    images: ["/luxury-villa-pool-garden.png"],
-    description: "Villa de lujo con piscina y jardín",
-  },
-]
 
 export function PropertiesManagement() {
-  const [properties, setProperties] = useState(initialProperties)
   const [searchTerm, setSearchTerm] = useState("")
   const [showForm, setShowForm] = useState(false)
-  const [editingProperty, setEditingProperty] = useState<any>(null)
+  const [editingProperty, setEditingProperty] = useState<Property | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  const { properties } = useSearchPropertyContext()
 
   const filteredProperties = properties.filter(
     (property) =>
@@ -73,37 +31,86 @@ export function PropertiesManagement() {
     setShowForm(true)
   }
 
-  const handleEditProperty = (property: any) => {
+  const handleEditProperty = (property: Property) => {
     setEditingProperty(property)
     setShowForm(true)
   }
 
-  const handleDeleteProperty = (id: number) => {
+  const handleDeleteProperty = (id: string) => {
     if (confirm("¿Estás seguro de que quieres eliminar esta propiedad?")) {
-      setProperties(properties.filter((p) => p.id !== id))
+      console.log('Eliminando propiedad con id:', id);
+
+      fetch(`/api/admin/propiedades/${id}`, {
+        method: 'DELETE',
+      }).then((res) => {
+        if (res.ok) {
+          console.log('Propiedad eliminada');
+        } else {
+          console.error('Error al eliminar la propiedad');
+        }
+
+      });
     }
   }
 
-  const handleToggleFeatured = (id: number) => {
-    setProperties(properties.map((p) => (p.id === id ? { ...p, featured: !p.featured } : p)))
+  const handleToggleFeatured = (id: string) => {
+    const property = properties.find((p) => p.id === id);
+    if (property) {
+      const updatedProperty = { ...property, is_featured: !property.is_featured };
+
+      fetch(`/api/admin/propiedades/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedProperty),
+      }).then((res) => {
+        if (res.ok) {
+          console.log('Propiedad actualizada', res);
+        } else {
+          console.error('Error al actualizar la propiedad');
+        }
+      });
+    }
   }
 
   const handleSaveProperty = (propertyData: any) => {
+
     if (editingProperty) {
-      // Editar propiedad existente
-      setProperties(
-        properties.map((p) => (p.id === editingProperty.id ? { ...propertyData, id: editingProperty.id } : p)),
-      )
+      fetch(`/api/admin/propiedades/${editingProperty.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(propertyData),
+      }).then((res) => {
+        if (res.ok) {
+          console.log('Propiedad actualizada');
+        } else {
+          console.error('Error al actualizar la propiedad');
+        }
+      }).finally(() => {
+        setShowForm(false);
+        setEditingProperty(null);
+      });
     } else {
-      // Agregar nueva propiedad
-      const newProperty = {
-        ...propertyData,
-        id: Math.max(...properties.map((p) => p.id)) + 1,
-      }
-      setProperties([...properties, newProperty])
+      fetch('/api/admin/propiedades', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(propertyData),
+      }).then((res) => {
+        if (res.ok) {
+          console.log('Propiedad creada');
+        } else {
+          console.error('Error al crear la propiedad');
+        }
+      }).finally(() => {
+        setShowForm(false);
+        setEditingProperty(null);
+      });
     }
-    setShowForm(false)
-    setEditingProperty(null)
   }
 
   if (showForm) {
@@ -169,7 +176,7 @@ export function PropertiesManagement() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-muted-foreground">Destacadas</p>
-                    <p className="text-2xl font-bold">{properties.filter((p) => p.featured).length}</p>
+                    <p className="text-2xl font-bold">{properties.filter((p) => p.is_featured).length}</p>
                   </div>
                   <Star className="h-8 w-8 text-secondary" />
                 </div>
@@ -188,7 +195,7 @@ export function PropertiesManagement() {
                     className="w-full h-48 object-cover"
                   />
                   <div className="absolute top-2 right-2 flex gap-2">
-                    {property.featured && (
+                    {property.is_featured && (
                       <Badge className="bg-secondary text-secondary-foreground">
                         <Star className="h-3 w-3 mr-1" />
                         Destacada
@@ -233,8 +240,8 @@ export function PropertiesManagement() {
                       onClick={() => handleToggleFeatured(property.id)}
                       className="flex-1"
                     >
-                      {property.featured ? <StarOff className="h-4 w-4 mr-1" /> : <Star className="h-4 w-4 mr-1" />}
-                      {property.featured ? "Quitar" : "Destacar"}
+                      {property.is_featured ? <StarOff className="h-4 w-4 mr-1" /> : <Star className="h-4 w-4 mr-1" />}
+                      {property.is_featured ? "Quitar" : "Destacar"}
                     </Button>
                     <Button variant="outline" size="sm" onClick={() => handleEditProperty(property)}>
                       <Edit className="h-4 w-4" />

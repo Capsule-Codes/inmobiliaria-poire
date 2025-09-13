@@ -6,9 +6,11 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent } from "@/components/ui/card"
 import { Search, SlidersHorizontal } from "lucide-react"
+import { useSearchPropertyContext } from "@/contexts/search-property-context"
 import { configStore } from "@/lib/config-store"
 
 export function PropertyFilters() {
+  const { filters, setFilters, fetchProperties } = useSearchPropertyContext()
   const [showFilters, setShowFilters] = useState(false)
   const [availableLocations, setAvailableLocations] = useState<string[]>([])
 
@@ -23,13 +25,22 @@ export function PropertyFilters() {
     return unsubscribe
   }, [])
 
+  const handleApplyFilters = () => {
+    fetchProperties()
+  }
+
   return (
     <div className="mb-8">
       {/* Search Bar */}
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          <Input placeholder="Buscar por ubicación, tipo de propiedad..." className="pl-10 h-12" />
+          <Input
+            placeholder="Buscar por ubicación, tipo de propiedad..."
+            className="pl-10 h-12"
+            value={filters.search}
+            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+          />
         </div>
         <Button
           variant="outline"
@@ -48,7 +59,10 @@ export function PropertyFilters() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">Ubicación</label>
-                <Select>
+                <Select
+                  value={filters.location ?? ""}
+                  onValueChange={(value) => setFilters({ ...filters, location: value })}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccionar ubicación" />
                   </SelectTrigger>
@@ -64,7 +78,10 @@ export function PropertyFilters() {
 
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">Tipo de Propiedad</label>
-                <Select>
+                <Select
+                  value={filters.type ?? ""}
+                  onValueChange={(value) => setFilters({ ...filters, type: value })}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccionar tipo" />
                   </SelectTrigger>
@@ -80,7 +97,10 @@ export function PropertyFilters() {
 
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">Precio Mínimo</label>
-                <Select>
+                <Select
+                  value={filters.minPrice ? String(filters.minPrice) : ""}
+                  onValueChange={(value) => setFilters({ ...filters, minPrice: Number(value) })}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Precio mín." />
                   </SelectTrigger>
@@ -96,7 +116,10 @@ export function PropertyFilters() {
 
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">Precio Máximo</label>
-                <Select>
+                <Select
+                  value={filters.maxPrice ? String(filters.maxPrice) : ""}
+                  onValueChange={(value) => setFilters({ ...filters, maxPrice: Number(value) })}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Precio máx." />
                   </SelectTrigger>
@@ -112,7 +135,10 @@ export function PropertyFilters() {
 
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">Dormitorios</label>
-                <Select>
+                <Select
+                  value={filters.bedrooms ? String(filters.bedrooms) : ""}
+                  onValueChange={(value) => setFilters({ ...filters, bedrooms: Number(value) })}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Dormitorios" />
                   </SelectTrigger>
@@ -128,8 +154,12 @@ export function PropertyFilters() {
             </div>
 
             <div className="flex gap-4 mt-6">
-              <Button className="bg-primary hover:bg-primary/90">Aplicar Filtros</Button>
-              <Button variant="outline">Limpiar Filtros</Button>
+              <Button className="bg-primary hover:bg-primary/90" onClick={handleApplyFilters}>
+                Aplicar Filtros
+              </Button>
+              <Button variant="outline" onClick={() => setFilters({})}>
+                Limpiar Filtros
+              </Button>
             </div>
           </CardContent>
         </Card>

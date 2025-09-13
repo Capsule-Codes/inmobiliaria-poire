@@ -25,7 +25,7 @@ export function Navigation() {
             <div className="w-8 h-8 bg-accent rounded-sm flex items-center justify-center">
               <span className="text-accent-foreground font-bold text-lg">P</span>
             </div>
-            <span className="font-bold text-xl text-foreground">Premium</span>
+            <span className="font-bold text-xl text-foreground">Poire</span>
           </Link>
 
           {/* Desktop Navigation */}
