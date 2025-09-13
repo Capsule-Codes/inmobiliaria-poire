@@ -5,14 +5,13 @@ import { FeaturedProjects } from "@/components/featured-projects"
 import { getFeaturedProperties } from "@/domain/property"
 import { Property } from "@/types/property"
 import { getFeaturedProjects } from "@/domain/project"
+import { Project } from "@/types/project"
 
 export default async function HomePage() {
 
-  const featuredProperties = await getFeaturedProperties();
-  const allFeaturedProperties = featuredProperties as Property[];
+  const allFeaturedProperties = await getFeaturedProperties() as Property[];
 
-  const allFeaturedProjects = await getFeaturedProjects();
-  console.log(allFeaturedProjects);
+  const allFeaturedProjects = await getFeaturedProjects() as Project[];
 
   return (
     <main className="min-h-screen">
