@@ -8,135 +8,8 @@ import { Progress } from "@/components/ui/progress"
 import { MapPin, Calendar, Building, Users, ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { configStore } from "@/lib/config-store"
+import { type Project } from "@/types/Project"
 
-const allFeaturedProjects = [
-  {
-    id: 1,
-    title: "Torres del Río",
-    location: "Puerto Madero, Buenos Aires",
-    description: "Complejo residencial de lujo con vista panorámica al río y amenities de primer nivel.",
-    status: "En Construcción",
-    progress: 75,
-    deliveryDate: "Diciembre 2024",
-    totalUnits: 120,
-    availableUnits: 28,
-    priceFrom: "USD 450.000",
-    image: "/luxury-villa-pool-garden.png",
-    amenities: ["Piscina", "Gimnasio", "SUM", "Cocheras"],
-  },
-  {
-    id: 2,
-    title: "Green Residences",
-    location: "Palermo, Buenos Aires",
-    description: "Desarrollo sustentable con tecnología verde y espacios comunitarios innovadores.",
-    status: "En Venta",
-    progress: 95,
-    deliveryDate: "Marzo 2024",
-    totalUnits: 80,
-    availableUnits: 12,
-    priceFrom: "USD 380.000",
-    image: "/luxury-modern-living-room.png",
-    amenities: ["Jardín Vertical", "Coworking", "Bicicletas", "Terraza Verde"],
-  },
-  {
-    id: 3,
-    title: "Nordelta Premium",
-    location: "Nordelta, Buenos Aires",
-    description: "Exclusivo barrio cerrado con casas de diseño contemporáneo y acceso al lago.",
-    status: "Próximamente",
-    progress: 15,
-    deliveryDate: "Junio 2025",
-    totalUnits: 45,
-    availableUnits: 45,
-    priceFrom: "USD 650.000",
-    image: "/luxury-penthouse-interior.png",
-    amenities: ["Club House", "Muelle Privado", "Cancha de Tenis", "Parque"],
-  },
-  {
-    id: 4,
-    title: "Industrial Lofts",
-    location: "San Telmo, Buenos Aires",
-    description: "Conversión de edificio histórico en lofts modernos con diseño industrial.",
-    status: "En Construcción",
-    progress: 60,
-    deliveryDate: "Agosto 2024",
-    totalUnits: 35,
-    availableUnits: 18,
-    priceFrom: "USD 320.000",
-    image: "/modern-house-exterior.png",
-    amenities: ["Terraza Común", "Estudio Arte", "Café", "Galería"],
-  },
-  {
-    id: 5,
-    title: "Twin Towers Belgrano",
-    location: "Belgrano, Buenos Aires",
-    description: "Torres gemelas con departamentos de lujo y amenities de hotel cinco estrellas.",
-    status: "En Venta",
-    progress: 90,
-    deliveryDate: "Mayo 2024",
-    totalUnits: 200,
-    availableUnits: 35,
-    priceFrom: "USD 520.000",
-    image: "/luxury-penthouse-interior.png",
-    amenities: ["Spa", "Pileta Climatizada", "Concierge", "Sky Bar"],
-  },
-  {
-    id: 6,
-    title: "Eco Village Tigre",
-    location: "Tigre, Buenos Aires",
-    description: "Comunidad sustentable con casas ecológicas y energías renovables en entorno natural.",
-    status: "Próximamente",
-    progress: 5,
-    deliveryDate: "Octubre 2025",
-    totalUnits: 60,
-    availableUnits: 60,
-    priceFrom: "USD 420.000",
-    image: "/modern-house-exterior.png",
-    amenities: ["Huerta Comunitaria", "Centro Wellness", "Senderos", "Laguna"],
-  },
-  {
-    id: 7,
-    title: "Urban Plaza",
-    location: "Recoleta, Buenos Aires",
-    description: "Complejo mixto con departamentos, oficinas y locales comerciales en zona premium.",
-    status: "En Construcción",
-    progress: 45,
-    deliveryDate: "Diciembre 2024",
-    totalUnits: 150,
-    availableUnits: 85,
-    priceFrom: "USD 480.000",
-    image: "/luxury-villa-pool-garden.png",
-    amenities: ["Shopping", "Oficinas", "Restaurantes", "Cine"],
-  },
-  {
-    id: 8,
-    title: "Riverside Gardens",
-    location: "Vicente López, Buenos Aires",
-    description: "Desarrollo residencial con amplios jardines y vista al río en zona norte.",
-    status: "En Venta",
-    progress: 85,
-    deliveryDate: "Abril 2024",
-    totalUnits: 90,
-    availableUnits: 22,
-    priceFrom: "USD 410.000",
-    image: "/luxury-modern-living-room.png",
-    amenities: ["Jardines", "Quincho", "Playroom", "Seguridad 24hs"],
-  },
-  {
-    id: 9,
-    title: "Metropolitan Heights",
-    location: "Microcentro, Buenos Aires",
-    description: "Torre corporativa con departamentos ejecutivos en el corazón financiero.",
-    status: "Próximamente",
-    progress: 10,
-    deliveryDate: "Septiembre 2025",
-    totalUnits: 180,
-    availableUnits: 180,
-    priceFrom: "USD 350.000",
-    image: "/luxury-penthouse-interior.png",
-    amenities: ["Business Center", "Gimnasio", "Lavandería", "Valet Parking"],
-  },
-]
 
 const statusColors = {
   "En Construcción": "bg-yellow-500",
@@ -144,7 +17,7 @@ const statusColors = {
   Próximamente: "bg-blue-500",
 }
 
-export function FeaturedProjects() {
+export function FeaturedProjects({ allFeaturedProjects }: { allFeaturedProjects: Project[] }) {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
   const [itemsPerSlide, setItemsPerSlide] = useState(1)
@@ -248,9 +121,8 @@ export function FeaturedProjects() {
                 return (
                   <div
                     key={project.id}
-                    className={`flex-shrink-0 px-2 ${
-                      itemsPerSlide === 1 ? "w-full" : itemsPerSlide === 2 ? "w-1/2" : "w-1/3"
-                    }`}
+                    className={`flex-shrink-0 px-2 ${itemsPerSlide === 1 ? "w-full" : itemsPerSlide === 2 ? "w-1/2" : "w-1/3"
+                      }`}
                     style={{
                       transform: `
                         translateZ(${isActive ? "0px" : "-50px"}) 
@@ -265,8 +137,8 @@ export function FeaturedProjects() {
                       <div className={`grid gap-0 h-full ${itemsPerSlide === 1 ? "lg:grid-cols-2" : "grid-cols-1"}`}>
                         <div className="relative h-64 lg:h-96 overflow-hidden flex-shrink-0">
                           <img
-                            src={project.image || "/placeholder.svg"}
-                            alt={project.title}
+                            src={project.images[0] || "/placeholder.svg"}
+                            alt={project.name}
                             className="w-full h-full object-cover hover:scale-110 transition-transform duration-700"
                           />
 
@@ -280,7 +152,7 @@ export function FeaturedProjects() {
                           </div>
 
                           <div className="absolute top-6 right-6 bg-primary/90 backdrop-blur-sm text-primary-foreground px-4 py-2 rounded-full font-bold shadow-lg">
-                            Desde {project.priceFrom}
+                            Desde {project.price_from}
                           </div>
 
                           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
@@ -290,11 +162,10 @@ export function FeaturedProjects() {
                           <div className="flex-1 flex flex-col">
                             <div className="mb-6">
                               <h3
-                                className={`font-bold text-foreground mb-3 hover:text-accent transition-colors ${
-                                  itemsPerSlide === 1 ? "text-2xl lg:text-3xl" : "text-xl"
-                                }`}
+                                className={`font-bold text-foreground mb-3 hover:text-accent transition-colors ${itemsPerSlide === 1 ? "text-2xl lg:text-3xl" : "text-xl"
+                                  }`}
                               >
-                                {project.title}
+                                {project.name}
                               </h3>
                               <div className="flex items-center text-muted-foreground mb-4">
                                 <MapPin className="h-5 w-5 mr-2 text-accent" />
@@ -318,15 +189,15 @@ export function FeaturedProjects() {
                             <div className="grid grid-cols-2 gap-4 mb-6">
                               <div className="flex items-center text-sm text-muted-foreground">
                                 <Calendar className="h-4 w-4 mr-2 text-accent" />
-                                <span>{project.deliveryDate}</span>
+                                <span>{project.delivery_date}</span>
                               </div>
                               <div className="flex items-center text-sm text-muted-foreground">
                                 <Building className="h-4 w-4 mr-2 text-accent" />
-                                <span>{project.totalUnits} unidades</span>
+                                <span>{project.total_units} unidades</span>
                               </div>
                               <div className="flex items-center text-sm text-muted-foreground col-span-2">
                                 <Users className="h-4 w-4 mr-2 text-accent" />
-                                <span>{project.availableUnits} unidades disponibles</span>
+                                <span>{project.available_units} unidades disponibles</span>
                               </div>
                             </div>
 
@@ -379,11 +250,10 @@ export function FeaturedProjects() {
               <button
                 key={index}
                 onClick={() => goToSlide(index)}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  index === currentSlide
-                    ? "bg-accent scale-125 shadow-lg"
-                    : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
-                }`}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentSlide
+                  ? "bg-accent scale-125 shadow-lg"
+                  : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                  }`}
               />
             ))}
           </div>
