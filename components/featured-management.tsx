@@ -8,70 +8,27 @@ import { Progress } from "@/components/ui/progress"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { Star, StarOff, MapPin, Bed, Bath, Square, Calendar, Building, Users, Eye, TrendingUp } from "lucide-react"
 import { type Property } from "@/types/Property"
+import { type Project } from "@/types/Project"
 
-const featuredProjects = [
-  {
-    id: "1",
-    title: "Torres del Río",
-    location: "Puerto Madero, Buenos Aires",
-    price: "USD 450.000",
-    status: "En Construcción",
-    progress: 75,
-    deliveryDate: "Diciembre 2024",
-    totalUnits: 120,
-    availableUnits: 28,
-    type: "Emprendimiento",
-    images: ["/luxury-villa-pool-garden.png"],
-    featured: true,
-  },
-  {
-    id: "3",
-    title: "Nordelta Premium",
-    location: "Nordelta, Buenos Aires",
-    price: "USD 650.000",
-    status: "Próximamente",
-    progress: 15,
-    deliveryDate: "Junio 2025",
-    totalUnits: 45,
-    availableUnits: 45,
-    type: "Emprendimiento",
-    images: ["/luxury-penthouse-interior.png"],
-    featured: true,
-  },
-  {
-    id: "6",
-    title: "Eco Village Tigre",
-    location: "Tigre, Buenos Aires",
-    price: "USD 420.000",
-    status: "Próximamente",
-    progress: 5,
-    deliveryDate: "Octubre 2025",
-    totalUnits: 60,
-    availableUnits: 60,
-    type: "Emprendimiento",
-    images: ["/modern-house-exterior.png"],
-    featured: true,
-  },
-]
 
 const statusColors = {
   "En Construcción": "bg-yellow-500",
   "En Venta": "bg-green-500",
-  Próximamente: "bg-blue-500",
+  "Próximamente": "bg-blue-500",
 }
 
-export function FeaturedManagement({ featuredProperties }: { featuredProperties: Property[] }) {
+export function FeaturedManagement({ featuredProperties, featuredProjects }: { featuredProperties: Property[], featuredProjects: Project[] }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [properties, setProperties] = useState(featuredProperties)
   const [projects, setProjects] = useState(featuredProjects)
 
-  const allFeatured = [...properties, ...projects]
+  const allFeatured = [...properties.map((p) => ({ ...p, type: 'Propiedad', title: p.title, image: p.images[0] || "/placeholder.svg" })), ...projects.map((p) => ({ ...p, type: 'Emprendimiento', title: p.name, price: `Desde ${p.price_from}`, image: p.images[0] || "/placeholder.svg" }))]
 
   const handleToggleFeatured = (id: string, type: string) => {
     if (type === "Propiedad") {
       setProperties(properties.map((p) => (p.id === id ? { ...p, is_featured: !p.is_featured } : p)))
     } else {
-      setProjects(projects.map((p) => (p.id === id ? { ...p, featured: !p.featured } : p)))
+      setProjects(projects.map((p) => (p.id === id ? { ...p, featured: !p.is_featured } : p)))
     }
   }
 
@@ -163,17 +120,17 @@ export function FeaturedManagement({ featuredProperties }: { featuredProperties:
                 {allFeatured.slice(0, 3).map((item) => (
                   <div key={`${item.type}-${item.id}`} className="relative">
                     <img
-                      src={item.images[0] || "/placeholder.svg"}
+                      src={item.image}
                       alt={item.title}
                       className="w-full h-32 object-cover rounded-lg"
                     />
                     <div className="absolute top-2 left-2">
                       <Badge className="bg-secondary text-secondary-foreground text-xs">
-                        {item.type === "Propiedad" ? "Propiedad" : "Emprendimiento"}
+                        {item.type}
                       </Badge>
                     </div>
                     <div className="absolute top-2 right-2 bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-semibold">
-                      {item.type === "Propiedad" ? item.price : `Desde ${item.price}`}
+                      {item.price}
                     </div>
                     <div className="mt-2">
                       <h4 className="font-medium text-sm line-clamp-1">{item.title}</h4>
@@ -263,7 +220,7 @@ export function FeaturedManagement({ featuredProperties }: { featuredProperties:
                     <div className="relative">
                       <img
                         src={project.images[0] || "/placeholder.svg"}
-                        alt={project.title}
+                        alt={project.name}
                         className="w-full h-32 object-cover"
                       />
                       <div className="absolute top-2 left-2">
@@ -274,11 +231,11 @@ export function FeaturedManagement({ featuredProperties }: { featuredProperties:
                         </Badge>
                       </div>
                       <div className="absolute top-2 right-2 bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-semibold">
-                        Desde {project.price}
+                        Desde {project.price_from}
                       </div>
                     </div>
                     <CardContent className="p-3">
-                      <h4 className="font-medium text-sm mb-1 line-clamp-1">{project.title}</h4>
+                      <h4 className="font-medium text-sm mb-1 line-clamp-1">{project.name}</h4>
                       <div className="flex items-center text-muted-foreground mb-2">
                         <MapPin className="h-3 w-3 mr-1" />
                         <span className="text-xs line-clamp-1">{project.location}</span>
@@ -297,15 +254,15 @@ export function FeaturedManagement({ featuredProperties }: { featuredProperties:
                       <div className="grid grid-cols-2 gap-2 mb-3 text-xs text-muted-foreground">
                         <div className="flex items-center">
                           <Calendar className="h-3 w-3 mr-1" />
-                          <span className="truncate">{project.deliveryDate}</span>
+                          <span className="truncate">{project.delivery_date}</span>
                         </div>
                         <div className="flex items-center">
                           <Building className="h-3 w-3 mr-1" />
-                          <span>{project.totalUnits} unidades</span>
+                          <span>{project.total_units} unidades</span>
                         </div>
                         <div className="flex items-center">
                           <Users className="h-3 w-3 mr-1" />
-                          <span>{project.availableUnits} disponibles</span>
+                          <span>{project.available_units} disponibles</span>
                         </div>
                       </div>
 
