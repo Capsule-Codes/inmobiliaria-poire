@@ -9,58 +9,7 @@ import { Progress } from "@/components/ui/progress"
 import { ProjectForm } from "@/components/project-form"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { TrendingUp, Plus, Search, Edit, Trash2, Star, StarOff, MapPin, Calendar, Building, Users } from "lucide-react"
-
-// Mock data - esto se reemplazará con datos reales
-const initialProjects = [
-  {
-    id: 1,
-    title: "Torres del Río",
-    location: "Puerto Madero, Buenos Aires",
-    description: "Complejo residencial de lujo con vista panorámica al río y amenities de primer nivel.",
-    status: "En Construcción",
-    progress: 75,
-    deliveryDate: "Diciembre 2024",
-    totalUnits: 120,
-    availableUnits: 28,
-    priceFrom: "USD 450.000",
-    image: "/luxury-villa-pool-garden.png",
-    images: ["/luxury-villa-pool-garden.png"],
-    amenities: ["Piscina", "Gimnasio", "SUM", "Cocheras", "Seguridad 24hs"],
-    featured: true,
-  },
-  {
-    id: 2,
-    title: "Residencial Palermo Green",
-    location: "Palermo, Buenos Aires",
-    description: "Desarrollo sustentable con espacios verdes y tecnología inteligente para el hogar moderno.",
-    status: "En Venta",
-    progress: 100,
-    deliveryDate: "Entrega Inmediata",
-    totalUnits: 80,
-    availableUnits: 12,
-    priceFrom: "USD 380.000",
-    image: "/luxury-modern-living-room.png",
-    images: ["/luxury-modern-living-room.png"],
-    amenities: ["Jardín Vertical", "Coworking", "Bicicletero", "Terraza Verde"],
-    featured: false,
-  },
-  {
-    id: 3,
-    title: "Nordelta Premium",
-    location: "Nordelta, Buenos Aires",
-    description: "Exclusivo barrio cerrado con casas de diseño contemporáneo y acceso al lago.",
-    status: "Próximamente",
-    progress: 15,
-    deliveryDate: "Junio 2025",
-    totalUnits: 45,
-    availableUnits: 45,
-    priceFrom: "USD 650.000",
-    image: "/luxury-penthouse-interior.png",
-    images: ["/luxury-penthouse-interior.png"],
-    amenities: ["Club House", "Muelle Privado", "Cancha de Tenis", "Parque"],
-    featured: true,
-  },
-]
+import { type Project } from "@/types/project"
 
 const statusColors = {
   "En Construcción": "bg-yellow-500",
@@ -68,16 +17,16 @@ const statusColors = {
   Próximamente: "bg-blue-500",
 }
 
-export function ProjectsManagement() {
-  const [projects, setProjects] = useState(initialProjects)
+export function ProjectsManagement({ allProjects }: { allProjects: Project[] }) {
+  const [projects, setProjects] = useState(allProjects)
   const [searchTerm, setSearchTerm] = useState("")
   const [showForm, setShowForm] = useState(false)
-  const [editingProject, setEditingProject] = useState<any>(null)
+  const [editingProject, setEditingProject] = useState<Project | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const filteredProjects = projects.filter(
     (project) =>
-      project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       project.location.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
@@ -86,35 +35,108 @@ export function ProjectsManagement() {
     setShowForm(true)
   }
 
-  const handleEditProject = (project: any) => {
+  const handleEditProject = (project: Project) => {
     setEditingProject(project)
     setShowForm(true)
   }
 
-  const handleDeleteProject = (id: number) => {
+  const handleDeleteProject = (id: String) => {
     if (confirm("¿Estás seguro de que quieres eliminar este emprendimiento?")) {
-      setProjects(projects.filter((p) => p.id !== id))
+
+      fetch(`/api/admin/emprendimientos/${id}`, {
+        method: 'DELETE',
+      }).then((res) => {
+        if (res.ok) {
+          setProjects(projects.filter((p) => p.id !== id))
+        } else {
+          console.error('Error al eliminar el emprendimiento');
+        }
+      }).catch((error) => {
+        console.error('Error al eliminar el emprendimiento', error);
+      });
     }
   }
 
-  const handleToggleFeatured = (id: number) => {
-    setProjects(projects.map((p) => (p.id === id ? { ...p, featured: !p.featured } : p)))
+  const handleToggleFeatured = (id: String) => {
+    const project = projects.find((p) => p.id === id);
+    if (project) {
+      const updatedProject = { ...project, is_featured: !project.is_featured };
+
+      fetch(`/api/admin/emprendimientos/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedProject),
+      }).then((res) => {
+        if (res.ok) {
+          res.json().then((updatedProject) => {
+            setProjects(projects.map((p) => (p.id === id ? updatedProject : p)))
+          });
+        } else {
+          console.error('Error al destacar emprendimiento');
+        }
+      }).catch((error) => {
+        console.error('Error al destacar emprendimiento', error);
+      });
+    }
   }
 
-  const handleSaveProject = (projectData: any) => {
+  const handleSaveProject = (projectData: Project) => {
     if (editingProject) {
-      // Editar proyecto existente
-      setProjects(projects.map((p) => (p.id === editingProject.id ? { ...projectData, id: editingProject.id } : p)))
+
+      fetch(`/api/admin/emprendimientos/${editingProject.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(projectData),
+      }).then((res) => {
+        if (res.ok) {
+
+          res.json().then((updatedProject) => {
+            setProjects(projects.map((p) => (p.id === editingProject.id ? updatedProject : p)))
+          })
+
+        } else {
+          console.error('Error al actualizar el emprendimiento');
+        }
+      })
+        .catch((error) => {
+          console.error('Error al actualizar el emprendimiento', error);
+        })
+        .finally(() => {
+          setShowForm(false)
+          setEditingProject(null)
+        })
+
     } else {
-      // Agregar nuevo proyecto
-      const newProject = {
-        ...projectData,
-        id: Math.max(...projects.map((p) => p.id)) + 1,
-      }
-      setProjects([...projects, newProject])
+
+      fetch('/api/admin/emprendimientos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(projectData),
+      }).then((res) => {
+        if (res.ok) {
+
+          res.json().then((createdProject) => {
+            setProjects([createdProject, ...projects])
+          })
+
+        } else {
+          console.error('Error al crear el emprendimiento');
+        }
+      })
+        .catch((error) => {
+          console.error('Error al crear el emprendimiento', error);
+        })
+        .finally(() => {
+          setShowForm(false)
+          setEditingProject(null)
+        })
     }
-    setShowForm(false)
-    setEditingProject(null)
   }
 
   if (showForm) {
@@ -177,7 +199,7 @@ export function ProjectsManagement() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-muted-foreground">Destacados</p>
-                    <p className="text-2xl font-bold">{projects.filter((p) => p.featured).length}</p>
+                    <p className="text-2xl font-bold">{projects.filter((p) => p.is_featured).length}</p>
                   </div>
                   <Star className="h-8 w-8 text-secondary" />
                 </div>
@@ -191,12 +213,12 @@ export function ProjectsManagement() {
               <Card key={project.id} className="overflow-hidden">
                 <div className="relative">
                   <img
-                    src={project.image || "/placeholder.svg"}
-                    alt={project.title}
+                    src={project.images[0] || "/placeholder.svg"}
+                    alt={project.name}
                     className="w-full h-48 object-cover"
                   />
                   <div className="absolute top-2 left-2 flex gap-2">
-                    {project.featured && (
+                    {project.is_featured && (
                       <Badge className="bg-secondary text-secondary-foreground">
                         <Star className="h-3 w-3 mr-1" />
                         Destacado
@@ -207,13 +229,13 @@ export function ProjectsManagement() {
                     </Badge>
                   </div>
                   <div className="absolute top-2 right-2 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-semibold">
-                    Desde {project.priceFrom}
+                    Desde {project.price_from}
                   </div>
                 </div>
 
                 <CardContent className="p-4">
                   <div className="mb-4">
-                    <h3 className="font-semibold text-foreground mb-1 line-clamp-1">{project.title}</h3>
+                    <h3 className="font-semibold text-foreground mb-1 line-clamp-1">{project.name}</h3>
                     <div className="flex items-center text-muted-foreground mb-2">
                       <MapPin className="h-4 w-4 mr-1" />
                       <span className="text-sm line-clamp-1">{project.location}</span>
@@ -234,15 +256,15 @@ export function ProjectsManagement() {
                   <div className="grid grid-cols-2 gap-2 mb-4 text-xs text-muted-foreground">
                     <div className="flex items-center">
                       <Calendar className="h-3 w-3 mr-1" />
-                      <span className="truncate">{project.deliveryDate}</span>
+                      <span className="truncate">{project.delivery_date}</span>
                     </div>
                     <div className="flex items-center">
                       <Building className="h-3 w-3 mr-1" />
-                      <span>{project.totalUnits} unidades</span>
+                      <span>{project.total_units} unidades</span>
                     </div>
                     <div className="flex items-center">
                       <Users className="h-3 w-3 mr-1" />
-                      <span>{project.availableUnits} disponibles</span>
+                      <span>{project.available_units} disponibles</span>
                     </div>
                   </div>
 
@@ -270,8 +292,8 @@ export function ProjectsManagement() {
                       onClick={() => handleToggleFeatured(project.id)}
                       className="flex-1"
                     >
-                      {project.featured ? <StarOff className="h-4 w-4 mr-1" /> : <Star className="h-4 w-4 mr-1" />}
-                      {project.featured ? "Quitar" : "Destacar"}
+                      {project.is_featured ? <StarOff className="h-4 w-4 mr-1" /> : <Star className="h-4 w-4 mr-1" />}
+                      {project.is_featured ? "Quitar" : "Destacar"}
                     </Button>
                     <Button variant="outline" size="sm" onClick={() => handleEditProject(project)}>
                       <Edit className="h-4 w-4" />

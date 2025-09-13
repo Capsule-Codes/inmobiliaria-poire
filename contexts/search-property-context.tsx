@@ -1,6 +1,6 @@
 "use client"
 
-import { Property } from "@/types/Property"
+import { Property } from "@/types/property"
 import { ReactNode, createContext, useContext, useState, useEffect } from "react"
 
 export type SearchPropertyFilters = {

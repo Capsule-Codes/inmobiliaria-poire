@@ -6,14 +6,9 @@ import { MapPin, Bed, Bath, Square, ChevronLeft, ChevronRight } from "lucide-rea
 import Link from "next/link"
 import { useState, useEffect, useCallback } from "react"
 import { configStore } from "@/lib/config-store"
-import { Property } from "@/types/Property"
+import { Property } from "@/types/property"
 
-
-interface FeaturedPropertiesProps {
-  allFeaturedProperties: Property[];
-}
-
-export function FeaturedProperties({ allFeaturedProperties }: FeaturedPropertiesProps) {
+export function FeaturedProperties({ allFeaturedProperties }: { allFeaturedProperties: Property[] }) {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
   const [itemsPerSlide, setItemsPerSlide] = useState(1)

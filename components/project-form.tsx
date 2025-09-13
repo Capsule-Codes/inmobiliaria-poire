@@ -13,9 +13,10 @@ import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { ArrowLeft, X, Plus } from "lucide-react"
+import { Project } from "@/types/project"
 
 interface ProjectFormProps {
-  project?: any
+  project?: Project | null
   onSave: (project: any) => void
   onCancel: () => void
 }
@@ -23,18 +24,18 @@ interface ProjectFormProps {
 export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [formData, setFormData] = useState({
-    title: project?.title || "",
-    location: project?.location || "",
-    description: project?.description || "",
-    status: project?.status || "Próximamente",
-    progress: project?.progress || 0,
-    deliveryDate: project?.deliveryDate || "",
-    totalUnits: project?.totalUnits || 0,
-    availableUnits: project?.availableUnits || 0,
-    priceFrom: project?.priceFrom || "",
-    featured: project?.featured || false,
-    images: project?.images || [],
-    amenities: project?.amenities || [],
+    name: project?.name ?? "",
+    location: project?.location ?? "",
+    description: project?.description ?? "",
+    status: project?.status ?? "Próximamente",
+    progress: project?.progress ?? 0,
+    delivery_date: project?.delivery_date ?? "",
+    total_units: project?.total_units ?? 0,
+    available_units: project?.available_units ?? 0,
+    price_from: project?.price_from ?? "",
+    is_featured: project?.is_featured ?? false,
+    images: project?.images ?? [],
+    amenities: project?.amenities ?? [],
   })
 
   const [newAmenity, setNewAmenity] = useState("")
@@ -114,11 +115,11 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="title">Título</Label>
+                    <Label htmlFor="name">Nombre</Label>
                     <Input
-                      id="title"
-                      value={formData.title}
-                      onChange={(e) => handleInputChange("title", e.target.value)}
+                      id="name"
+                      value={formData.name}
+                      onChange={(e) => handleInputChange("name", e.target.value)}
                       placeholder="Ej: Torres del Río"
                       required
                     />
@@ -148,11 +149,11 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
                   </div>
 
                   <div>
-                    <Label htmlFor="priceFrom">Precio Desde</Label>
+                    <Label htmlFor="price_from">Precio Desde</Label>
                     <Input
-                      id="priceFrom"
-                      value={formData.priceFrom}
-                      onChange={(e) => handleInputChange("priceFrom", e.target.value)}
+                      id="price_from"
+                      value={formData.price_from}
+                      onChange={(e) => handleInputChange("price_from", e.target.value)}
                       placeholder="Ej: USD 450.000"
                       required
                     />
@@ -194,23 +195,24 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
                   </div>
 
                   <div>
-                    <Label htmlFor="deliveryDate">Fecha de Entrega</Label>
+                    <Label htmlFor="delivery_date">Fecha de Entrega</Label>
                     <Input
-                      id="deliveryDate"
-                      value={formData.deliveryDate}
-                      onChange={(e) => handleInputChange("deliveryDate", e.target.value)}
-                      placeholder="Ej: Diciembre 2024"
+                      id="delivery_date"
+                      value={formData.delivery_date}
+                      onChange={(e) => handleInputChange("delivery_date", e.target.value)}
+                      placeholder="AAAA-MM-DD"
                       required
                     />
+
                   </div>
 
                   <div className="flex items-center space-x-2">
                     <Switch
-                      id="featured"
-                      checked={formData.featured}
-                      onCheckedChange={(checked) => handleInputChange("featured", checked)}
+                      id="is_featured"
+                      checked={formData.is_featured}
+                      onCheckedChange={(checked) => handleInputChange("is_featured", checked)}
                     />
-                    <Label htmlFor="featured">Marcar como destacado</Label>
+                    <Label htmlFor="is_featured">Marcar como destacado</Label>
                   </div>
                 </CardContent>
               </Card>
@@ -225,25 +227,25 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="totalUnits">Total de Unidades</Label>
+                    <Label htmlFor="total_units">Total de Unidades</Label>
                     <Input
-                      id="totalUnits"
+                      id="total_units"
                       type="number"
                       min="0"
-                      value={formData.totalUnits}
-                      onChange={(e) => handleInputChange("totalUnits", Number.parseInt(e.target.value))}
+                      value={formData.total_units}
+                      onChange={(e) => handleInputChange("total_units", Number.parseInt(e.target.value))}
                       required
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="availableUnits">Unidades Disponibles</Label>
+                    <Label htmlFor="available_units">Unidades Disponibles</Label>
                     <Input
-                      id="availableUnits"
+                      id="available_units"
                       type="number"
                       min="0"
-                      value={formData.availableUnits}
-                      onChange={(e) => handleInputChange("availableUnits", Number.parseInt(e.target.value))}
+                      value={formData.available_units}
+                      onChange={(e) => handleInputChange("available_units", Number.parseInt(e.target.value))}
                       required
                     />
                   </div>

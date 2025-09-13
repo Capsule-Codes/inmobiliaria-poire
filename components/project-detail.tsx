@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { type Property } from "@/types/property"
+import { type Project } from "@/types/project"
 import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -21,13 +21,17 @@ import {
   Phone,
   Mail,
   MessageCircle,
+  Calendar,
+  Building,
+  Users,
 } from "lucide-react"
+import { Progress } from "./ui/progress"
 
-interface PropertyDetailProps {
-  property: Property
+interface ProjectDetailProps {
+  project: Project
 }
 
-export function PropertyDetail({ property }: PropertyDetailProps) {
+export function ProjectDetail({ project }: ProjectDetailProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [contactForm, setContactForm] = useState({
     name: "",
@@ -49,23 +53,23 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
 
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [property.id])
+  }, [project.id])
 
   const nextImage = () => {
-    if (property.images.length > 0) {
+    if (project.images.length > 0) {
       setCurrentImageIndex((prev) => {
-        const newIndex = (prev + 1) % property.images.length
-        console.log("[v0] Next image:", newIndex, "of", property.images.length)
+        const newIndex = (prev + 1) % project.images.length
+        console.log("[v0] Next image:", newIndex, "of", project.images.length)
         return newIndex
       })
     }
   }
 
   const prevImage = () => {
-    if (property.images.length > 0) {
+    if (project.images.length > 0) {
       setCurrentImageIndex((prev) => {
-        const newIndex = (prev - 1 + property.images.length) % property.images.length
-        console.log("[v0] Previous image:", newIndex, "of", property.images.length)
+        const newIndex = (prev - 1 + project.images.length) % project.images.length
+        console.log("[v0] Previous image:", newIndex, "of", project.images.length)
         return newIndex
       })
     }
@@ -82,8 +86,8 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
     // Here you would handle the form submission
   }
 
-  if (!property.images || property.images.length === 0) {
-    console.log("[v0] No images available for property:", property.id)
+  if (!project.images || project.images.length === 0) {
+    console.log("[v0] No images available for project:", project.id)
   }
 
   return (
@@ -94,13 +98,13 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
           {/* Image Gallery */}
           <div className="relative">
             <div className="relative h-96 md:h-[500px] rounded-lg overflow-hidden bg-muted">
-              {property.images && property.images.length > 0 ? (
+              {project.images && project.images.length > 0 ? (
                 <img
-                  src={property.images[currentImageIndex] || "/placeholder.svg"}
-                  alt={`${property.title} - Imagen ${currentImageIndex + 1}`}
+                  src={project.images[currentImageIndex] || "/placeholder.svg"}
+                  alt={`${project.name} - Imagen ${currentImageIndex + 1}`}
                   className="w-full h-full object-cover transition-opacity duration-300"
                   onLoad={() => console.log("[v0] Image loaded:", currentImageIndex)}
-                  onError={() => console.log("[v0] Image failed to load:", property.images[currentImageIndex])}
+                  onError={() => console.log("[v0] Image failed to load:", project.images[currentImageIndex])}
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-muted-foreground">
@@ -109,7 +113,7 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
               )}
 
               {/* Navigation Arrows - Only show if there are multiple images */}
-              {property.images && property.images.length > 1 && (
+              {project.images && project.images.length > 1 && (
                 <>
                   <button
                     onClick={prevImage}
@@ -129,17 +133,17 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
               )}
 
               {/* Image Counter */}
-              {property.images && property.images.length > 1 && (
+              {project.images && project.images.length > 1 && (
                 <div className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm">
-                  {currentImageIndex + 1} / {property.images.length}
+                  {currentImageIndex + 1} / {project.images.length}
                 </div>
               )}
             </div>
 
             {/* Thumbnail Navigation - Only show if there are multiple images */}
-            {property.images && property.images.length > 1 && (
+            {project.images && project.images.length > 1 && (
               <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
-                {property.images.map((image, index) => (
+                {project.images.map((image, index) => (
                   <button
                     key={index}
                     onClick={() => selectImage(index)}
@@ -161,22 +165,22 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
             )}
           </div>
 
-          {/* Property Information */}
+          {/* project Information */}
           <Card>
             <CardContent className="p-6">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h1 className="text-3xl font-bold text-foreground mb-2">{property.title}</h1>
+                  <h1 className="text-3xl font-bold text-foreground mb-2">{project.name}</h1>
                   <div className="flex items-center text-muted-foreground mb-2">
                     <MapPin className="h-4 w-4 mr-1" />
-                    <span>{property.location}</span>
+                    <span>{project.location}</span>
                   </div>
                   <Badge variant="outline" className="text-sm">
-                    {property.type}
+                    {project.status}
                   </Badge>
                 </div>
                 <div className="text-right">
-                  <div className="text-3xl font-bold text-accent mb-2">{property.price}</div>
+                  <div className="text-3xl font-bold text-accent mb-2">Desde {project.price_from}</div>
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm">
                       <Heart className="h-4 w-4" />
@@ -188,41 +192,34 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
                 </div>
               </div>
 
-              {/* Property Stats */}
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-                <div className="text-center p-4 bg-muted/30 rounded-lg">
-                  <Bed className="h-6 w-6 mx-auto mb-3 text-accent" />
-                  <div className="font-semibold">{property.bedrooms}</div>
-                  <div className="text-sm text-muted-foreground">Dormitorios</div>
-                </div>
-                <div className="text-center p-4 bg-muted/30 rounded-lg">
-                  <Bath className="h-6 w-6 mx-auto mb-3 text-accent" />
-                  <div className="font-semibold">{property.bathrooms}</div>
-                  <div className="text-sm text-muted-foreground">Baños</div>
-                </div>
-                <div className="text-center p-4 bg-muted/30 rounded-lg">
-                  <Square className="h-6 w-6 mx-auto mb-3 text-accent" />
-                  <div className="font-semibold">{property.area}m²</div>
-                  <div className="text-sm text-muted-foreground">Superficie</div>
-                </div>
-              </div>
-
               {/* Description */}
               <div className="mb-6">
                 <h3 className="text-xl font-semibold mb-3">Descripción</h3>
-                <p className="text-muted-foreground leading-relaxed">{property.description}</p>
+                <p className="text-muted-foreground leading-relaxed">{project.description}</p>
               </div>
 
-              {/* Features */}
+              {/* Progress */}
               <div className="mb-6">
-                <h3 className="text-xl font-semibold mb-3">Características</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  {property.features.map((feature, index) => (
-                    <div key={index} className="flex items-center text-sm">
-                      <div className="w-2 h-2 bg-accent rounded-full mr-3"></div>
-                      <span>{feature}</span>
-                    </div>
-                  ))}
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-xs font-medium text-foreground">Progreso</span>
+                  <span className="text-xs text-muted-foreground">{project.progress}%</span>
+                </div>
+                <Progress value={project.progress} className="h-1.5" />
+              </div>
+
+              {/* Stats */}
+              <div className="grid grid-cols-3 gap-2 mb-6 text-xs text-muted-foreground">
+                <div className="flex items-center">
+                  <Calendar className="h-3 w-3 mr-1" />
+                  <span className="truncate">{project.delivery_date}</span>
+                </div>
+                <div className="flex items-center">
+                  <Building className="h-3 w-3 mr-1" />
+                  <span>{project.total_units} unidades</span>
+                </div>
+                <div className="flex items-center">
+                  <Users className="h-3 w-3 mr-1" />
+                  <span>{project.available_units} disponibles</span>
                 </div>
               </div>
 
@@ -230,9 +227,9 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
               <div>
                 <h3 className="text-xl font-semibold mb-3">Amenities</h3>
                 <div className="flex flex-wrap gap-2">
-                  {property.features.map((feature, index) => (
+                  {project.amenities.map((amenity, index) => (
                     <Badge key={index} variant="secondary">
-                      {feature}
+                      {amenity}
                     </Badge>
                   ))}
                 </div>
@@ -245,7 +242,7 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
         <div className="space-y-6">
           <Card className="sticky top-8">
             <CardContent className="p-6">
-              <h3 className="text-xl font-semibold mb-4">Contactar por esta propiedad</h3>
+              <h3 className="text-xl font-semibold mb-4">Contactar por este emprendimiento</h3>
 
               <form onSubmit={handleContactSubmit} className="space-y-4">
                 <div>

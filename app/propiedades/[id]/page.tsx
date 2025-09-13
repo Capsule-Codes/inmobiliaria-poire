@@ -2,7 +2,7 @@ import { Navigation } from "@/components/navigation"
 import { PropertyDetail } from "@/components/property-detail"
 import { RelatedProperties } from "@/components/related-properties"
 import { notFound } from "next/navigation"
-import { getPropertyById, getRelatedProperties } from "@/domain/Property"
+import { getPropertyById, getRelatedProperties } from "@/domain/property"
 
 
 export default async function PropertyDetailPage({ params }: { params: { id: string } }) {

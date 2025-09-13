@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getProperties } from '@/domain/Property';
+import { getProperties } from '@/domain/property';
 import { type SearchPropertyFilters } from '@/contexts/search-property-context';
 
 export async function GET(req: NextRequest) {

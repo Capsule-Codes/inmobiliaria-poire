@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { deleteProperty, updateProperty } from "@/domain/property";
+import { deleteProject, updateProject } from "@/domain/project";
 
 export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
 
@@ -7,7 +7,7 @@ export async function DELETE(_req: Request, { params }: { params: { id: string }
 
         const { id } = await params;
 
-        await deleteProperty(id);
+        await deleteProject(id);
 
         return NextResponse.json({ ok: true }, { status: 200 });
 
@@ -22,9 +22,9 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
         const { id } = await params;
         const updates = await req.json();
 
-        const updatedProperty = await updateProperty(id, updates);
+        const updatedProject = await updateProject(id, updates);
 
-        return NextResponse.json(updatedProperty, { status: 200 });
+        return NextResponse.json(updatedProject, { status: 200 });
     } catch (err: any) {
         const status = 500;
         return NextResponse.json({ message: err.message, issues: err.issues }, { status });

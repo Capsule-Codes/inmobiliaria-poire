@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { ArrowLeft, X, Plus } from "lucide-react"
-import { Property } from "@/types/Property"
+import { Property } from "@/types/property"
 
 interface PropertyFormProps {
   property?: Property | null

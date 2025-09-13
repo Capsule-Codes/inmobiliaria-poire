@@ -7,99 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { MapPin, Calendar, Building, Users } from "lucide-react"
 import Link from "next/link"
-
-const projects = [
-  {
-    id: 1,
-    title: "Torres del Río",
-    location: "Puerto Madero, Buenos Aires",
-    description: "Complejo residencial de lujo con vista panorámica al río y amenities de primer nivel.",
-    status: "En Construcción",
-    progress: 75,
-    deliveryDate: "Diciembre 2024",
-    totalUnits: 120,
-    availableUnits: 28,
-    priceFrom: "USD 450.000",
-    image: "/luxury-villa-pool-garden.png",
-    amenities: ["Piscina", "Gimnasio", "SUM", "Cocheras", "Seguridad 24hs"],
-    featured: true,
-  },
-  {
-    id: 2,
-    title: "Residencial Palermo Green",
-    location: "Palermo, Buenos Aires",
-    description: "Desarrollo sustentable con espacios verdes y tecnología inteligente para el hogar moderno.",
-    status: "En Venta",
-    progress: 100,
-    deliveryDate: "Entrega Inmediata",
-    totalUnits: 80,
-    availableUnits: 12,
-    priceFrom: "USD 380.000",
-    image: "/luxury-modern-living-room.png",
-    amenities: ["Jardín Vertical", "Coworking", "Bicicletero", "Terraza Verde"],
-    featured: false,
-  },
-  {
-    id: 3,
-    title: "Nordelta Premium",
-    location: "Nordelta, Buenos Aires",
-    description: "Exclusivo barrio cerrado con casas de diseño contemporáneo y acceso al lago.",
-    status: "Próximamente",
-    progress: 15,
-    deliveryDate: "Junio 2025",
-    totalUnits: 45,
-    availableUnits: 45,
-    priceFrom: "USD 650.000",
-    image: "/luxury-penthouse-interior.png",
-    amenities: ["Club House", "Muelle Privado", "Cancha de Tenis", "Parque"],
-    featured: true,
-  },
-  {
-    id: 4,
-    title: "Lofts Industriales San Telmo",
-    location: "San Telmo, Buenos Aires",
-    description: "Conversión de edificio histórico en modernos lofts con diseño industrial contemporáneo.",
-    status: "En Construcción",
-    progress: 45,
-    deliveryDate: "Marzo 2025",
-    totalUnits: 32,
-    availableUnits: 18,
-    priceFrom: "USD 320.000",
-    image: "/luxury-penthouse-interior.png",
-    amenities: ["Terraza Común", "Estudio de Arte", "Café", "Galería"],
-    featured: false,
-  },
-  {
-    id: 5,
-    title: "Complejo Belgrano Heights",
-    location: "Belgrano, Buenos Aires",
-    description: "Torres gemelas con departamentos de 1, 2 y 3 ambientes en el corazón de Belgrano.",
-    status: "En Venta",
-    progress: 90,
-    deliveryDate: "Agosto 2024",
-    totalUnits: 200,
-    availableUnits: 35,
-    priceFrom: "USD 280.000",
-    image: "/luxury-penthouse-interior.png",
-    amenities: ["Piscina", "Gimnasio", "Playground", "Lavadero"],
-    featured: false,
-  },
-  {
-    id: 6,
-    title: "Eco Village Tigre",
-    location: "Tigre, Buenos Aires",
-    description: "Comunidad sustentable con casas ecológicas y energías renovables en entorno natural.",
-    status: "Próximamente",
-    progress: 5,
-    deliveryDate: "Octubre 2025",
-    totalUnits: 60,
-    availableUnits: 60,
-    priceFrom: "USD 420.000",
-    image: "/modern-house-exterior.png",
-    amenities: ["Huerta Comunitaria", "Centro Wellness", "Senderos", "Laguna"],
-    featured: true,
-  },
-]
+import { Project } from "@/types/project"
 
 const statusColors = {
   "En Construcción": "bg-yellow-500",
@@ -107,10 +15,10 @@ const statusColors = {
   Próximamente: "bg-blue-500",
 }
 
-export function ProjectsGrid() {
+export function ProjectsGrid({ allProjects }: { allProjects: Project[] }) {
   const [filter, setFilter] = useState<string>("all")
 
-  const filteredProjects = filter === "all" ? projects : projects.filter((project) => project.status === filter)
+  const filteredProjects = filter === "all" ? allProjects : allProjects.filter((project) => project.status === filter)
 
   return (
     <section className="py-16">
@@ -153,14 +61,14 @@ export function ProjectsGrid() {
             <Card key={project.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 group">
               <div className="relative">
                 <img
-                  src={project.image || "/placeholder.svg"}
-                  alt={project.title}
+                  src={project.images[0] || "/placeholder.svg"}
+                  alt={project.name}
                   className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
                 />
 
                 {/* Status and Featured badges */}
                 <div className="absolute top-4 left-4 flex gap-2">
-                  {project.featured && <Badge className="bg-accent text-accent-foreground">Destacado</Badge>}
+                  {project.is_featured && <Badge className="bg-accent text-accent-foreground">Destacado</Badge>}
                   <Badge className={`${statusColors[project.status as keyof typeof statusColors]} text-white`}>
                     {project.status}
                   </Badge>
@@ -168,14 +76,14 @@ export function ProjectsGrid() {
 
                 {/* Price badge */}
                 <div className="absolute top-4 right-4 bg-primary text-primary-foreground px-4 py-2 rounded-full font-semibold">
-                  Desde {project.priceFrom}
+                  Desde {project.price_from}
                 </div>
               </div>
 
               <CardContent className="p-6">
                 <div className="mb-4">
                   <h3 className="text-2xl font-bold text-foreground mb-2 group-hover:text-accent transition-colors">
-                    {project.title}
+                    {project.name}
                   </h3>
                   <div className="flex items-center text-muted-foreground mb-3">
                     <MapPin className="h-4 w-4 mr-1" />
@@ -197,15 +105,15 @@ export function ProjectsGrid() {
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   <div className="flex items-center text-sm text-muted-foreground">
                     <Calendar className="h-4 w-4 mr-2" />
-                    <span>{project.deliveryDate}</span>
+                    <span>{project.delivery_date}</span>
                   </div>
                   <div className="flex items-center text-sm text-muted-foreground">
                     <Building className="h-4 w-4 mr-2" />
-                    <span>{project.totalUnits} unidades</span>
+                    <span>{project.total_units} unidades</span>
                   </div>
                   <div className="flex items-center text-sm text-muted-foreground">
                     <Users className="h-4 w-4 mr-2" />
-                    <span>{project.availableUnits} disponibles</span>
+                    <span>{project.available_units} disponibles</span>
                   </div>
                 </div>
 
