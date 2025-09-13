@@ -19,7 +19,7 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
     <main className="min-h-screen bg-background">
       <Navigation />
       <PropertyDetail property={property} />
-      {<RelatedProperties relatedProperties={relatedProperties} />}
+      {relatedProperties?.length > 0 && (<RelatedProperties relatedProperties={relatedProperties} />)}
     </main>
   )
 }
