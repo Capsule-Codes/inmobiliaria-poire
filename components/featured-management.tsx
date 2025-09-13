@@ -7,88 +7,49 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { Star, StarOff, MapPin, Bed, Bath, Square, Calendar, Building, Users, Eye, TrendingUp } from "lucide-react"
-
-// Mock data - esto se sincronizará con los datos reales
-const featuredProperties = [
-  {
-    id: 1,
-    title: "Casa Moderna en Palermo",
-    location: "Palermo, Buenos Aires",
-    price: "USD 850.000",
-    bedrooms: 4,
-    bathrooms: 3,
-    area: 280,
-    type: "Propiedad",
-    image: "/modern-house-exterior.png",
-    featured: true,
-  },
-  {
-    id: 2,
-    title: "Penthouse con Vista al Río",
-    location: "Puerto Madero, Buenos Aires",
-    price: "USD 1.200.000",
-    bedrooms: 3,
-    bathrooms: 2,
-    area: 180,
-    type: "Propiedad",
-    image: "/luxury-penthouse-interior.png",
-    featured: true,
-  },
-  {
-    id: 3,
-    title: "Villa de Lujo en Nordelta",
-    location: "Nordelta, Buenos Aires",
-    price: "USD 950.000",
-    bedrooms: 5,
-    bathrooms: 4,
-    area: 350,
-    type: "Propiedad",
-    image: "/luxury-villa-pool-garden.png",
-    featured: true,
-  },
-]
+import { type Property } from "@/types/Property"
 
 const featuredProjects = [
   {
-    id: 1,
+    id: "1",
     title: "Torres del Río",
     location: "Puerto Madero, Buenos Aires",
-    priceFrom: "USD 450.000",
+    price: "USD 450.000",
     status: "En Construcción",
     progress: 75,
     deliveryDate: "Diciembre 2024",
     totalUnits: 120,
     availableUnits: 28,
     type: "Emprendimiento",
-    image: "/luxury-villa-pool-garden.png",
+    images: ["/luxury-villa-pool-garden.png"],
     featured: true,
   },
   {
-    id: 3,
+    id: "3",
     title: "Nordelta Premium",
     location: "Nordelta, Buenos Aires",
-    priceFrom: "USD 650.000",
+    price: "USD 650.000",
     status: "Próximamente",
     progress: 15,
     deliveryDate: "Junio 2025",
     totalUnits: 45,
     availableUnits: 45,
     type: "Emprendimiento",
-    image: "/luxury-penthouse-interior.png",
+    images: ["/luxury-penthouse-interior.png"],
     featured: true,
   },
   {
-    id: 6,
+    id: "6",
     title: "Eco Village Tigre",
     location: "Tigre, Buenos Aires",
-    priceFrom: "USD 420.000",
+    price: "USD 420.000",
     status: "Próximamente",
     progress: 5,
     deliveryDate: "Octubre 2025",
     totalUnits: 60,
     availableUnits: 60,
     type: "Emprendimiento",
-    image: "/modern-house-exterior.png",
+    images: ["/modern-house-exterior.png"],
     featured: true,
   },
 ]
@@ -99,16 +60,16 @@ const statusColors = {
   Próximamente: "bg-blue-500",
 }
 
-export function FeaturedManagement() {
+export function FeaturedManagement({ featuredProperties }: { featuredProperties: Property[] }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [properties, setProperties] = useState(featuredProperties)
   const [projects, setProjects] = useState(featuredProjects)
 
   const allFeatured = [...properties, ...projects]
 
-  const handleToggleFeatured = (id: number, type: string) => {
+  const handleToggleFeatured = (id: string, type: string) => {
     if (type === "Propiedad") {
-      setProperties(properties.map((p) => (p.id === id ? { ...p, featured: !p.featured } : p)))
+      setProperties(properties.map((p) => (p.id === id ? { ...p, is_featured: !p.is_featured } : p)))
     } else {
       setProjects(projects.map((p) => (p.id === id ? { ...p, featured: !p.featured } : p)))
     }
@@ -202,7 +163,7 @@ export function FeaturedManagement() {
                 {allFeatured.slice(0, 3).map((item) => (
                   <div key={`${item.type}-${item.id}`} className="relative">
                     <img
-                      src={item.image || "/placeholder.svg"}
+                      src={item.images[0] || "/placeholder.svg"}
                       alt={item.title}
                       className="w-full h-32 object-cover rounded-lg"
                     />
@@ -212,7 +173,7 @@ export function FeaturedManagement() {
                       </Badge>
                     </div>
                     <div className="absolute top-2 right-2 bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-semibold">
-                      {item.type === "Propiedad" ? item.price : `Desde ${item.priceFrom}`}
+                      {item.type === "Propiedad" ? item.price : `Desde ${item.price}`}
                     </div>
                     <div className="mt-2">
                       <h4 className="font-medium text-sm line-clamp-1">{item.title}</h4>
@@ -243,7 +204,7 @@ export function FeaturedManagement() {
                   <Card key={property.id} className="overflow-hidden">
                     <div className="relative">
                       <img
-                        src={property.image || "/placeholder.svg"}
+                        src={property.images[0] || "/placeholder.svg"}
                         alt={property.title}
                         className="w-full h-32 object-cover"
                       />
@@ -301,7 +262,7 @@ export function FeaturedManagement() {
                   <Card key={project.id} className="overflow-hidden">
                     <div className="relative">
                       <img
-                        src={project.image || "/placeholder.svg"}
+                        src={project.images[0] || "/placeholder.svg"}
                         alt={project.title}
                         className="w-full h-32 object-cover"
                       />
@@ -313,7 +274,7 @@ export function FeaturedManagement() {
                         </Badge>
                       </div>
                       <div className="absolute top-2 right-2 bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-semibold">
-                        Desde {project.priceFrom}
+                        Desde {project.price}
                       </div>
                     </div>
                     <CardContent className="p-3">
