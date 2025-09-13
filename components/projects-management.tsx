@@ -47,7 +47,27 @@ export function ProjectsManagement({ allProjects }: { allProjects: Project[] }) 
   }
 
   const handleToggleFeatured = (id: String) => {
-    setProjects(projects.map((p) => (p.id === id ? { ...p, featured: !p.is_featured } : p)))
+    const project = projects.find((p) => p.id === id);
+    if (project) {
+      const updatedProject = { ...project, is_featured: !project.is_featured };
+
+      fetch(`/api/admin/emprendimientos/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedProject),
+      }).then((res) => {
+        if (res.ok) {
+          res.json().then((updatedProject) => {
+            setProjects(projects.map((p) => (p.id === id ? updatedProject : p)))
+          });
+
+        } else {
+          console.error('Error al actualizar la propiedad');
+        }
+      })
+    }
   }
 
   const handleSaveProject = (projectData: Project) => {
