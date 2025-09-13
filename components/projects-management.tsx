@@ -42,7 +42,18 @@ export function ProjectsManagement({ allProjects }: { allProjects: Project[] }) 
 
   const handleDeleteProject = (id: String) => {
     if (confirm("¿Estás seguro de que quieres eliminar este emprendimiento?")) {
-      setProjects(projects.filter((p) => p.id !== id))
+
+      fetch(`/api/admin/emprendimientos/${id}`, {
+        method: 'DELETE',
+      }).then((res) => {
+        if (res.ok) {
+          setProjects(projects.filter((p) => p.id !== id))
+        } else {
+          console.error('Error al eliminar el emprendimiento');
+        }
+      });
+
+
     }
   }
 
