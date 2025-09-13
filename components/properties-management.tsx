@@ -9,7 +9,7 @@ import { PropertyForm } from "@/components/property-form"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { Building2, Plus, Search, Edit, Trash2, Star, StarOff, MapPin, Bed, Bath, Square } from "lucide-react"
 import { useSearchPropertyContext } from "@/contexts/search-property-context"
-import { Property } from "@/types/Propery"
+import { Property } from "@/types/Property"
 
 
 export function PropertiesManagement() {

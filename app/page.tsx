@@ -3,7 +3,7 @@ import { HeroSection } from "@/components/hero-section"
 import { FeaturedProperties } from "@/components/featured-properties"
 import { FeaturedProjects } from "@/components/featured-projects"
 import { getFeaturedProperties } from "@/domain/Property"
-import { Property } from "@/types/Propery"
+import { Property } from "@/types/Property"
 
 export default async function HomePage() {
 
