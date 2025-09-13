@@ -273,8 +273,9 @@ export function FeaturedProjects({ allFeaturedProjects }: { allFeaturedProjects:
         <div className="text-center mt-16">
           <Button
             asChild
+            variant="outline"
             size="lg"
-            className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8 py-4 text-lg shadow-lg hover:shadow-xl transition-all duration-300"
+            className="border-accent text-accent hover:bg-accent hover:text-accent-foreground bg-transparent shadow-lg hover:shadow-xl transition-all duration-300"
           >
             <Link href="/emprendimientos">Ver Todos los Emprendimientos</Link>
           </Button>
