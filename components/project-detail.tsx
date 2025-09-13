@@ -180,7 +180,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
                   </Badge>
                 </div>
                 <div className="text-right">
-                  <div className="text-3xl font-bold text-accent mb-2">{project.price_from}</div>
+                  <div className="text-3xl font-bold text-accent mb-2">Desde {project.price_from}</div>
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm">
                       <Heart className="h-4 w-4" />
