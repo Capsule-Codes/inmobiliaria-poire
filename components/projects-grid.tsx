@@ -26,30 +26,30 @@ export function ProjectsGrid({ allProjects }: { allProjects: Project[] }) {
         {/* Filter Buttons */}
         <div className="flex flex-wrap justify-center gap-4 mb-12">
           <Button
-            variant={filter === "all" ? "default" : "outline"}
+            variant={filter === "all" ? "outline" : "default"}
             onClick={() => setFilter("all")}
-            className="bg-primary hover:bg-primary/90"
+            className={filter === "all" ? "border-accent text-accent bg-transparent" : ""}
           >
             Todos los Proyectos
           </Button>
           <Button
-            variant={filter === "En Venta" ? "default" : "outline"}
+            variant={filter === "En Venta" ? "outline" : "default"}
             onClick={() => setFilter("En Venta")}
-            className="bg-primary hover:bg-primary/90"
+            className={filter === "En Venta" ? "border-accent text-accent bg-transparent" : ""}
           >
             En Venta
           </Button>
           <Button
-            variant={filter === "En Construcción" ? "default" : "outline"}
+            variant={filter === "En Construcción" ? "outline" : "default"}
             onClick={() => setFilter("En Construcción")}
-            className="bg-primary hover:bg-primary/90"
+            className={filter === "En Construcción" ? "border-accent text-accent bg-transparent" : ""}
           >
             En Construcción
           </Button>
           <Button
-            variant={filter === "Próximamente" ? "default" : "outline"}
+            variant={filter === "Próximamente" ? "outline" : "default"}
             onClick={() => setFilter("Próximamente")}
-            className="bg-primary hover:bg-primary/90"
+            className={filter === "Próximamente" ? "border-accent text-accent bg-transparent" : ""}
           >
             Próximamente
           </Button>
