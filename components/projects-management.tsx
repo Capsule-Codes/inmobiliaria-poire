@@ -65,7 +65,7 @@ export function ProjectsManagement({ allProjects }: { allProjects: Project[] }) 
           res.json().then((updatedProject) => {
             setProjects(projects.map((p) => (p.id === editingProject.id ? updatedProject : p)))
           })
-          
+
         } else {
           console.error('Error al actualizar la propiedad');
         }
@@ -84,7 +84,11 @@ export function ProjectsManagement({ allProjects }: { allProjects: Project[] }) 
         body: JSON.stringify(projectData),
       }).then((res) => {
         if (res.ok) {
-          console.log('Emprendimiento creado exitosamente');
+
+          res.json().then((createdProject) => {
+            setProjects([createdProject, ...projects])
+          })
+
         } else {
           console.error('Error al crear el emprendimiento');
         }
