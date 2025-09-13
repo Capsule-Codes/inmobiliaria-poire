@@ -8,17 +8,15 @@ import { Input } from "@/components/ui/input"
 import { PropertyForm } from "@/components/property-form"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { Building2, Plus, Search, Edit, Trash2, Star, StarOff, MapPin, Bed, Bath, Square } from "lucide-react"
-import { useSearchPropertyContext } from "@/contexts/search-property-context"
 import { Property } from "@/types/property"
 
 
-export function PropertiesManagement() {
+export function PropertiesManagement({ allProperties }: { allProperties: Property[] }) {
+  const [properties, setProperties] = useState(allProperties)
   const [searchTerm, setSearchTerm] = useState("")
   const [showForm, setShowForm] = useState(false)
   const [editingProperty, setEditingProperty] = useState<Property | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
-
-  const { properties } = useSearchPropertyContext()
 
   const filteredProperties = properties.filter(
     (property) =>
@@ -44,11 +42,12 @@ export function PropertiesManagement() {
         method: 'DELETE',
       }).then((res) => {
         if (res.ok) {
-          console.log('Propiedad eliminada');
+          setProperties(properties.filter((p) => p.id !== id));
         } else {
           console.error('Error al eliminar la propiedad');
         }
-
+      }).catch((error) => {
+        console.error('Error al eliminar la propiedad', error);
       });
     }
   }
@@ -66,10 +65,14 @@ export function PropertiesManagement() {
         body: JSON.stringify(updatedProperty),
       }).then((res) => {
         if (res.ok) {
-          console.log('Propiedad actualizada', res);
+          res.json().then((updatedProperty) => {
+            setProperties(properties.map((p) => (p.id === id ? updatedProperty : p)))
+          });
         } else {
-          console.error('Error al actualizar la propiedad');
+          console.error('Error al destacar la propiedad');
         }
+      }).catch((error) => {
+        console.error('Error al destacar la propiedad', error);
       });
     }
   }
@@ -85,10 +88,14 @@ export function PropertiesManagement() {
         body: JSON.stringify(propertyData),
       }).then((res) => {
         if (res.ok) {
-          console.log('Propiedad actualizada');
+          res.json().then((updatedProperty) => {
+            setProperties(properties.map((p) => (p.id === editingProperty.id ? updatedProperty : p)))
+          })
         } else {
           console.error('Error al actualizar la propiedad');
         }
+      }).catch((error) => {
+        console.error('Error al actualizar la propiedad', error);
       }).finally(() => {
         setShowForm(false);
         setEditingProperty(null);
@@ -102,10 +109,14 @@ export function PropertiesManagement() {
         body: JSON.stringify(propertyData),
       }).then((res) => {
         if (res.ok) {
-          console.log('Propiedad creada');
+          res.json().then((createdProperty) => {
+            setProperties([createdProperty, ...properties])
+          })
         } else {
           console.error('Error al crear la propiedad');
         }
+      }).catch((error) => {
+        console.error('Error al crear la propiedad', error);
       }).finally(() => {
         setShowForm(false);
         setEditingProperty(null);

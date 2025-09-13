@@ -1,15 +1,14 @@
-"use client"
 
 import { AdminRouteGuard } from "@/components/admin-route-guard"
 import { PropertiesManagement } from "@/components/properties-management"
-import { SearchPropertyProvider } from "@/contexts/search-property-context"
+import { getProperties } from "@/domain/property"
 
-export default function AdminPropertiesPage() {
+export default async function AdminPropertiesPage() {
+  const allProperties = await getProperties()
+
   return (
     <AdminRouteGuard>
-      <SearchPropertyProvider>
-        <PropertiesManagement />
-      </SearchPropertyProvider>
+      <PropertiesManagement allProperties={allProperties} />
     </AdminRouteGuard>
   )
 }
