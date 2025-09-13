@@ -61,7 +61,11 @@ export function ProjectsManagement({ allProjects }: { allProjects: Project[] }) 
         body: JSON.stringify(projectData),
       }).then((res) => {
         if (res.ok) {
-          setProjects(projects.map((p) => (p.id === editingProject.id ? projectData : p)))
+
+          res.json().then((updatedProject) => {
+            setProjects(projects.map((p) => (p.id === editingProject.id ? updatedProject : p)))
+          })
+          
         } else {
           console.error('Error al actualizar la propiedad');
         }
