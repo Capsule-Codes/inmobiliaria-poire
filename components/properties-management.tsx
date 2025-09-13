@@ -109,10 +109,14 @@ export function PropertiesManagement({ allProperties }: { allProperties: Propert
         body: JSON.stringify(propertyData),
       }).then((res) => {
         if (res.ok) {
-          console.log('Propiedad creada');
+          res.json().then((createdProperty) => {
+            setProperties([createdProperty, ...properties])
+          })
         } else {
           console.error('Error al crear la propiedad');
         }
+      }).catch((error) => {
+        console.error('Error al crear la propiedad', error);
       }).finally(() => {
         setShowForm(false);
         setEditingProperty(null);
