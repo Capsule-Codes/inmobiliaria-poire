@@ -36,16 +36,21 @@ export function SearchPropertyProvider({ children }: { children: ReactNode }) {
   const propertiesPerPage = 6
 
   const searchProperties = async () => {
-    const queryParams = new URLSearchParams(filters).toString()
-    const response = await fetch(`/api/propiedades?${queryParams}`)
+    try {
+      const queryParams = new URLSearchParams(filters).toString()
+      const response = await fetch(`/api/propiedades?${queryParams}`)
 
-    if (response.status !== 200) {
+      if (response.status !== 200) {
+        setProperties([]);
+        return;
+      }
+
+      const data = await response.json()
+      setProperties(data)
+    } catch (error) {
+      console.error("Failed to fetch properties:", error);
       setProperties([]);
-      return;
     }
-
-    const data = await response.json()
-    setProperties(data)
   }
 
   useEffect(() => {
