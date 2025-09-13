@@ -12,13 +12,14 @@ import { useSearchPropertyContext } from "@/contexts/search-property-context"
 import { Property } from "@/types/property"
 
 
-export function PropertiesManagement() {
+export function PropertiesManagement({ allProperties }: { allProperties: Property[] }) {
+  const [properties, setProperties] = useState(allProperties)
   const [searchTerm, setSearchTerm] = useState("")
   const [showForm, setShowForm] = useState(false)
   const [editingProperty, setEditingProperty] = useState<Property | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
-  const { properties } = useSearchPropertyContext()
+
 
   const filteredProperties = properties.filter(
     (property) =>
@@ -54,7 +55,7 @@ export function PropertiesManagement() {
   }
 
   const handleToggleFeatured = (id: string) => {
-    const property = properties.find((p) => p.id === id);
+    const property = allProperties.find((p) => p.id === id);
     if (property) {
       const updatedProperty = { ...property, is_featured: !property.is_featured };
 
@@ -165,7 +166,7 @@ export function PropertiesManagement() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-muted-foreground">Total</p>
-                    <p className="text-2xl font-bold">{properties.length}</p>
+                    <p className="text-2xl font-bold">{allProperties.length}</p>
                   </div>
                   <Building2 className="h-8 w-8 text-muted-foreground" />
                 </div>
@@ -176,7 +177,7 @@ export function PropertiesManagement() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-muted-foreground">Destacadas</p>
-                    <p className="text-2xl font-bold">{properties.filter((p) => p.is_featured).length}</p>
+                    <p className="text-2xl font-bold">{allProperties.filter((p) => p.is_featured).length}</p>
                   </div>
                   <Star className="h-8 w-8 text-secondary" />
                 </div>
