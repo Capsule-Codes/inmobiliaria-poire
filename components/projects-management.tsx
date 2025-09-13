@@ -51,9 +51,9 @@ export function ProjectsManagement({ allProjects }: { allProjects: Project[] }) 
         } else {
           console.error('Error al eliminar el emprendimiento');
         }
+      }).catch((error) => {
+        console.error('Error al eliminar el emprendimiento', error);
       });
-
-
     }
   }
 
@@ -73,11 +73,12 @@ export function ProjectsManagement({ allProjects }: { allProjects: Project[] }) 
           res.json().then((updatedProject) => {
             setProjects(projects.map((p) => (p.id === id ? updatedProject : p)))
           });
-
         } else {
-          console.error('Error al actualizar la propiedad');
+          console.error('Error al destacar emprendimiento');
         }
-      })
+      }).catch((error) => {
+        console.error('Error al destacar emprendimiento', error);
+      });
     }
   }
 
@@ -98,12 +99,16 @@ export function ProjectsManagement({ allProjects }: { allProjects: Project[] }) 
           })
 
         } else {
-          console.error('Error al actualizar la propiedad');
+          console.error('Error al actualizar el emprendimiento');
         }
-      }).finally(() => {
-        setShowForm(false)
-        setEditingProject(null)
       })
+        .catch((error) => {
+          console.error('Error al actualizar el emprendimiento', error);
+        })
+        .finally(() => {
+          setShowForm(false)
+          setEditingProject(null)
+        })
 
     } else {
 
@@ -123,10 +128,14 @@ export function ProjectsManagement({ allProjects }: { allProjects: Project[] }) 
         } else {
           console.error('Error al crear el emprendimiento');
         }
-      }).finally(() => {
-        setShowForm(false)
-        setEditingProject(null)
       })
+        .catch((error) => {
+          console.error('Error al crear el emprendimiento', error);
+        })
+        .finally(() => {
+          setShowForm(false)
+          setEditingProject(null)
+        })
     }
   }
 
