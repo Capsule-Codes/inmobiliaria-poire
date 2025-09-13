@@ -81,11 +81,6 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-
-    const mes = formData.delivery_date.split("/")[0]
-    const anio = formData.delivery_date.split("/")[1]
-    formData.delivery_date = anio + "-" + mes + "-01"
-    
     onSave(formData)
   }
 
@@ -206,7 +201,7 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
                       id="delivery_date"
                       value={formData.delivery_date}
                       onChange={(e) => handleInputChange("delivery_date", e.target.value)}
-                      placeholder="Ej: 08/2027"
+                      placeholder="AAAA-MM-DD "
                       required
                     />
 
