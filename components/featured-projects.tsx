@@ -8,7 +8,7 @@ import { Progress } from "@/components/ui/progress"
 import { MapPin, Calendar, Building, Users, ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { configStore } from "@/lib/config-store"
-import { type Project } from "@/types/Project"
+import { type Project } from "@/types/project"
 
 
 const statusColors = {

@@ -2,9 +2,9 @@ import { Navigation } from "@/components/navigation"
 import { HeroSection } from "@/components/hero-section"
 import { FeaturedProperties } from "@/components/featured-properties"
 import { FeaturedProjects } from "@/components/featured-projects"
-import { getFeaturedProperties } from "@/domain/Property"
-import { Property } from "@/types/Property"
-import { getFeaturedProjects } from "@/domain/Project"
+import { getFeaturedProperties } from "@/domain/property"
+import { Property } from "@/types/property"
+import { getFeaturedProjects } from "@/domain/project"
 
 export default async function HomePage() {
 

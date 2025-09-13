@@ -7,8 +7,8 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { Star, StarOff, MapPin, Bed, Bath, Square, Calendar, Building, Users, Eye, TrendingUp } from "lucide-react"
-import { type Property } from "@/types/Property"
-import { type Project } from "@/types/Project"
+import { type Property } from "@/types/property"
+import { type Project } from "@/types/project"
 
 
 const statusColors = {

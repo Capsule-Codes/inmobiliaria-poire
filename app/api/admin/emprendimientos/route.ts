@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { createProject } from "@/domain/Project";
+import { createProject } from "@/domain/project";
 
 export async function POST(req: Request) {
 

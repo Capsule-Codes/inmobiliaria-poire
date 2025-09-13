@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { MapPin, Calendar, Building, Users } from "lucide-react"
 import Link from "next/link"
-import { Project } from "@/types/Project"
+import { Project } from "@/types/project"
 
 const statusColors = {
   "En Construcción": "bg-yellow-500",

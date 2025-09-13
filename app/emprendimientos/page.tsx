@@ -1,8 +1,8 @@
 import { Navigation } from "@/components/navigation"
 import { ProjectsGrid } from "@/components/projects-grid"
 import { ProjectsHero } from "@/components/projects-hero"
-import { getProjects } from "@/domain/Project"
-import { Project } from "@/types/Project"
+import { getProjects } from "@/domain/project"
+import { Project } from "@/types/project"
 
 export default async function EmprendimientosPage() {
 

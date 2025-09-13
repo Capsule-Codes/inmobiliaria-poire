@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { createProperty } from "@/domain/Property";
+import { createProperty } from "@/domain/property";
 
 export async function POST(req: Request) {
 

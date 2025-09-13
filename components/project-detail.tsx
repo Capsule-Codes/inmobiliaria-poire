@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { type Project } from "@/types/Project"
+import { type Project } from "@/types/project"
 import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"

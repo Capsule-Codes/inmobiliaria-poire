@@ -13,8 +13,7 @@ import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { ArrowLeft, X, Plus } from "lucide-react"
-import { Project } from "@/types/Project"
-import { Calendar } from "./ui/calendar"
+import { Project } from "@/types/project"
 
 interface ProjectFormProps {
   project?: Project | null
@@ -201,7 +200,7 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
                       id="delivery_date"
                       value={formData.delivery_date}
                       onChange={(e) => handleInputChange("delivery_date", e.target.value)}
-                      placeholder="AAAA-MM-DD "
+                      placeholder="AAAA-MM-DD"
                       required
                     />
 

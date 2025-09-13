@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { deleteProperty, updateProperty } from "@/domain/Property";
+import { deleteProperty, updateProperty } from "@/domain/property";
 
 export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
 

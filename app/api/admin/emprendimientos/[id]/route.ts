@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { deleteProject, updateProject } from "@/domain/Project";
+import { deleteProject, updateProject } from "@/domain/project";
 
 export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
 

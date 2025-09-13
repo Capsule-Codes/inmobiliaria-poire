@@ -9,7 +9,7 @@ import { Progress } from "@/components/ui/progress"
 import { ProjectForm } from "@/components/project-form"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { TrendingUp, Plus, Search, Edit, Trash2, Star, StarOff, MapPin, Calendar, Building, Users } from "lucide-react"
-import { type Project } from "@/types/Project"
+import { type Project } from "@/types/project"
 
 const statusColors = {
   "En Construcción": "bg-yellow-500",
