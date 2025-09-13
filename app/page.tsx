@@ -4,7 +4,7 @@ import { FeaturedProperties } from "@/components/featured-properties"
 import { FeaturedProjects } from "@/components/featured-projects"
 import { getFeaturedProperties } from "@/domain/Property"
 import { Property } from "@/types/Property"
-import { getFeaturedProjects } from "@/domain/Projects"
+import { getFeaturedProjects } from "@/domain/Project"
 
 export default async function HomePage() {
 

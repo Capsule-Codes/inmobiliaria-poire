@@ -21,7 +21,7 @@ export function ProjectsManagement({ allProjects }: { allProjects: Project[] }) 
   const [projects, setProjects] = useState(allProjects)
   const [searchTerm, setSearchTerm] = useState("")
   const [showForm, setShowForm] = useState(false)
-  const [editingProject, setEditingProject] = useState<any>(null)
+  const [editingProject, setEditingProject] = useState<Project | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const filteredProjects = projects.filter(
@@ -35,7 +35,7 @@ export function ProjectsManagement({ allProjects }: { allProjects: Project[] }) 
     setShowForm(true)
   }
 
-  const handleEditProject = (project: any) => {
+  const handleEditProject = (project: Project) => {
     setEditingProject(project)
     setShowForm(true)
   }
@@ -52,17 +52,43 @@ export function ProjectsManagement({ allProjects }: { allProjects: Project[] }) 
 
   const handleSaveProject = (projectData: Project) => {
     if (editingProject) {
-      // Editar proyecto existente
-      setProjects(projects.map((p) => (p.id === editingProject.id ? { ...projectData, id: editingProject.id } : p)))
+
+      fetch(`/api/admin/emprendimientos/${editingProject.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(projectData),
+      }).then((res) => {
+        if (res.ok) {
+          setProjects(projects.map((p) => (p.id === editingProject.id ? projectData : p)))
+        } else {
+          console.error('Error al actualizar la propiedad');
+        }
+      }).finally(() => {
+        setShowForm(false)
+        setEditingProject(null)
+      })
+
     } else {
-      // Agregar nuevo proyecto
-      const newProject = {
-        ...projectData,
-      }
-      setProjects([...projects, newProject])
+
+      fetch('/api/admin/emprendimientos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(projectData),
+      }).then((res) => {
+        if (res.ok) {
+          console.log('Emprendimiento creado exitosamente');
+        } else {
+          console.error('Error al crear el emprendimiento');
+        }
+      }).finally(() => {
+        setShowForm(false)
+        setEditingProject(null)
+      })
     }
-    setShowForm(false)
-    setEditingProject(null)
   }
 
   if (showForm) {
