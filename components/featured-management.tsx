@@ -28,7 +28,7 @@ export function FeaturedManagement({ featuredProperties, featuredProjects }: { f
     if (type === "Propiedad") {
       setProperties(properties.map((p) => (p.id === id ? { ...p, is_featured: !p.is_featured } : p)))
     } else {
-      setProjects(projects.map((p) => (p.id === id ? { ...p, featured: !p.is_featured } : p)))
+      setProjects(projects.map((p) => (p.id === id ? { ...p, is_featured: !p.is_featured } : p)))
     }
   }
 
