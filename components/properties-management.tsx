@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input"
 import { PropertyForm } from "@/components/property-form"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { Building2, Plus, Search, Edit, Trash2, Star, StarOff, MapPin, Bed, Bath, Square } from "lucide-react"
-import { useSearchPropertyContext } from "@/contexts/search-property-context"
 import { Property } from "@/types/property"
 
 
@@ -18,8 +17,6 @@ export function PropertiesManagement({ allProperties }: { allProperties: Propert
   const [showForm, setShowForm] = useState(false)
   const [editingProperty, setEditingProperty] = useState<Property | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
-
-
 
   const filteredProperties = properties.filter(
     (property) =>
@@ -45,17 +42,18 @@ export function PropertiesManagement({ allProperties }: { allProperties: Propert
         method: 'DELETE',
       }).then((res) => {
         if (res.ok) {
-          console.log('Propiedad eliminada');
+          setProperties(properties.filter((p) => p.id !== id));
         } else {
           console.error('Error al eliminar la propiedad');
         }
-
+      }).catch((error) => {
+        console.error('Error al eliminar la propiedad', error);
       });
     }
   }
 
   const handleToggleFeatured = (id: string) => {
-    const property = allProperties.find((p) => p.id === id);
+    const property = properties.find((p) => p.id === id);
     if (property) {
       const updatedProperty = { ...property, is_featured: !property.is_featured };
 
@@ -67,10 +65,14 @@ export function PropertiesManagement({ allProperties }: { allProperties: Propert
         body: JSON.stringify(updatedProperty),
       }).then((res) => {
         if (res.ok) {
-          console.log('Propiedad actualizada', res);
+          res.json().then((updatedProperty) => {
+            setProperties(properties.map((p) => (p.id === id ? updatedProperty : p)))
+          });
         } else {
-          console.error('Error al actualizar la propiedad');
+          console.error('Error al destacar la propiedad');
         }
+      }).catch((error) => {
+        console.error('Error al destacar la propiedad', error);
       });
     }
   }
@@ -86,10 +88,14 @@ export function PropertiesManagement({ allProperties }: { allProperties: Propert
         body: JSON.stringify(propertyData),
       }).then((res) => {
         if (res.ok) {
-          console.log('Propiedad actualizada');
+          res.json().then((updatedProperty) => {
+            setProperties(properties.map((p) => (p.id === editingProperty.id ? updatedProperty : p)))
+          })
         } else {
           console.error('Error al actualizar la propiedad');
         }
+      }).catch((error) => {
+        console.error('Error al actualizar la propiedad', error);
       }).finally(() => {
         setShowForm(false);
         setEditingProperty(null);
@@ -166,7 +172,7 @@ export function PropertiesManagement({ allProperties }: { allProperties: Propert
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-muted-foreground">Total</p>
-                    <p className="text-2xl font-bold">{allProperties.length}</p>
+                    <p className="text-2xl font-bold">{properties.length}</p>
                   </div>
                   <Building2 className="h-8 w-8 text-muted-foreground" />
                 </div>
@@ -177,7 +183,7 @@ export function PropertiesManagement({ allProperties }: { allProperties: Propert
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-muted-foreground">Destacadas</p>
-                    <p className="text-2xl font-bold">{allProperties.filter((p) => p.is_featured).length}</p>
+                    <p className="text-2xl font-bold">{properties.filter((p) => p.is_featured).length}</p>
                   </div>
                   <Star className="h-8 w-8 text-secondary" />
                 </div>
