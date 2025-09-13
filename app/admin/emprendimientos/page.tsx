@@ -1,12 +1,13 @@
-"use client"
-
 import { AdminRouteGuard } from "@/components/admin-route-guard"
 import { ProjectsManagement } from "@/components/projects-management"
+import { getProjects } from "@/domain/Projects"
 
-export default function AdminProjectsPage() {
+export default async function AdminProjectsPage() {
+  const allProjects = await getProjects()
+
   return (
     <AdminRouteGuard>
-      <ProjectsManagement />
+      <ProjectsManagement allProjects={allProjects} />
     </AdminRouteGuard>
   )
 }
