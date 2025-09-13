@@ -8,12 +8,7 @@ import { useState, useEffect, useCallback } from "react"
 import { configStore } from "@/lib/config-store"
 import { Property } from "@/types/Property"
 
-
-interface FeaturedPropertiesProps {
-  allFeaturedProperties: Property[];
-}
-
-export function FeaturedProperties({ allFeaturedProperties }: FeaturedPropertiesProps) {
+export function FeaturedProperties({ allFeaturedProperties }: { allFeaturedProperties: Property[] }) {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
   const [itemsPerSlide, setItemsPerSlide] = useState(1)
