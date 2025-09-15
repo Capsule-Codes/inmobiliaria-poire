@@ -1,25 +1,29 @@
-import { Navigation } from "@/components/navigation"
-import { PropertyDetail } from "@/components/property-detail"
-import { RelatedProperties } from "@/components/related-properties"
-import { notFound } from "next/navigation"
-import { getPropertyById, getRelatedProperties } from "@/domain/property"
+import { Navigation } from "@/components/navigation";
+import { PropertyDetail } from "@/components/property-detail";
+import { RelatedProperties } from "@/components/related-properties";
+import { notFound } from "next/navigation";
+import { getPropertyById, getRelatedProperties } from "@/domain/Property";
 
-
-export default async function PropertyDetailPage({ params }: { params: { id: string } }) {
-
+export default async function PropertyDetailPage({
+  params,
+}: {
+  params: { id: string };
+}) {
   const { id } = await params;
-  const property = await getPropertyById(id)
-  const relatedProperties = await getRelatedProperties(id)
+  const property = await getPropertyById(id);
+  const relatedProperties = await getRelatedProperties(id);
 
   if (!property) {
-    notFound()
+    notFound();
   }
 
   return (
     <main className="min-h-screen bg-background">
       <Navigation />
       <PropertyDetail property={property} />
-      {relatedProperties?.length > 0 && (<RelatedProperties relatedProperties={relatedProperties} />)}
+      {relatedProperties?.length > 0 && (
+        <RelatedProperties relatedProperties={relatedProperties} />
+      )}
     </main>
-  )
+  );
 }
