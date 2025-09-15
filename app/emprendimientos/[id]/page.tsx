@@ -1,16 +1,18 @@
-import { Navigation } from "@/components/navigation"
-import { ProjectDetail } from "@/components/project-detail"
-import { notFound } from "next/navigation"
-import { getProjectById } from "@/domain/project"
+import { Navigation } from "@/components/navigation";
+import { ProjectDetail } from "@/components/project-detail";
+import { notFound } from "next/navigation";
+import { getProjectById } from "@/domain/Project";
 
-
-export default async function ProjectDetailPage({ params }: { params: { id: string } }) {
-
+export default async function ProjectDetailPage({
+  params,
+}: {
+  params: { id: string };
+}) {
   const { id } = await params;
-  const project = await getProjectById(id)
+  const project = await getProjectById(id);
 
   if (!project) {
-    notFound()
+    notFound();
   }
 
   return (
@@ -18,5 +20,5 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
       <Navigation />
       <ProjectDetail project={project} />
     </main>
-  )
+  );
 }
