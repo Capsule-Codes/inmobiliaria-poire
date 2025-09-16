@@ -9,29 +9,45 @@ import { useState } from "react"
 import { type Contact } from "@/types/contact"
 import { type Project } from "@/types/project"
 import { type Property } from "@/types/property"
+import Link from "next/link"
 
-export function ContactManagement({ contacts, relatedProperties, relatedProjects }: { contacts: Contact[], relatedProperties: Property[], relatedProjects: Project[] }) {
+export function ContactManagement({ allContacts, relatedProperties, relatedProjects }: { allContacts: Contact[], relatedProperties: Property[], relatedProjects: Project[] }) {
     const [sidebarOpen, setSidebarOpen] = useState(false)
+    const [projects, setProjects] = useState<Project[]>(relatedProjects)
+    const [properties, setProperties] = useState<Property[]>(relatedProperties)
+    const [contacts, setContacts] = useState<Contact[]>(allContacts)
 
-    const relatedProperty = (propertyId: string) => {
-        const property = relatedProperties.find(prop => prop.id === propertyId);
-        return property ? property.title : "";
+    const relatedPropertyName = (propertyId: string) => {
+        const property = properties.find(prop => prop.id === propertyId);
+        var ret = property ? property.title : "";
+        return ret;
     }
 
-    const relatedProject = (projectId: string) => {
-        const project = relatedProjects.find(proj => proj.id === projectId);
-        return project ? project.name : "";
+    const relatedProjectName = (projectId: string) => {
+        const project = projects.find(proj => proj.id === projectId);
+        var ret = project ? project.name : "";
+        return ret;
     }
 
     const contactDescription = (contact: Contact) => {
         let description = `${contact.inquiry_type}`;
+
         if (contact.property_id) {
-            description += ` -  ${relatedProperty(contact.property_id)}`;
+            description += ` -  ${relatedPropertyName(contact.property_id)}`;
         }
+
         if (contact.project_id) {
-            description += ` -  ${relatedProject(contact.project_id)}`;
+            description += ` -  ${relatedProjectName(contact.project_id)}`;
         }
         return description;
+    }
+
+    const toogleStatus = (contactId: string) => {
+        setContacts(prevContacts =>
+            prevContacts.map(contact =>
+                contact.id === contactId ? { ...contact, status: contact.status === "Contactado" ? "Pendiente" : "Contactado" } : contact
+            )
+        );
     }
 
     return (
@@ -88,9 +104,13 @@ export function ContactManagement({ contacts, relatedProperties, relatedProjects
                                     <div className="flex gap-2">
                                         <Button size="sm" variant="outline">
                                             <Eye className="h-4 w-4 mr-2" />
-                                            Ver Detalles
+                                            <Link href={`/contacto/${contact.id}`}>
+                                                Ver Detalles
+                                            </Link>
                                         </Button>
-                                        <Button size="sm">Marcar como Contactado</Button>
+                                        <Button onClick={() => toogleStatus(contact.id)} size="sm">
+                                            {contact.status === "Contactado" ? "Marcar como Pendiente" : "Marcar como Contactado"}
+                                        </Button>
                                     </div>
                                 </CardContent>
                             </Card>

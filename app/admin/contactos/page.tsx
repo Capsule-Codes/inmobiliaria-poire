@@ -9,40 +9,34 @@ import { getPropertyById } from "@/domain/Property"
 
 
 export default async function ContactosPage() {
+  const allContacts = (await getContacts()) as Contact[];
+  const relatedProperties: Property[] = [];
+  const relatedProjects: Project[] = [];
 
-  const contacts = await getContacts() as Contact[]
-  const relatedProperties: Property[] = []
-  const relatedProjects: Project[] = []
+  for (const contact of allContacts) {
+    const propertyId = contact.property_id ?? "";
+    const projectId = contact.project_id ?? "";
 
-  contacts.forEach(async contact => {
-
-    var propertyId = contact.property_id ? contact.property_id : ""
-    var projectId = contact.project_id ? contact.project_id : ""
-
-    var isPropertyAcquired = relatedProperties.some(prop => prop.id === propertyId);
-    var isProjectAcquired = relatedProjects.some(proj => proj.id === projectId);
+    const propFetched = relatedProperties.some(p => p.id === propertyId);
+    const projFetched = relatedProjects.some(p => p.id === projectId);
 
     try {
-      if (contact.project_id !== "" && !isProjectAcquired) {
-        const project = await getProjectById(projectId) as Project;
-        relatedProjects.push(project);
+      if (projectId && !projFetched) {
+        const project = (await getProjectById(projectId)) as Project;
+        if (project) relatedProjects.push(project);
       }
-
-      if (contact.property_id !== "" && !isPropertyAcquired) {
-        const property = await getPropertyById(propertyId) as Property;
-        relatedProperties.push(property);
+      if (propertyId && !propFetched) {
+        const property = (await getPropertyById(propertyId)) as Property;
+        if (property) relatedProperties.push(property);
       }
-    } catch (error) {
-      console.error("Error fetching property or project:", error);
+    } catch (err) {
+      console.error("Error fetching property or project:", err);
     }
-
-
-  });
-
+  }
 
   return (
     <AdminRouteGuard>
-      <ContactManagement contacts={contacts} relatedProperties={relatedProperties} relatedProjects={relatedProjects} />
+      <ContactManagement allContacts={allContacts} relatedProperties={relatedProperties} relatedProjects={relatedProjects} />
     </AdminRouteGuard>
   )
 }
