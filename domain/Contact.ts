@@ -20,7 +20,7 @@ export async function createContact(contact: Omit<Contact, "id" | "created_at" |
 
     const { data, error } = await supabase
         .from("contacts")
-        .insert({ ...contact, status: "new" })
+        .insert({ ...contact, status: "Pendiente" })
         .select()
         .single()
 
