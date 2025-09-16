@@ -14,5 +14,4 @@ export interface Contact {
     propertyType: string
     location: string
     budget: string
-    newsletter: boolean
 }

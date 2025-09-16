@@ -27,7 +27,6 @@ export function ContactForm({ defaultService }: ContactFormProps) {
     location: "",
     budget: "",
     message: "",
-    newsletter: false,
     inquiry_type: "",
     property_id: "",
     project_id: ""
@@ -211,18 +210,6 @@ export function ContactForm({ defaultService }: ContactFormProps) {
               placeholder="Cuéntanos más detalles sobre lo que buscas..."
               rows={4}
             />
-          </div>
-
-          {/* Newsletter */}
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="newsletter"
-              checked={formData.newsletter}
-              onCheckedChange={(checked) => handleInputChange("newsletter", checked as boolean)}
-            />
-            <Label htmlFor="newsletter" className="text-sm">
-              Quiero recibir información sobre nuevas propiedades y ofertas especiales
-            </Label>
           </div>
 
           {/* Submit Button */}
