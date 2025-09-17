@@ -118,13 +118,10 @@ export function ContactManagement({ allContacts, relatedProperties, relatedProje
                                             <span className="text-sm">{formatDate(contact.created_at)}</span>
                                         </div>
                                     </div>
+                                    <div className="mb-4"> 
+                                        <p className="text-sm text-muted-foreground">{contact.message}</p>
+                                    </div>
                                     <div className="flex gap-2">
-                                        <Button size="sm" variant="outline">
-                                            <Eye className="h-4 w-4 mr-2" />
-                                            <Link href={`/contacto/${contact.id}`}>
-                                                Ver Detalles
-                                            </Link>
-                                        </Button>
                                         {contact.status == "Pendiente" && (<Button onClick={() => handleMarkAsContacted(contact.id)} size="sm">
                                             Marcar como Contactado
                                         </Button>)}
