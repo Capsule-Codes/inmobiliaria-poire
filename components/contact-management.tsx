@@ -10,6 +10,7 @@ import { type Contact } from "@/types/contact"
 import { type Project } from "@/types/project"
 import { type Property } from "@/types/property"
 import Link from "next/link"
+import { formatDate } from "@/lib/utils"
 
 export function ContactManagement({ allContacts, relatedProperties, relatedProjects }: { allContacts: Contact[], relatedProperties: Property[], relatedProjects: Project[] }) {
     const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -42,12 +43,28 @@ export function ContactManagement({ allContacts, relatedProperties, relatedProje
         return description;
     }
 
-    const toogleStatus = (contactId: string) => {
-        setContacts(prevContacts =>
-            prevContacts.map(contact =>
-                contact.id === contactId ? { ...contact, status: contact.status === "Contactado" ? "Pendiente" : "Contactado" } : contact
-            )
-        );
+    const handleMarkAsContacted = (id: string) => {
+        try {
+
+            fetch(`/api/admin/contactos/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', },
+                body: JSON.stringify({ status: "Contactado" }),
+            }).then((res) => {
+                if (res.ok) {
+                    res.json().then((updatedContact) => {
+                        setContacts(contacts.map((c) => (c.id === id ? updatedContact : c)))
+                    });
+                } else {
+                    console.error('Error al marcar como contactado');
+                }
+            }).catch((error) => {
+                console.error('Error al marcar como contactado', error);
+            });
+
+        } catch (error) {
+            console.error('Error al marcar como contactado', error);
+        }
     }
 
     return (
@@ -98,7 +115,7 @@ export function ContactManagement({ allContacts, relatedProperties, relatedProje
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <Calendar className="h-4 w-4 text-muted-foreground" />
-                                            <span className="text-sm">{contact.created_at}</span>
+                                            <span className="text-sm">{formatDate(contact.created_at)}</span>
                                         </div>
                                     </div>
                                     <div className="flex gap-2">
@@ -108,9 +125,9 @@ export function ContactManagement({ allContacts, relatedProperties, relatedProje
                                                 Ver Detalles
                                             </Link>
                                         </Button>
-                                        <Button onClick={() => toogleStatus(contact.id)} size="sm">
-                                            {contact.status === "Contactado" ? "Marcar como Pendiente" : "Marcar como Contactado"}
-                                        </Button>
+                                        {contact.status == "Pendiente" && (<Button onClick={() => handleMarkAsContacted(contact.id)} size="sm">
+                                            Marcar como Contactado
+                                        </Button>)}
                                     </div>
                                 </CardContent>
                             </Card>
