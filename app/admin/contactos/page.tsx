@@ -3,7 +3,7 @@ import { ContactManagement } from "@/components/contact-management"
 import { type Contact } from "@/types/contact"
 import { type Property } from "@/types/property"
 import { type Project } from "@/types/project"
-import { getContacts } from "@/domain/contact"
+import { getContacts } from "@/domain/Contact"
 import { getProjectById } from "@/domain/Project"
 import { getPropertyById } from "@/domain/Property"
 

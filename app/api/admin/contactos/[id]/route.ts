@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { deleteContact, updateContactStatus } from "@/domain/contact";
+import { deleteContact, updateContactStatus } from "@/domain/Contact";
 
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
 

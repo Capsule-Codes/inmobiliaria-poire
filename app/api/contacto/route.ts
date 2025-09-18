@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createContact } from "@/domain/contact";
+import { createContact } from "@/domain/Contact";
 
 export async function POST(req: NextRequest) {
   try {
