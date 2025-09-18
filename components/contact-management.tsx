@@ -20,13 +20,13 @@ export function ContactManagement({ allContacts, relatedProperties, relatedProje
 
     const relatedPropertyName = (propertyId: string) => {
         const property = properties.find(prop => prop.id === propertyId);
-        var ret = property ? property.title : "";
+        const ret = property ? property.title : "";
         return ret;
     }
 
     const relatedProjectName = (projectId: string) => {
         const project = projects.find(proj => proj.id === projectId);
-        var ret = project ? project.name : "";
+        const ret = project ? project.name : "";
         return ret;
     }
 

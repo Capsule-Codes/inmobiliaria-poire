@@ -81,7 +81,5 @@ export async function deleteContact(id: string) {
         throw error;
     }
 
-    console.log('Contact deleted:', data);
-
     return data as Contact;
 }
