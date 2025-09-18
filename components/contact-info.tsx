@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { MapPin, Phone, Mail, Clock, MessageCircle } from "lucide-react"
+import Link from "next/link"
 
 export function ContactInfo() {
   return (
@@ -67,15 +68,21 @@ export function ContactInfo() {
         <CardContent className="space-y-4">
           <Button className="w-full justify-start bg-green-600 hover:bg-green-700 text-white">
             <MessageCircle className="h-4 w-4 mr-2" />
-            WhatsApp: +54 9 11 1234-5678
+            <Link href="https://wa.me/5491112345678" target="_blank" rel="noopener noreferrer">
+              WhatsApp: +54 9 11 1234-5678
+            </Link>
           </Button>
           <Button variant="outline" className="w-full justify-start bg-transparent">
             <Phone className="h-4 w-4 mr-2" />
-            Llamar Ahora
+            <Link href="tel:+541148159876" target="_blank" rel="noopener noreferrer">
+              Llamar Ahora
+            </Link>
           </Button>
           <Button variant="outline" className="w-full justify-start bg-transparent">
             <Mail className="h-4 w-4 mr-2" />
-            Enviar Email
+            <Link href="mailto:info@poirepropiedades.com" target="_blank" rel="noopener noreferrer">
+              Enviar Email
+            </Link>
           </Button>
         </CardContent>
       </Card>
