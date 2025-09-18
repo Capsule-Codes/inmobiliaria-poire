@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS contacts (
   inquiry_type VARCHAR(100), -- contacto, tasacion, compra, venta
   property_id UUID REFERENCES properties(id),
   project_id UUID REFERENCES projects(id),
-  status VARCHAR(50) DEFAULT 'new', -- new, contacted, qualified, closed
+  status VARCHAR(50) DEFAULT 'Pendiente', -- Pendiente, Contactado, Calificado, Cerrado
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

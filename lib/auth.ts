@@ -1,7 +1,6 @@
-import { createClient } from "./supabase"
+import { supabase } from "@/lib/supabase"
 
 export async function signIn(email: string, password: string) {
-  const supabase = createClient()
 
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
@@ -13,14 +12,13 @@ export async function signIn(email: string, password: string) {
 }
 
 export async function signOut() {
-  const supabase = createClient()
+
 
   const { error } = await supabase.auth.signOut()
   if (error) throw error
 }
 
 export async function getCurrentUser() {
-  const supabase = createClient()
 
   const {
     data: { user },
@@ -31,7 +29,6 @@ export async function getCurrentUser() {
 }
 
 export async function checkAdminUser(email: string) {
-  const supabase = createClient()
 
   const { data, error } = await supabase.from("admin_users").select("*").eq("email", email).single()
 

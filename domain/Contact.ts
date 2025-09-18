@@ -20,7 +20,7 @@ export async function createContact(contact: Omit<Contact, "id" | "created_at" |
 
     const { data, error } = await supabase
         .from("contacts")
-        .insert({ ...contact, status: "new" })
+        .insert({ ...contact, status: "Pendiente" })
         .select()
         .single()
 
@@ -65,4 +65,21 @@ export async function updateContactStatus(id: string, status: string) {
 
     if (error) throw error
     return data as Contact
+}
+
+export async function deleteContact(id: string) {
+
+    const { data, error } = await supabase
+        .from("contacts")
+        .delete()
+        .eq("id", id)
+        .select()
+        .single()
+
+    if (error) {
+        console.error('Error deleting contact:', error);
+        throw error;
+    }
+
+    return data as Contact;
 }

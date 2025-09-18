@@ -11,13 +11,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Send, CheckCircle } from "lucide-react"
+import { Contact } from "@/types/contact"
 
 interface ContactFormProps {
   defaultService?: string
 }
 
 export function ContactForm({ defaultService }: ContactFormProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<Omit<Contact, "id" | "status" | "created_at" | "updated_at">>({
     name: "",
     email: "",
     phone: "",
@@ -26,7 +27,9 @@ export function ContactForm({ defaultService }: ContactFormProps) {
     location: "",
     budget: "",
     message: "",
-    newsletter: false,
+    inquiry_type: "",
+    property_id: "",
+    project_id: ""
   })
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -126,8 +129,8 @@ export function ContactForm({ defaultService }: ContactFormProps) {
 
           {/* Service Type */}
           <div>
-            <Label htmlFor="service">Tipo de Consulta *</Label>
-            <Select value={formData.service} onValueChange={(value) => handleInputChange("service", value)}>
+            <Label htmlFor="inquiry_type">Tipo de Consulta *</Label>
+            <Select value={formData.inquiry_type} onValueChange={(value) => handleInputChange("inquiry_type", value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Selecciona el tipo de consulta" />
               </SelectTrigger>
@@ -207,18 +210,6 @@ export function ContactForm({ defaultService }: ContactFormProps) {
               placeholder="Cuéntanos más detalles sobre lo que buscas..."
               rows={4}
             />
-          </div>
-
-          {/* Newsletter */}
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="newsletter"
-              checked={formData.newsletter}
-              onCheckedChange={(checked) => handleInputChange("newsletter", checked as boolean)}
-            />
-            <Label htmlFor="newsletter" className="text-sm">
-              Quiero recibir información sobre nuevas propiedades y ofertas especiales
-            </Label>
           </div>
 
           {/* Submit Button */}
