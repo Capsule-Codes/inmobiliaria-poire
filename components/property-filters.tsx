@@ -7,23 +7,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent } from "@/components/ui/card"
 import { Search, SlidersHorizontal } from "lucide-react"
 import { useSearchPropertyContext } from "@/contexts/search-property-context"
-import { configStore } from "@/lib/config-store"
+import { useConfig } from "@/contexts/config-context"
 
 export function PropertyFilters() {
   const { filters, setFilters, fetchProperties } = useSearchPropertyContext()
   const [showFilters, setShowFilters] = useState(false)
-  const [availableLocations, setAvailableLocations] = useState<string[]>([])
+  const { config } = useConfig()
 
   useEffect(() => {
-    const updateLocations = () => {
-      const config = configStore.getConfig()
-      setAvailableLocations(config.availableLocations)
-    }
-
-    updateLocations()
-    const unsubscribe = configStore.subscribe(updateLocations)
-    return unsubscribe
-  }, [])
+    // just to re-render when config changes
+  }, [config])
 
   const handleApplyFilters = () => {
     fetchProperties()
@@ -67,7 +60,7 @@ export function PropertyFilters() {
                     <SelectValue placeholder="Seleccionar ubicación" />
                   </SelectTrigger>
                   <SelectContent>
-                    {availableLocations.map((location) => (
+                    {config.availableLocations.map((location) => (
                       <SelectItem key={location} value={location.toLowerCase()}>
                         {location}
                       </SelectItem>

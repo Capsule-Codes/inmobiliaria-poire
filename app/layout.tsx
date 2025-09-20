@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Geist } from "next/font/google"
 import { Manrope } from "next/font/google"
 import "./globals.css"
+import { ConfigProvider } from "@/contexts/config-context"
 
 const geist = Geist({
   subsets: ["latin"],
@@ -29,7 +30,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className={`${geist.variable} ${manrope.variable} antialiased`}>
-      <body className="font-sans">{children}</body>
+      <body className="font-sans">
+        <ConfigProvider>
+          {children}
+        </ConfigProvider>
+      </body>
     </html>
   )
 }

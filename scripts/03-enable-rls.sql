@@ -16,3 +16,7 @@ CREATE POLICY "Projects are editable by admin" ON projects FOR ALL USING (auth.r
 CREATE POLICY "Contacts are viewable by admin" ON contacts FOR SELECT USING (auth.role() = 'authenticated');
 CREATE POLICY "Contacts are insertable by everyone" ON contacts FOR INSERT WITH CHECK (true);
 CREATE POLICY "Contacts are editable by admin" ON contacts FOR UPDATE USING (auth.role() = 'authenticated');
+
+-- Políticas para configuracion (solo admin puede editar)
+CREATE POLICY "Configs are viewable by everyone" ON configs FOR SELECT USING (true);
+CREATE POLICY "Configs are editable by admin" ON configs FOR UPDATE USING (auth.role() = 'authenticated');

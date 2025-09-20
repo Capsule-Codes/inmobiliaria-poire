@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { MapPin, Calendar, Building, Users, ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
-import { configStore } from "@/lib/config-store"
+import { useConfig } from "@/contexts/config-context"
 import { type Project } from "@/types/project"
 
 
@@ -21,23 +21,15 @@ export function FeaturedProjects({ allFeaturedProjects }: { allFeaturedProjects:
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
   const [itemsPerSlide, setItemsPerSlide] = useState(1)
-  const [config, setConfig] = useState(configStore.getConfig())
+  const { config } = useConfig()
 
   const featuredProjects = allFeaturedProjects.slice(0, config.maxFeaturedProjects)
   const totalSlides = Math.ceil(featuredProjects.length / itemsPerSlide)
 
   useEffect(() => {
-    const unsubscribe = configStore.subscribe(() => {
-      setConfig(configStore.getConfig())
-    })
-    return unsubscribe
-  }, [])
-
-  useEffect(() => {
     const updateItemsPerSlide = () => {
-      const currentConfig = configStore.getConfig()
       if (window.innerWidth >= 1024) {
-        setItemsPerSlide(currentConfig.maxProjectsPerSlide)
+        setItemsPerSlide(config.maxProjectsPerSlide)
       } else if (window.innerWidth >= 768) {
         setItemsPerSlide(2)
       } else {
