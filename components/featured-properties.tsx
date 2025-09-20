@@ -5,30 +5,22 @@ import { Button } from "@/components/ui/button"
 import { MapPin, Bed, Bath, Square, ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { useState, useEffect, useCallback } from "react"
-import { configStore } from "@/lib/config-store"
+import { useConfig } from "@/contexts/config-context"
 import { Property } from "@/types/property"
 
 export function FeaturedProperties({ allFeaturedProperties }: { allFeaturedProperties: Property[] }) {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
   const [itemsPerSlide, setItemsPerSlide] = useState(1)
-  const [config, setConfig] = useState(configStore.getConfig())
+  const { config } = useConfig()
 
   const featuredProperties = allFeaturedProperties.slice(0, config.maxFeaturedProperties)
   const totalSlides = Math.ceil(featuredProperties.length / itemsPerSlide)
 
   useEffect(() => {
-    const unsubscribe = configStore.subscribe(() => {
-      setConfig(configStore.getConfig())
-    })
-    return unsubscribe
-  }, [])
-
-  useEffect(() => {
     const updateItemsPerSlide = () => {
-      const currentConfig = configStore.getConfig()
       if (window.innerWidth >= 1024) {
-        setItemsPerSlide(currentConfig.maxPropertiesPerSlide) // Desktop: configurable
+        setItemsPerSlide(config.maxPropertiesPerSlide) // Desktop: configurable
       } else if (window.innerWidth >= 768) {
         setItemsPerSlide(2) // Tablet: 2 items
       } else {
