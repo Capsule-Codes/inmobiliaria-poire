@@ -63,6 +63,14 @@ CREATE TABLE IF NOT EXISTS contacts (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS configs (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  key VARCHAR(100) NOT NULL,
+  value TEXT NOT NULL,
+  type VARCHAR(30) NOT NULL DEFAULT 'string', -- 'string','int','bool','json','decimal'
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Crear índices para mejor performance
 CREATE INDEX IF NOT EXISTS idx_properties_featured ON properties(is_featured);
 CREATE INDEX IF NOT EXISTS idx_properties_status ON properties(status);
@@ -70,3 +78,4 @@ CREATE INDEX IF NOT EXISTS idx_properties_type ON properties(type);
 CREATE INDEX IF NOT EXISTS idx_projects_featured ON projects(is_featured);
 CREATE INDEX IF NOT EXISTS idx_projects_status ON projects(status);
 CREATE INDEX IF NOT EXISTS idx_contacts_status ON contacts(status);
+CREATE INDEX IF NOT EXISTS idx_configs_key ON configs(key);
