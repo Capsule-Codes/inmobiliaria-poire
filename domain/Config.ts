@@ -89,7 +89,7 @@ export async function getAdminConfig(): Promise<AdminConfig> {
     getConfigValuesByKey('available_locations'),
     getSingleConfigValue('max_featured_properties'),
     getSingleConfigValue('max_featured_projects'),
-    getSingleConfigValue('max_slide_proproperties'),
+    getSingleConfigValue('max_slide_properties'),
     getSingleConfigValue('max_slide_projects'),
     getSingleConfigValue('company_name'),
     getSingleConfigValue('company_email'),

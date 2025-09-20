@@ -100,7 +100,7 @@ export function ConfigManagement({ config }: ConfigProps) {
           method: 'PUT', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ value: form.maxFeaturedProjects, type: 'int' }),
         }),
-        fetch(`/api/admin/configs/max_slide_proproperties`, {
+        fetch(`/api/admin/configs/max_slide_properties`, {
           method: 'PUT', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ value: form.maxPropertiesPerSlide, type: 'int' }),
         }),
