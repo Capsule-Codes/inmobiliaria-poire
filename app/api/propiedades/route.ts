@@ -11,6 +11,7 @@ export async function GET(req: NextRequest) {
     const minPrice = Number(searchParams.get("minPrice")) || undefined;
     const maxPrice = Number(searchParams.get("maxPrice")) || undefined;
     const bedrooms = Number(searchParams.get("bedrooms")) || undefined;
+    const search = searchParams.get("search") || undefined;
 
     const filters = {
       type,
@@ -18,6 +19,7 @@ export async function GET(req: NextRequest) {
       maxPrice,
       location,
       bedrooms,
+      search,
     } as SearchPropertyFilters;
 
     const properties = await getProperties(filters);
