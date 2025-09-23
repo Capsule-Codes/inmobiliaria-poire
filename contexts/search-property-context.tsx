@@ -1,10 +1,10 @@
 "use client"
 
-import { Property } from "@/types/property"
+import { Property } from "@/types/Property"
 import { ReactNode, createContext, useContext, useState, useEffect } from "react"
 
 export type SearchPropertyFilters = {
-  search?: string
+  search?: string | undefined
   type?: string | undefined
   location?: string | undefined
   minPrice?: number | undefined
@@ -16,6 +16,7 @@ interface SearchPropertyContextType {
   filters: SearchPropertyFilters
   setFilters: React.Dispatch<React.SetStateAction<SearchPropertyFilters>>
   properties: Property[]
+  isLoading: boolean
   currentPage: number
   setCurrentPage: React.Dispatch<React.SetStateAction<number>>
   totalPages: number
@@ -24,20 +25,30 @@ interface SearchPropertyContextType {
     startIndex: number
     perPage: number
   }
-  fetchProperties: () => Promise<void>
+  fetchProperties: (override?: SearchPropertyFilters) => Promise<void>
 }
 
 const SearchPropertyContext = createContext<SearchPropertyContextType | null>(null)
 
 export function SearchPropertyProvider({ children }: { children: ReactNode }) {
-  const [filters, setFilters] = useState({})
+  const [filters, setFilters] = useState<SearchPropertyFilters>({})
   const [properties, setProperties] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const propertiesPerPage = 6
 
-  const searchProperties = async () => {
+  const searchProperties = async (override?: SearchPropertyFilters) => {
     try {
-      const queryParams = new URLSearchParams(filters).toString()
+      setIsLoading(true)
+      const activeFilters = override ?? filters
+      const queryParams = new URLSearchParams(
+        Object.entries(activeFilters)
+          .filter(([_, v]) => v !== undefined && v !== null && v !== "")
+          .reduce<Record<string, string>>((acc, [key, value]) => {
+            acc[key] = String(value)
+            return acc
+          }, {})
+      ).toString()
       const response = await fetch(`/api/propiedades?${queryParams}`)
 
       if (response.status !== 200) {
@@ -50,6 +61,8 @@ export function SearchPropertyProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error("Failed to fetch properties:", error);
       setProperties([]);
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -71,6 +84,7 @@ export function SearchPropertyProvider({ children }: { children: ReactNode }) {
         filters,
         setFilters,
         properties,
+        isLoading,
         currentPage,
         setCurrentPage,
         totalPages,

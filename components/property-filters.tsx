@@ -1,18 +1,19 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent } from "@/components/ui/card"
-import { Search, SlidersHorizontal } from "lucide-react"
+import { Search, SlidersHorizontal, Loader2 } from "lucide-react"
 import { useSearchPropertyContext } from "@/contexts/search-property-context"
 import { useConfig } from "@/contexts/config-context"
 
 export function PropertyFilters() {
-  const { filters, setFilters, fetchProperties } = useSearchPropertyContext()
+  const { filters, setFilters, fetchProperties, isLoading } = useSearchPropertyContext()
   const [showFilters, setShowFilters] = useState(false)
   const { config } = useConfig()
+  const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     // just to re-render when config changes
@@ -21,6 +22,27 @@ export function PropertyFilters() {
   const handleApplyFilters = () => {
     fetchProperties()
   }
+
+  const handleSearchKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const value = (e.target as HTMLInputElement).value || ""
+    const len = value.trim().length
+    if (typingTimeout.current) clearTimeout(typingTimeout.current)
+    if (len === 0) {
+      fetchProperties()
+      return
+    }
+    typingTimeout.current = setTimeout(() => {
+      if (len > 3) {
+        fetchProperties()
+      }
+    }, 800)
+  }
+
+  useEffect(() => {
+    return () => {
+      if (typingTimeout.current) clearTimeout(typingTimeout.current)
+    }
+  }, [])
 
   return (
     <div className="mb-8">
@@ -31,9 +53,13 @@ export function PropertyFilters() {
           <Input
             placeholder="Buscar por ubicación, tipo de propiedad..."
             className="pl-10 h-12"
-            value={filters.search}
+            value={filters.search ?? ""}
             onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+            onKeyUp={handleSearchKeyUp}
           />
+          {isLoading && (
+            <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4 animate-spin" />
+          )}
         </div>
         <Button
           variant="outline"
@@ -150,7 +176,14 @@ export function PropertyFilters() {
               <Button className="bg-primary hover:bg-primary/90" onClick={handleApplyFilters}>
                 Aplicar Filtros
               </Button>
-              <Button variant="outline" onClick={() => setFilters({})}>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setFilters({})
+                  // Asegura recarga inmediata sin filtros
+                  fetchProperties({})
+                }}
+              >
                 Limpiar Filtros
               </Button>
             </div>

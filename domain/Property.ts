@@ -26,6 +26,7 @@ export async function getProperties(filters?: {
     maxPrice?: number
     location?: string
     bedrooms?: number
+    search?: string
 }) {
 
     let query = supabase.from("properties").select("*").eq("status", "Disponible")
@@ -44,6 +45,10 @@ export async function getProperties(filters?: {
     }
     if (filters?.bedrooms) {
         query = query.eq("bedrooms", filters.bedrooms)
+    }
+    if (filters?.search) {
+        const safeSearch = String(filters.search).replace(/"/g, '\\"');
+        query = query.or(`type.ilike."%${safeSearch}%",location.ilike."%${safeSearch}%"`)
     }
 
     const { data, error } = await query.order("created_at", { ascending: false })
@@ -115,7 +120,7 @@ export async function getRelatedProperties(id: string) {
     const { data, error } = await supabase
         .from("properties")
         .select("*")
-        .neq("id", id)        
+        .neq("id", id)
         .or(`bedrooms.eq.${currentProperty.bedrooms},location.eq."${safeLocation}"`)
         .limit(3);
 
