@@ -25,7 +25,7 @@ interface SearchPropertyContextType {
     startIndex: number
     perPage: number
   }
-  fetchProperties: () => Promise<void>
+  fetchProperties: (override?: SearchPropertyFilters) => Promise<void>
 }
 
 const SearchPropertyContext = createContext<SearchPropertyContextType | null>(null)
@@ -37,11 +37,12 @@ export function SearchPropertyProvider({ children }: { children: ReactNode }) {
   const [currentPage, setCurrentPage] = useState(1)
   const propertiesPerPage = 6
 
-  const searchProperties = async () => {
+  const searchProperties = async (override?: SearchPropertyFilters) => {
     try {
       setIsLoading(true)
+      const activeFilters = override ?? filters
       const queryParams = new URLSearchParams(
-        Object.entries(filters)
+        Object.entries(activeFilters)
           .filter(([_, v]) => v !== undefined && v !== null && v !== "")
           .reduce<Record<string, string>>((acc, [key, value]) => {
             acc[key] = String(value)

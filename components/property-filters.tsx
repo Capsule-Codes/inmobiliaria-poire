@@ -176,7 +176,14 @@ export function PropertyFilters() {
               <Button className="bg-primary hover:bg-primary/90" onClick={handleApplyFilters}>
                 Aplicar Filtros
               </Button>
-              <Button variant="outline" onClick={() => setFilters({})}>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setFilters({})
+                  // Asegura recarga inmediata sin filtros
+                  fetchProperties({})
+                }}
+              >
                 Limpiar Filtros
               </Button>
             </div>
