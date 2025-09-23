@@ -48,7 +48,6 @@ export async function getProperties(filters?: {
     }
     if (filters?.search) {
         const safeSearch = String(filters.search).replace(/"/g, '\\"');
-        console.log("Safe Search:", safeSearch);
         query = query.or(`type.ilike."%${safeSearch}%",location.ilike."%${safeSearch}%"`)
     }
 
