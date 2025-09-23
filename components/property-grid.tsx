@@ -2,13 +2,14 @@
 
 import { useSearchPropertyContext } from "@/contexts/search-property-context"
 import { Card, CardContent } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { MapPin, Bed, Bath, Square, Heart, Eye } from "lucide-react"
 import Link from "next/link"
 
 export function PropertyGrid() {
-  const { properties, currentPage, totalPages, setCurrentPage, currentProperties } = useSearchPropertyContext()
+  const { properties, currentPage, totalPages, setCurrentPage, currentProperties, isLoading } = useSearchPropertyContext()
 
   return (
     <div>
@@ -21,7 +22,34 @@ export function PropertyGrid() {
       </div>
 
       {/* Properties Grid */}
-      <div className="grid gap-6 mb-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+      {isLoading ? (
+        <div className="grid gap-6 mb-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Card key={i} className="overflow-hidden">
+              <Skeleton className="w-full h-64" />
+              <CardContent className="p-6">
+                <div className="flex justify-between items-start mb-2 h-[4rem]">
+                  <Skeleton className="h-6 w-3/4" />
+                  <Skeleton className="h-5 w-16" />
+                </div>
+                <div className="flex items-center text-muted-foreground mb-4">
+                  <Skeleton className="h-4 w-32" />
+                </div>
+                <div className="flex items-center justify-between text-sm text-muted-foreground mb-6">
+                  <Skeleton className="h-4 w-10" />
+                  <Skeleton className="h-4 w-10" />
+                  <Skeleton className="h-4 w-10" />
+                </div>
+                <div className="flex gap-2">
+                  <Skeleton className="h-10 flex-1" />
+                  <Skeleton className="h-10 w-24" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div className="grid gap-6 mb-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {currentProperties.data.map((property) => (
           <Card key={property.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 group">
             <div className="relative">
@@ -98,6 +126,7 @@ export function PropertyGrid() {
           </Card>
         ))}
       </div>
+      )}
 
       {/* Pagination */}
       {totalPages > 1 && (
