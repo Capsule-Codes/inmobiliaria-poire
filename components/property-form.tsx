@@ -12,7 +12,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { ArrowLeft, X, Plus } from "lucide-react"
-import { Property } from "@/types/property"
+import { Property } from "@/types/Property"
+import { useConfig } from "@/contexts/config-context"
+import { Autocomplete } from "@/components/ui/autocomplete"
 
 interface PropertyFormProps {
   property?: Property | null
@@ -21,6 +23,8 @@ interface PropertyFormProps {
 }
 
 export function PropertyForm({ property, onSave, onCancel }: PropertyFormProps) {
+  const { config } = useConfig()
+  const locationOptions = config.availableLocations ?? []
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [formData, setFormData] = useState<Omit<Property, "id">>({
     title: property?.title || "",
@@ -107,10 +111,11 @@ export function PropertyForm({ property, onSave, onCancel }: PropertyFormProps) 
 
                   <div>
                     <Label htmlFor="location">Ubicación</Label>
-                    <Input
+                    <Autocomplete
                       id="location"
                       value={formData.location}
-                      onChange={(e) => handleInputChange("location", e.target.value)}
+                      onValueChange={(value) => handleInputChange("location", value)}
+                      options={locationOptions}
                       placeholder="Ej: Palermo, Buenos Aires"
                       required
                     />
@@ -276,3 +281,4 @@ export function PropertyForm({ property, onSave, onCancel }: PropertyFormProps) 
     </div>
   )
 }
+

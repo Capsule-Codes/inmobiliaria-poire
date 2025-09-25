@@ -14,6 +14,8 @@ import { Badge } from "@/components/ui/badge"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { ArrowLeft, X, Plus } from "lucide-react"
 import { Project } from "@/types/project"
+import { Autocomplete } from "@/components/ui/autocomplete"
+import { useConfig } from "@/contexts/config-context"
 
 interface ProjectFormProps {
   project?: Project | null
@@ -22,6 +24,8 @@ interface ProjectFormProps {
 }
 
 export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
+  const { config } = useConfig()
+  const locationOptions = config.availableLocations ?? []
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [formData, setFormData] = useState({
     name: project?.name ?? "",
@@ -127,10 +131,11 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
 
                   <div>
                     <Label htmlFor="location">Ubicación</Label>
-                    <Input
+                    <Autocomplete
                       id="location"
                       value={formData.location}
-                      onChange={(e) => handleInputChange("location", e.target.value)}
+                      onValueChange={(value) => handleInputChange("location", value)}
+                      options={locationOptions}
                       placeholder="Ej: Puerto Madero, Buenos Aires"
                       required
                     />
@@ -343,3 +348,4 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
     </div>
   )
 }
+
