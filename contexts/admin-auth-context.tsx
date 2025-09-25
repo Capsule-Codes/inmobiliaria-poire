@@ -1,46 +1,59 @@
 "use client"
 
 import type React from "react"
-import { createContext, useContext, useState, useEffect } from "react"
+import { createContext, useContext, useState, useEffect, useCallback } from "react"
 
 interface AdminAuthContextType {
   isAuthenticated: boolean
-  login: (username: string, password: string) => boolean
-  logout: () => void
+  login: (email: string, password: string) => Promise<boolean>
+  logout: () => Promise<void>
   loading: boolean
 }
 
 const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefined)
 
-const ADMIN_CREDENTIALS = {
-  username: "admin",
-  password: "admin123",
-}
-
 export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    const savedAuth = localStorage.getItem("admin-auth")
-    if (savedAuth === "true") {
-      setIsAuthenticated(true)
+  const checkSession = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/auth/session", { cache: "no-store" })
+      if (!res.ok) throw new Error("session error")
+      const data = await res.json()
+      setIsAuthenticated(!!data.authenticated)
+    } catch {
+      setIsAuthenticated(false)
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }, [])
 
-  const login = (username: string, password: string): boolean => {
-    if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+  useEffect(() => {
+    checkSession()
+  }, [checkSession])
+
+  const login = async (email: string, password: string): Promise<boolean> => {
+    try {
+      const res = await fetch("/api/admin/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      })
+      if (!res.ok) return false
       setIsAuthenticated(true)
-      localStorage.setItem("admin-auth", "true")
       return true
+    } catch {
+      return false
     }
-    return false
   }
 
-  const logout = () => {
-    setIsAuthenticated(false)
-    localStorage.removeItem("admin-auth")
+  const logout = async () => {
+    try {
+      await fetch("/api/admin/auth/logout", { method: "POST" })
+    } finally {
+      setIsAuthenticated(false)
+    }
   }
 
   return (
