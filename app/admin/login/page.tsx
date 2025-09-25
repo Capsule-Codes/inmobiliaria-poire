@@ -13,7 +13,7 @@ import { useAdminAuth } from "@/contexts/admin-auth-context"
 import { Eye, EyeOff, Lock, User } from "lucide-react"
 
 export default function AdminLoginPage() {
-  const [username, setUsername] = useState("")
+  const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
@@ -26,14 +26,12 @@ export default function AdminLoginPage() {
     setLoading(true)
     setError("")
 
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    const success = login(username, password)
+    const success = await login(email, password)
 
     if (success) {
       router.push("/admin/dashboard")
     } else {
-      setError("Credenciales incorrectas. Usuario: admin, Contraseña: admin123")
+      setError("Credenciales incorrectas.")
     }
 
     setLoading(false)
@@ -54,15 +52,15 @@ export default function AdminLoginPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">Usuario</Label>
+              <Label htmlFor="email">Email</Label>
               <div className="relative">
                 <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
-                  id="username"
-                  type="text"
-                  placeholder="Ingresa tu usuario"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  id="email"
+                  type="email"
+                  placeholder="Ingresa tu email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="pl-10"
                   required
                 />
@@ -115,11 +113,7 @@ export default function AdminLoginPage() {
 
           <div className="mt-6 p-4 bg-muted/50 rounded-lg">
             <p className="text-sm text-muted-foreground text-center">
-              <strong>Credenciales de prueba:</strong>
-              <br />
-              Usuario: <code className="bg-background px-1 rounded">admin</code>
-              <br />
-              Contraseña: <code className="bg-background px-1 rounded">admin123</code>
+              Ingrese sus credenciales de administrador.
             </p>
           </div>
         </CardContent>
