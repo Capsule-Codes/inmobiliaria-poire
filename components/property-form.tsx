@@ -18,11 +18,12 @@ import { Autocomplete } from "@/components/ui/autocomplete"
 
 interface PropertyFormProps {
   property?: Property | null
-  onSave: (property: any) => void
+  onSave: (property: any, files?: File[]) => void
   onCancel: () => void
+  submitting?: boolean
 }
 
-export function PropertyForm({ property, onSave, onCancel }: PropertyFormProps) {
+export function PropertyForm({ property, onSave, onCancel, submitting = false }: PropertyFormProps) {
   const { config } = useConfig()
   const locationOptions = config.availableLocations ?? []
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -40,6 +41,19 @@ export function PropertyForm({ property, onSave, onCancel }: PropertyFormProps) 
     images: property?.images || [],
     features: [],
   })
+
+  const [files, setFiles] = useState<File[]>([])
+  const [fileError, setFileError] = useState<string | null>(null)
+
+  const allowedTypes = new Set([
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/webp',
+    'image/avif',
+    'image/heic',
+    'image/heif',
+  ])
 
   const handleInputChange = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -62,9 +76,30 @@ export function PropertyForm({ property, onSave, onCancel }: PropertyFormProps) 
     }))
   }
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFileError(null)
+    const selected = Array.from(e.target.files || [])
+    if (selected.length > 5) {
+      setFiles([])
+      setFileError('Máximo 5 imágenes')
+      e.target.value = ''
+      return
+    }
+    const valid: File[] = []
+    for (const f of selected) {
+      if (allowedTypes.has(f.type)) {
+        valid.push(f)
+      }
+    }
+    if (valid.length !== selected.length) {
+      setFileError('Algunos archivos fueron descartados por formato no permitido')
+    }
+    setFiles(valid)
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onSave(formData)
+    onSave(formData, files)
   }
 
   return (
@@ -238,6 +273,19 @@ export function PropertyForm({ property, onSave, onCancel }: PropertyFormProps) 
                 <CardDescription>Agrega imágenes de la propiedad</CardDescription>
               </CardHeader>
               <CardContent>
+                <input
+                  type="file"
+                  multiple
+                  accept=".jpeg,.jpg,.png,.webp,.avif,.heic,.heif,image/jpeg,image/jpg,image/png,image/webp,image/avif,image/heic,image/heif"
+                  onChange={handleFileChange}
+                  className="block w-full text-sm text-foreground file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-secondary file:text-secondary-foreground hover:file:bg-secondary/90"
+                />
+                {fileError && (
+                  <p className="text-sm text-red-600 mt-2">{fileError}</p>
+                )}
+                {files.length > 0 && (
+                  <p className="text-sm text-muted-foreground mt-2">{files.length} archivo(s) seleccionado(s)</p>
+                )}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                   {formData.images.map((image: string, index: number) => (
                     <div key={index} className="relative group">
@@ -271,7 +319,7 @@ export function PropertyForm({ property, onSave, onCancel }: PropertyFormProps) 
               <Button type="button" variant="outline" onClick={onCancel}>
                 Cancelar
               </Button>
-              <Button type="submit" className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
+              <Button type="submit" disabled={submitting} className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
                 {property ? "Actualizar Propiedad" : "Crear Propiedad"}
               </Button>
             </div>
@@ -281,4 +329,6 @@ export function PropertyForm({ property, onSave, onCancel }: PropertyFormProps) 
     </div>
   )
 }
+
+
 
