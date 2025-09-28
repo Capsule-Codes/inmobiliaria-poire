@@ -58,6 +58,7 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
 
     return images
   }, [property])
+  
   const [contactForm, setContactForm] = useState({
     name: "",
     email: "",
@@ -110,7 +111,6 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
   }
 
   const selectImage = (index: number) => {
-    console.log("[v0] Selecting image:", index)
     setCurrentImageIndex(index)
   }
 
