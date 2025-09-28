@@ -7,8 +7,9 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { Star, StarOff, MapPin, Bed, Bath, Square, Calendar, Building, Users, Eye, TrendingUp } from "lucide-react"
-import { type Property } from "@/types/property"
+import { type Property } from "@/types/Property"
 import { type Project } from "@/types/project"
+import Image from "next/image"
 
 
 const statusColors = {
@@ -217,12 +218,30 @@ export function FeaturedManagement({ featuredProperties, featuredProjects }: { f
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {projects.map((project) => (
                   <Card key={project.id} className="overflow-hidden">
-                    <div className="relative">
-                      <img
-                        src={project.images[0] || "/placeholder.svg"}
-                        alt={project.name}
-                        className="w-full h-32 object-cover"
-                      />
+                    <div className="relative h-32">
+                      {(() => {
+                        const raw: any = (project as any)?.images
+                        let coverSrc = "/placeholder.svg"
+                        if (raw && typeof raw === 'object' && Array.isArray(raw.items)) {
+                          const items: any[] = raw.items as any[]
+                          const main = items.find((it) => typeof it?.sortOrder === 'number' && it.sortOrder === 0)
+                          const chosen = main ?? items[0]
+                          if (chosen?.mediaId) {
+                            coverSrc = `/api/emprendimientos/${project.id}/media/${chosen.mediaId}`
+                          }
+                        } else if (Array.isArray(raw) && raw.length > 0) {
+                          coverSrc = raw[0]
+                        }
+                        return (
+                          <Image
+                            src={coverSrc}
+                            alt={project.name}
+                            fill
+                            sizes="(min-width: 1024px) 33vw, 100vw"
+                            className="object-cover"
+                          />
+                        )
+                      })()}
                       <div className="absolute top-2 left-2">
                         <Badge
                           className={`${statusColors[project.status as keyof typeof statusColors]} text-white text-xs`}

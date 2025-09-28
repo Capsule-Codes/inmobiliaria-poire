@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { type Project } from "@/types/project"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -11,9 +11,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { Separator } from "@/components/ui/separator"
 import {
   MapPin,
-  Bed,
-  Bath,
-  Square,
   Heart,
   Share2,
   ChevronLeft,
@@ -26,6 +23,7 @@ import {
   Users,
 } from "lucide-react"
 import { Progress } from "./ui/progress"
+import Image from "next/image"
 
 interface ProjectDetailProps {
   project: Project
@@ -33,6 +31,35 @@ interface ProjectDetailProps {
 
 export function ProjectDetail({ project }: ProjectDetailProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+
+  const normalizedImages = useMemo(() => {
+    const images: Array<{ key: string; src: string; alt?: string | null }> = []
+    const buildMediaUrl = (projectId: string, mediaId: string) => `/api/emprendimientos/${projectId}/media/${mediaId}`
+
+    const raw: any = (project as any)?.images
+    if (!raw) return images
+
+    if (raw && typeof raw === 'object' && Array.isArray(raw.items)) {
+      const items = [...raw.items]
+      const coverId: string | null = raw.coverId ?? null
+      items.sort((a: any, b: any) => {
+        const aCover = coverId && a.mediaId === coverId ? -1 : 0
+        const bCover = coverId && b.mediaId === coverId ? -1 : 0
+        if (aCover !== bCover) return aCover - bCover
+        const ao = (a.sortOrder ?? 0) as number
+        const bo = (b.sortOrder ?? 0) as number
+        return ao - bo
+      })
+      for (const it of items) {
+        if (!it?.mediaId) continue
+        images.push({ key: it.mediaId, src: buildMediaUrl(project.id, it.mediaId), alt: it.alt ?? null })
+      }
+      return images
+    }
+
+    return images
+  }, [project])
+
   const [contactForm, setContactForm] = useState({
     name: "",
     email: "",
@@ -41,7 +68,18 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
   })
 
   useEffect(() => {
-    setCurrentImageIndex(0)
+    const raw: any = (project as any)?.images
+    if (raw && typeof raw === 'object' && Array.isArray(raw.items)) {
+      const coverId: string | null = raw.coverId ?? null
+      if (coverId) {
+        const idx = normalizedImages.findIndex((img) => img.key === coverId)
+        setCurrentImageIndex(idx >= 0 ? idx : 0)
+      } else {
+        setCurrentImageIndex(0)
+      }
+    } else {
+      setCurrentImageIndex(0)
+    }
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowLeft") {
@@ -56,38 +94,25 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
   }, [project.id])
 
   const nextImage = () => {
-    if (project.images.length > 0) {
+    if (normalizedImages.length > 0) {
       setCurrentImageIndex((prev) => {
-        const newIndex = (prev + 1) % project.images.length
-        console.log("[v0] Next image:", newIndex, "of", project.images.length)
+        const newIndex = (prev + 1) % normalizedImages.length
         return newIndex
       })
     }
   }
 
   const prevImage = () => {
-    if (project.images.length > 0) {
+    if (normalizedImages.length > 0) {
       setCurrentImageIndex((prev) => {
-        const newIndex = (prev - 1 + project.images.length) % project.images.length
-        console.log("[v0] Previous image:", newIndex, "of", project.images.length)
+        const newIndex = (prev - 1 + normalizedImages.length) % normalizedImages.length
         return newIndex
       })
     }
   }
 
   const selectImage = (index: number) => {
-    console.log("[v0] Selecting image:", index)
     setCurrentImageIndex(index)
-  }
-
-  const handleContactSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log("Contact form submitted:", contactForm)
-    // Here you would handle the form submission
-  }
-
-  if (!project.images || project.images.length === 0) {
-    console.log("[v0] No images available for project:", project.id)
   }
 
   return (
@@ -98,13 +123,13 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
           {/* Image Gallery */}
           <div className="relative">
             <div className="relative h-96 md:h-[500px] rounded-lg overflow-hidden bg-muted">
-              {project.images && project.images.length > 0 ? (
-                <img
-                  src={project.images[currentImageIndex] || "/placeholder.svg"}
+              {normalizedImages && normalizedImages.length > 0 ? (
+                <Image
+                  src={normalizedImages[currentImageIndex]?.src || "/placeholder.svg"}
                   alt={`${project.name} - Imagen ${currentImageIndex + 1}`}
-                  className="w-full h-full object-cover transition-opacity duration-300"
-                  onLoad={() => console.log("[v0] Image loaded:", currentImageIndex)}
-                  onError={() => console.log("[v0] Image failed to load:", project.images[currentImageIndex])}
+                  fill
+                  sizes="(min-width: 1024px) 66vw, 100vw"
+                  className="object-cover"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-muted-foreground">
@@ -113,7 +138,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
               )}
 
               {/* Navigation Arrows - Only show if there are multiple images */}
-              {project.images && project.images.length > 1 && (
+              {normalizedImages && normalizedImages.length > 1 && (
                 <>
                   <button
                     onClick={prevImage}
@@ -133,31 +158,32 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
               )}
 
               {/* Image Counter */}
-              {project.images && project.images.length > 1 && (
+              {normalizedImages && normalizedImages.length > 1 && (
                 <div className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm">
-                  {currentImageIndex + 1} / {project.images.length}
+                  {currentImageIndex + 1} / {normalizedImages.length}
                 </div>
               )}
             </div>
 
             {/* Thumbnail Navigation - Only show if there are multiple images */}
-            {project.images && project.images.length > 1 && (
+            {normalizedImages && normalizedImages.length > 1 && (
               <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
-                {project.images.map((image, index) => (
+                {normalizedImages.map((image, index) => (
                   <button
-                    key={index}
+                    key={image.key || index}
                     onClick={() => selectImage(index)}
-                    className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200 hover:scale-105 ${index === currentImageIndex
+                    className={`relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200 hover:scale-105 ${index === currentImageIndex
                       ? "border-accent shadow-lg"
                       : "border-transparent hover:border-accent/50"
                       }`}
                     aria-label={`Ver imagen ${index + 1}`}
                   >
-                    <img
-                      src={image || "/placeholder.svg"}
+                    <Image
+                      src={image.src || "/placeholder.svg"}
                       alt={`Thumbnail ${index + 1}`}
-                      className="w-full h-full object-cover"
-                      onError={() => console.log("[v0] Thumbnail failed to load:", image)}
+                      fill
+                      sizes="80px"
+                      className="object-cover"
                     />
                   </button>
                 ))}
@@ -165,7 +191,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
             )}
           </div>
 
-          {/* project Information */}
+          {/* Project Information */}
           <Card>
             <CardContent className="p-6">
               <div className="flex justify-between items-start mb-4">
@@ -244,7 +270,7 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
             <CardContent className="p-6">
               <h3 className="text-xl font-semibold mb-4">Contactar por este emprendimiento</h3>
 
-              <form onSubmit={handleContactSubmit} className="space-y-4">
+              <form onSubmit={(e) => { e.preventDefault() }} className="space-y-4">
                 <div>
                   <Input
                     placeholder="Nombre completo"
@@ -320,3 +346,4 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
     </div>
   )
 }
+

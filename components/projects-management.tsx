@@ -10,6 +10,7 @@ import { ProjectForm } from "@/components/project-form"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { TrendingUp, Plus, Search, Edit, Trash2, Star, StarOff, MapPin, Calendar, Building, Users } from "lucide-react"
 import { type Project } from "@/types/project"
+import Image from "next/image"
 
 const statusColors = {
   "En Construcción": "bg-yellow-500",
@@ -23,6 +24,7 @@ export function ProjectsManagement({ allProjects }: { allProjects: Project[] }) 
   const [showForm, setShowForm] = useState(false)
   const [editingProject, setEditingProject] = useState<Project | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
   const filteredProjects = projects.filter(
     (project) =>
@@ -82,18 +84,22 @@ export function ProjectsManagement({ allProjects }: { allProjects: Project[] }) 
     }
   }
 
-  const handleSaveProject = (projectData: Project) => {
+  const handleSaveProject = (projectData: any, files?: File[]) => {
     if (editingProject) {
-
+      // Update via multipart (data + files)
+      setSubmitting(true)
+      const fd = new FormData()
+      fd.append('data', JSON.stringify(projectData))
+      if (files && files.length > 0) {
+        for (const f of files) {
+          fd.append('images', f)
+        }
+      }
       fetch(`/api/admin/emprendimientos/${editingProject.id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(projectData),
+        body: fd as any,
       }).then((res) => {
         if (res.ok) {
-
           res.json().then((updatedProject) => {
             setProjects(projects.map((p) => (p.id === editingProject.id ? updatedProject : p)))
           })
@@ -106,36 +112,47 @@ export function ProjectsManagement({ allProjects }: { allProjects: Project[] }) 
           console.error('Error al actualizar el emprendimiento', error);
         })
         .finally(() => {
+          setSubmitting(false)
           setShowForm(false)
           setEditingProject(null)
         })
 
     } else {
-
+      // Create via multipart
+      setSubmitting(true)
+      const fd = new FormData()
+      fd.append('data', JSON.stringify(projectData))
+      if (files && files.length > 0) {
+        for (const f of files) {
+          fd.append('images', f)
+        }
+      }
       fetch('/api/admin/emprendimientos', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(projectData),
-      }).then((res) => {
-        if (res.ok) {
-
-          res.json().then((createdProject) => {
-            setProjects([createdProject, ...projects])
-          })
-
-        } else {
-          console.error('Error al crear el emprendimiento');
+        body: fd as any,
+      }).then(async (res) => {
+        if (!res.ok) {
+          console.error('Error al crear el emprendimiento')
+          return
         }
+        const json = await res.json()
+        if (json?.ok) {
+          if (json?.partialSuccess === true && json?.message) {
+            alert('El emprendimiento fue creado con éxito pero ocurrió un error subiendo las imágenes, intente subirlas nuevamente editándolo')
+          }
+          const created = { ...projectData, id: json.projectId }
+          setProjects([created, ...projects])
+        } else {
+          // Backward compat in case API returns created object
+          setProjects([json, ...projects])
+        }
+      }).catch((err) => {
+        console.error('Error al crear el emprendimiento', err)
+      }).finally(() => {
+        setSubmitting(false)
+        setShowForm(false)
+        setEditingProject(null)
       })
-        .catch((error) => {
-          console.error('Error al crear el emprendimiento', error);
-        })
-        .finally(() => {
-          setShowForm(false)
-          setEditingProject(null)
-        })
     }
   }
 
@@ -144,6 +161,8 @@ export function ProjectsManagement({ allProjects }: { allProjects: Project[] }) 
       <ProjectForm
         project={editingProject}
         onSave={handleSaveProject}
+        submitting={submitting}
+        
         onCancel={() => {
           setShowForm(false)
           setEditingProject(null)
@@ -211,12 +230,30 @@ export function ProjectsManagement({ allProjects }: { allProjects: Project[] }) 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {filteredProjects.map((project) => (
               <Card key={project.id} className="overflow-hidden">
-                <div className="relative">
-                  <img
-                    src={project.images[0] || "/placeholder.svg"}
-                    alt={project.name}
-                    className="w-full h-48 object-cover"
-                  />
+                <div className="relative h-48">
+                  {(() => {
+                    const raw: any = (project as any)?.images
+                    let coverSrc = "/placeholder.svg"
+                    if (raw && typeof raw === 'object' && Array.isArray(raw.items)) {
+                      const items: any[] = raw.items as any[]
+                      const main = items.find((it) => typeof it?.sortOrder === 'number' && it.sortOrder === 0)
+                      const chosen = main ?? items[0]
+                      if (chosen?.mediaId) {
+                        coverSrc = `/api/emprendimientos/${project.id}/media/${chosen.mediaId}`
+                      }
+                    } else if (Array.isArray(raw) && raw.length > 0) {
+                      coverSrc = raw[0]
+                    }
+                    return (
+                      <Image
+                        src={coverSrc}
+                        alt={project.name}
+                        fill
+                        sizes="(min-width: 1024px) 50vw, 100vw"
+                        className="object-cover"
+                      />
+                    )
+                  })()}
                   <div className="absolute top-2 left-2 flex gap-2">
                     {project.is_featured && (
                       <Badge className="bg-secondary text-secondary-foreground">

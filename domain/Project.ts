@@ -89,3 +89,13 @@ export async function deleteProject(id: string) {
 
     if (error) throw error
 }
+
+export async function getProjectImages(projectId: string): Promise<any | null> {
+  const { data, error } = await supabase
+    .from('projects')
+    .select('images')
+    .eq('id', projectId)
+    .single();
+  if (error) throw error;
+  return data?.images ?? null;
+}

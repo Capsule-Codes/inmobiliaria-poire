@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { MapPin, Calendar, Building, Users, ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import { useConfig } from "@/contexts/config-context"
 import { type Project } from "@/types/project"
 
@@ -128,11 +129,29 @@ export function FeaturedProjects({ allFeaturedProjects }: { allFeaturedProjects:
                     <Card className="overflow-hidden bg-card/80 backdrop-blur-sm border-border/50 hover:shadow-2xl transition-all duration-500 transform-gpu hover:scale-[1.02] h-full min-h-[600px]">
                       <div className={`grid gap-0 h-full ${itemsPerSlide === 1 ? "lg:grid-cols-2" : "grid-cols-1"}`}>
                         <div className="relative h-64 lg:h-96 overflow-hidden flex-shrink-0">
-                          <img
-                            src={project.images[0] || "/placeholder.svg"}
-                            alt={project.name}
-                            className="w-full h-full object-cover hover:scale-110 transition-transform duration-700"
-                          />
+                          {(() => {
+                            const raw: any = (project as any)?.images
+                            let coverSrc = "/placeholder.svg"
+                            if (raw && typeof raw === 'object' && Array.isArray(raw.items)) {
+                              const items: any[] = raw.items as any[]
+                              const main = items.find((it) => typeof it?.sortOrder === 'number' && it.sortOrder === 0)
+                              const chosen = main ?? items[0]
+                              if (chosen?.mediaId) {
+                                coverSrc = `/api/emprendimientos/${project.id}/media/${chosen.mediaId}`
+                              }
+                            } else if (Array.isArray(raw) && raw.length > 0) {
+                              coverSrc = raw[0]
+                            }
+                            return (
+                              <Image
+                                src={coverSrc}
+                                alt={project.name}
+                                fill
+                                sizes="(min-width: 1024px) 33vw, 100vw"
+                                className="object-cover hover:scale-110 transition-transform duration-700"
+                              />
+                            )
+                          })()}
 
                           <div className="absolute top-6 left-6 flex gap-3">
                             <Badge className="bg-accent text-accent-foreground shadow-lg">Destacado</Badge>

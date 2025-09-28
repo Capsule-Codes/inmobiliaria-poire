@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress"
 import { MapPin, Calendar, Building, Users } from "lucide-react"
 import Link from "next/link"
 import { Project } from "@/types/project"
+import Image from "next/image"
 
 const statusColors = {
   "En Construcción": "bg-yellow-500",
@@ -59,12 +60,30 @@ export function ProjectsGrid({ allProjects }: { allProjects: Project[] }) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {filteredProjects.map((project) => (
             <Card key={project.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 group">
-              <div className="relative">
-                <img
-                  src={project.images[0] || "/placeholder.svg"}
-                  alt={project.name}
-                  className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
-                />
+              <div className="relative h-64">
+                {(() => {
+                  const raw: any = (project as any)?.images
+                  let coverSrc = "/placeholder.svg"
+                  if (raw && typeof raw === 'object' && Array.isArray(raw.items)) {
+                    const items: any[] = raw.items as any[]
+                    const main = items.find((it) => typeof it?.sortOrder === 'number' && it.sortOrder === 0)
+                    const chosen = main ?? items[0]
+                    if (chosen?.mediaId) {
+                      coverSrc = `/api/emprendimientos/${project.id}/media/${chosen.mediaId}`
+                    }
+                  } else if (Array.isArray(raw) && raw.length > 0) {
+                    coverSrc = raw[0]
+                  }
+                  return (
+                    <Image
+                      src={coverSrc}
+                      alt={project.name}
+                      fill
+                      sizes="(min-width: 1024px) 50vw, 100vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  )
+                })()}
 
                 {/* Status and Featured badges */}
                 <div className="absolute top-4 left-4 flex gap-2">
