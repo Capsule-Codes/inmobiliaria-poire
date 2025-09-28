@@ -59,15 +59,7 @@ export function PropertyForm({ property, onSave, onCancel, submitting = false }:
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const handleImageAdd = () => {
-    const imageUrl = prompt("Ingresa la URL de la imagen:")
-    if (imageUrl) {
-      setFormData((prev) => ({
-        ...prev,
-        images: [...prev.images, imageUrl],
-      }))
-    }
-  }
+
 
   const handleImageRemove = (index: number) => {
     setFormData((prev) => ({
@@ -307,10 +299,6 @@ export function PropertyForm({ property, onSave, onCancel, submitting = false }:
                   ))}
                 </div>
 
-                <Button type="button" variant="outline" onClick={handleImageAdd} className="w-full bg-transparent">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Agregar Imagen
-                </Button>
               </CardContent>
             </Card>
 
