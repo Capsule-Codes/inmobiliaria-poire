@@ -32,7 +32,7 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
 
   const normalizedImages = useMemo(() => {
     const images: Array<{ key: string; src: string; alt?: string | null }> = []
-    const buildMediaUrl = (propertyId: string, mediaId: string) => `/api/properties/${propertyId}/media/${mediaId}`
+    const buildMediaUrl = (propertyId: string, mediaId: string) => `/api/propiedades/${propertyId}/media/${mediaId}`
 
     const raw: any = (property as any)?.images
     if (!raw) return images
