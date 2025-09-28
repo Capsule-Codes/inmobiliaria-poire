@@ -4,6 +4,7 @@ import type React from "react"
 import { type Property } from "@/types/Property"
 import { useState, useEffect, useMemo } from "react"
 import { Card, CardContent } from "@/components/ui/card"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -132,11 +133,12 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
           <div className="relative">
             <div className="relative h-96 md:h-[500px] rounded-lg overflow-hidden bg-muted">
               {normalizedImages && normalizedImages.length > 0 ? (
-                <img
+                <Image
                   src={normalizedImages[currentImageIndex]?.src || "/placeholder.svg"}
                   alt={normalizedImages[currentImageIndex]?.alt || `${property.title} - Imagen ${currentImageIndex + 1}`}
-                  className="w-full h-full object-cover transition-opacity duration-300"
-                  onLoad={() => console.log("[v0] Image loaded:", currentImageIndex)}
+                  fill
+                  sizes="100vw"
+                  className="object-cover transition-opacity duration-300"
                   onError={() => console.error("[v0] Image failed to load:", normalizedImages[currentImageIndex]?.src)}
                 />
               ) : (
@@ -180,16 +182,18 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
                   <button
                     key={image.key || index}
                     onClick={() => selectImage(index)}
-                    className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200 hover:scale-105 ${index === currentImageIndex
+                    className={`relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200 hover:scale-105 ${index === currentImageIndex
                       ? "border-accent shadow-lg"
                       : "border-transparent hover:border-accent/50"
                       }`}
                     aria-label={`Ver imagen ${index + 1}`}
                   >
-                    <img
+                    <Image
                       src={image.src || "/placeholder.svg"}
                       alt={`Thumbnail ${index + 1}`}
-                      className="w-full h-full object-cover"
+                      fill
+                      sizes="80px"
+                      className="object-cover"
                       onError={() => console.error("[v0] Thumbnail failed to load:", image.src)}
                     />
                   </button>

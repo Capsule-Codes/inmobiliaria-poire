@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { MapPin, Bed, Bath, Square, Heart, Eye } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
 export function PropertyGrid() {
   const { properties, currentPage, totalPages, setCurrentPage, currentProperties, isLoading } = useSearchPropertyContext()
@@ -52,7 +53,7 @@ export function PropertyGrid() {
         <div className="grid gap-6 mb-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {currentProperties.data.map((property) => (
           <Card key={property.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 group">
-            <div className="relative">
+            <div className="relative h-64">
               {(() => {
                 const raw: any = (property as any)?.images
                 let coverSrc = "/placeholder.svg"
@@ -67,10 +68,12 @@ export function PropertyGrid() {
                   coverSrc = raw[0]
                 }
                 return (
-                  <img
+                  <Image
                     src={coverSrc}
                     alt={property.title}
-                    className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
+                    fill
+                    sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 )
               })()}

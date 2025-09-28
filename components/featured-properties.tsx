@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { MapPin, Bed, Bath, Square, ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import { useState, useEffect, useCallback } from "react"
 import { useConfig } from "@/contexts/config-context"
 import { Property } from "@/types/Property"
@@ -138,11 +139,13 @@ export function FeaturedProperties({ allFeaturedProperties }: { allFeaturedPrope
                     }}
                   >
                     <Card className="overflow-hidden hover:shadow-2xl transition-all duration-500 transform-gpu hover:scale-105 bg-card/80 backdrop-blur-sm">
-                      <div className="relative">
-                        <img
+                      <div className="relative h-64">
+                        <Image
                           src={coverSrc}
                           alt={property.title}
-                          className="w-full h-64 object-cover transition-transform duration-700 hover:scale-110"
+                          fill
+                          sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                          className="object-cover transition-transform duration-700 hover:scale-110"
                         />
                         <div className="absolute top-4 right-4 bg-accent text-accent-foreground px-3 py-1 rounded-full font-semibold shadow-lg">
                           {property.price}

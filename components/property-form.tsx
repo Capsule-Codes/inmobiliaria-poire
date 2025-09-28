@@ -16,6 +16,7 @@ import { Property } from "@/types/Property"
 import { useConfig } from "@/contexts/config-context"
 import { Autocomplete } from "@/components/ui/autocomplete"
 import { FileDropzone } from "@/components/ui/file-dropzone"
+import Image from "next/image"
 
 interface PropertyFormProps {
   property?: Property | null
@@ -279,7 +280,7 @@ export function PropertyForm({ property, onSave, onCancel, submitting = false }:
                   <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
                     {previews.map((p, index) => (
                       <div key={index} className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 border-transparent">
-                        <img src={p.url} alt={`Preview ${index + 1}`} className="w-full h-full object-cover" />
+                        <Image src={p.url} alt={`Preview ${index + 1}`} fill sizes="80px" className="object-cover" />
                         <Button
                           type="button"
                           variant="destructive"
