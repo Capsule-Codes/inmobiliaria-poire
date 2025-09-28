@@ -1,5 +1,41 @@
+import 'server-only';
 import { NextResponse } from "next/server";
-import { deleteProperty, updateProperty } from "@/domain/Property";
+import sharp from 'sharp';
+import { randomUUID } from 'node:crypto';
+import { getContainerClient } from '@/lib/azure';
+import { deleteProperty, updateProperty, getPropertyById } from "@/domain/Property";
+
+export const runtime = 'nodejs';
+
+const ALLOWED_MIME = new Set([
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/webp',
+  'image/avif',
+  'image/heic',
+  'image/heif',
+]);
+
+type ImagesJson = {
+  version: number;
+  coverId: string | null;
+  items: Array<{
+    mediaId: string;
+    blobKey: string;
+    mimeType: string;
+    width: number;
+    height: number;
+    sizeBytes: number;
+    alt: string;
+    sortOrder: number;
+    createdAt: string;
+  }>;
+};
+
+function emptyImagesJson(): ImagesJson {
+  return { version: 1, coverId: null, items: [] };
+}
 
 export async function DELETE(
   _req: Request,
@@ -26,10 +62,124 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
+    const contentType = req.headers.get('content-type') || '';
+
+    if (contentType.includes('multipart/form-data')) {
+      // New edit flow: update base data first, then optionally upload images and update JSON
+      const form = await req.formData();
+      const dataRaw = form.get('data');
+      if (typeof dataRaw !== 'string') {
+        return NextResponse.json({ message: 'Invalid payload' }, { status: 400 });
+      }
+      const payload = JSON.parse(dataRaw);
+
+      // Extract desired images json coming from client (remaining items after deletions)
+      const desiredImages: any = payload?.images ?? null;
+      // Update base fields first (without images)
+      const { images: _ignored, ...baseUpdates } = payload || {};
+      await updateProperty(id, baseUpdates);
+
+      // Collect files
+      const files: File[] = [];
+      for (const [key, value] of form.entries()) {
+        if (key === 'images' && value instanceof File) files.push(value);
+      }
+
+      for (const f of files) {
+        if (!ALLOWED_MIME.has(f.type)) {
+          return NextResponse.json({ message: 'Formato de imagen no permitido' }, { status: 400 });
+        }
+      }
+
+      // Determine existing items count to enforce total limit 5
+      let existingItems: ImagesJson['items'] = [];
+      let coverId: string | null = null;
+      if (desiredImages && typeof desiredImages === 'object' && Array.isArray(desiredImages.items)) {
+        existingItems = desiredImages.items as ImagesJson['items'];
+        coverId = desiredImages.coverId ?? null;
+      }
+      if (existingItems.length + files.length > 5) {
+        return NextResponse.json({ message: 'Máximo 5 imágenes permitidas' }, { status: 400 });
+      }
+
+      // If there are no files, just update images to what client sent (possibly empty array)
+      if (files.length === 0) {
+        if (!desiredImages || (Array.isArray(desiredImages) && desiredImages.length === 0)) {
+          const updated = await updateProperty(id, { images: [] as any });
+          return NextResponse.json(updated, { status: 200 });
+        }
+        // If client sent structured json with remaining items
+        if (desiredImages && typeof desiredImages === 'object' && Array.isArray(desiredImages.items)) {
+          const updated = await updateProperty(id, { images: desiredImages as any });
+          return NextResponse.json(updated, { status: 200 });
+        }
+        // Fallback: return current property
+        const current = await getPropertyById(id);
+        return NextResponse.json(current, { status: 200 });
+      }
+
+      // There are new files to add: process and upload
+      const container = getContainerClient();
+      const newItems: ImagesJson['items'] = [];
+      let sortIndex = existingItems.length;
+      for (const file of files) {
+        try {
+          const arrayBuf = await file.arrayBuffer();
+          const inputBuffer = Buffer.from(arrayBuf);
+
+          const optimized = await sharp(inputBuffer)
+            .rotate()
+            .resize({ width: 1600, withoutEnlargement: true })
+            .webp({ quality: 80 })
+            .toBuffer();
+
+          const meta = await sharp(optimized).metadata();
+          const width = meta.width ?? 0;
+          const height = meta.height ?? 0;
+
+          const assetId = randomUUID();
+          const mediaId = randomUUID();
+          const fileName = `${assetId}_1600.webp`;
+          const blobKey = `poirepropiedades/propiedades/${id}/optimized/${fileName}`;
+
+          const blobClient = container.getBlockBlobClient(blobKey);
+          await blobClient.uploadData(optimized, {
+            blobHTTPHeaders: {
+              blobContentType: 'image/webp',
+              blobCacheControl: 'public, max-age=31536000, immutable',
+            },
+          });
+
+          newItems.push({
+            mediaId,
+            blobKey,
+            mimeType: 'image/webp',
+            width,
+            height,
+            sizeBytes: optimized.length,
+            alt: 'Foto de la propiedad',
+            sortOrder: sortIndex++,
+            createdAt: new Date().toISOString(),
+          });
+        } catch (e: any) {
+          console.error('Image processing/upload error (PUT):', e?.message || e);
+          // continue with next file
+        }
+      }
+
+      // Merge existing desired items with new ones
+      const finalImages: ImagesJson = emptyImagesJson();
+      if (existingItems.length > 0) finalImages.items.push(...existingItems);
+      if (newItems.length > 0) finalImages.items.push(...newItems);
+      finalImages.coverId = coverId && finalImages.items.find((it) => it.mediaId === coverId) ? coverId : (finalImages.items[0]?.mediaId ?? null);
+
+      const updated = await updateProperty(id, { images: finalImages as any });
+      return NextResponse.json(updated, { status: 200 });
+    }
+
+    // Backward-compat JSON updates (e.g., toggle featured)
     const updates = await req.json();
-
     const updatedProperty = await updateProperty(id, updates);
-
     return NextResponse.json(updatedProperty, { status: 200 });
   } catch (err: any) {
     const status = 500;

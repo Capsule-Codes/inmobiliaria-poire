@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -47,6 +47,45 @@ export function PropertyForm({ property, onSave, onCancel, submitting = false }:
   const [files, setFiles] = useState<File[]>([])
   const [fileError, setFileError] = useState<string | null>(null)
 
+  // Existing images (when editing) in the structured JSON format used by the API
+  type ExistingItem = {
+    mediaId: string
+    blobKey: string
+    mimeType: string
+    width: number
+    height: number
+    sizeBytes: number
+    alt: string
+    sortOrder: number
+    createdAt: string
+  }
+  const [existingItems, setExistingItems] = useState<ExistingItem[]>([])
+  const [coverId, setCoverId] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!property) {
+      setExistingItems([])
+      setCoverId(null)
+      return
+    }
+    const raw: any = (property as any)?.images
+    if (raw && typeof raw === 'object' && Array.isArray(raw.items)) {
+      const items: ExistingItem[] = [...raw.items].sort((a: any, b: any) => {
+        const ao = (a.sortOrder ?? 0) as number
+        const bo = (b.sortOrder ?? 0) as number
+        if (ao !== bo) return ao - bo
+        const ad = new Date(a.createdAt || 0).getTime()
+        const bd = new Date(b.createdAt || 0).getTime()
+        return ad - bd
+      })
+      setExistingItems(items)
+      setCoverId(raw.coverId ?? null)
+    } else {
+      setExistingItems([])
+      setCoverId(null)
+    }
+  }, [property?.id])
+
   const allowedTypes: string[] = [
     'image/jpeg',
     'image/jpg',
@@ -78,6 +117,22 @@ export function PropertyForm({ property, onSave, onCancel, submitting = false }:
     setFiles((prev) => prev.filter((_, i) => i !== index))
   }
 
+  // New handler that enforces total limit including existing images
+  const handleFilesSelectedWithLimit = (selected: File[]) => {
+    setFileError(null)
+    const filtered = selected.filter((f) => allowedTypes.includes(f.type))
+    if (filtered.length !== selected.length) {
+      setFileError('Algunos archivos fueron descartados por formato no permitido')
+    }
+    const max = 5
+    const availableSlots = Math.max(0, max - existingItems.length)
+    const next = [...files, ...filtered].slice(0, availableSlots)
+    if (existingItems.length + (files.length + filtered.length) > max) {
+      setFileError('Máximo 5 imágenes (incluye existentes y nuevas)')
+    }
+    setFiles(next)
+  }
+
   const previews = files.map((f) => ({ file: f, url: URL.createObjectURL(f) }))
   useEffect(() => {
     return () => {
@@ -85,10 +140,20 @@ export function PropertyForm({ property, onSave, onCancel, submitting = false }:
     }
   }, [files])
 
+  const desiredImagesJson = useMemo(() => {
+    if (!property) return [] as any
+    if (existingItems.length === 0) return [] as any
+    return {
+      version: 1,
+      coverId: coverId && existingItems.find((it) => it.mediaId === coverId) ? coverId : null,
+      items: existingItems,
+    }
+  }, [property?.id, existingItems, coverId])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onSave(formData, files)
+    const payload = { ...formData, images: desiredImagesJson as any }
+    onSave(payload, files)
   }
 
   return (
@@ -262,8 +327,37 @@ export function PropertyForm({ property, onSave, onCancel, submitting = false }:
                 <CardDescription>Agrega imágenes de la propiedad</CardDescription>
               </CardHeader>
               <CardContent>
+                {/* Imágenes existentes al editar */}
+                {property && existingItems.length > 0 && (
+                  <div className="mb-4">
+                    <p className="text-sm text-muted-foreground mb-2">Imágenes actuales</p>
+                    <div className="flex gap-2 overflow-x-auto pb-2">
+                      {existingItems.map((item, index) => (
+                        <div key={item.mediaId} className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 border-transparent">
+                          <Image
+                            src={`/api/propiedades/${property.id}/media/${item.mediaId}`}
+                            alt={item.alt || `Imagen ${index + 1}`}
+                            fill
+                            sizes="80px"
+                            className="object-cover"
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            className="absolute top-1 right-1 h-6 w-6"
+                            onClick={() => setExistingItems((prev) => prev.filter((_, i) => i !== index))}
+                            aria-label={`Eliminar imagen existente ${index + 1}`}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <FileDropzone
-                  onFilesSelected={handleFilesSelected}
+                  onFilesSelected={handleFilesSelectedWithLimit}
                   accept={allowedTypes}
                   maxFiles={5}
                   className="mb-2"
@@ -271,9 +365,7 @@ export function PropertyForm({ property, onSave, onCancel, submitting = false }:
                 {fileError && (
                   <p className="text-sm text-red-600 mt-2">{fileError}</p>
                 )}
-                {files.length > 0 && (
-                  <p className="text-sm text-muted-foreground mt-2">{files.length} archivo(s) seleccionado(s)</p>
-                )}
+                <p className="text-sm text-muted-foreground mt-2">{existingItems.length} existente(s) + {files.length} nueva(s) (máx. 5)</p>
 
                 {/* Thumbnails en memoria, similar a PropertyDetail */}
                 {files.length > 0 && (

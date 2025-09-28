@@ -82,13 +82,18 @@ export function PropertiesManagement({ allProperties }: { allProperties: Propert
   const handleSaveProperty = (propertyData: any, files?: File[]) => {
 
     if (editingProperty) {
+      // Update via multipart to support images add/remove
       setSubmitting(true)
+      const fd = new FormData()
+      fd.append('data', JSON.stringify(propertyData))
+      if (files && files.length > 0) {
+        for (const f of files) {
+          fd.append('images', f)
+        }
+      }
       fetch(`/api/admin/propiedades/${editingProperty.id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(propertyData),
+        body: fd as any,
       }).then((res) => {
         if (res.ok) {
           res.json().then((updatedProperty) => {
