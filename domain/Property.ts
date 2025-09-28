@@ -128,3 +128,9 @@ export async function getRelatedProperties(id: string) {
 
     return data as Property[];
 }
+
+export async function getPropertyImages(propertyId: string): Promise<any | null> {
+  const { data, error } = await supabase.from('properties').select('images').eq('id', propertyId).single();
+  if (error) throw error;
+  return data?.images ?? null;
+}

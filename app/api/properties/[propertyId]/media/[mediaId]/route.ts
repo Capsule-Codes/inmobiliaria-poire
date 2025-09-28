@@ -1,15 +1,9 @@
 import 'server-only';
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
 import { getContainerClient } from '@/lib/azure';
+import { getPropertyImages } from '@/domain/Property';
 
 export const runtime = 'nodejs';
-
-async function getPropertyImages(propertyId: string): Promise<any | null> {
-  const { data, error } = await supabase.from('properties').select('images').eq('id', propertyId).single();
-  if (error) throw error;
-  return data?.images ?? null;
-}
 
 export async function GET(req: Request, { params }: { params: { propertyId: string; mediaId: string } }) {
   try {
