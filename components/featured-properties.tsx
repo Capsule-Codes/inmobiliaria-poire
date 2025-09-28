@@ -6,7 +6,7 @@ import { MapPin, Bed, Bath, Square, ChevronLeft, ChevronRight } from "lucide-rea
 import Link from "next/link"
 import { useState, useEffect, useCallback } from "react"
 import { useConfig } from "@/contexts/config-context"
-import { Property } from "@/types/property"
+import { Property } from "@/types/Property"
 
 export function FeaturedProperties({ allFeaturedProperties }: { allFeaturedProperties: Property[] }) {
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -103,6 +103,24 @@ export function FeaturedProperties({ allFeaturedProperties }: { allFeaturedPrope
                 const slideIndex = Math.floor(index / itemsPerSlide)
                 const offset = slideIndex - currentSlide
                 const isActive = slideIndex === currentSlide
+                const coverSrc = (() => {
+                  const raw: any = (property as any)?.images
+                  // New format: { coverId: string | null, items: Array<{ mediaId: string; sortOrder?: number; alt?: string }> }
+                  if (raw && typeof raw === 'object' && Array.isArray(raw.items)) {
+                    const items: any[] = raw.items as any[]
+                    // Prefer the item with sortOrder === 0
+                    const main = items.find((it) => typeof it?.sortOrder === 'number' && it.sortOrder === 0)
+                    const chosen = main ?? items[0]
+                    if (chosen?.mediaId) {
+                      return `/api/propiedades/${property.id}/media/${chosen.mediaId}`
+                    }
+                  }
+                  // Legacy format: string[] of URLs
+                  if (Array.isArray(raw) && raw.length > 0) {
+                    return raw[0]
+                  }
+                  return "/placeholder.svg"
+                })()
 
                 return (
                   <div
@@ -122,7 +140,7 @@ export function FeaturedProperties({ allFeaturedProperties }: { allFeaturedPrope
                     <Card className="overflow-hidden hover:shadow-2xl transition-all duration-500 transform-gpu hover:scale-105 bg-card/80 backdrop-blur-sm">
                       <div className="relative">
                         <img
-                          src={property.images ? property.images[0] : "/placeholder.svg"}
+                          src={coverSrc}
                           alt={property.title}
                           className="w-full h-64 object-cover transition-transform duration-700 hover:scale-110"
                         />
