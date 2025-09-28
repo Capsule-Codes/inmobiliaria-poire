@@ -46,7 +46,7 @@ export function PropertyForm({ property, onSave, onCancel, submitting = false }:
   const [files, setFiles] = useState<File[]>([])
   const [fileError, setFileError] = useState<string | null>(null)
 
-  const allowedTypes = new Set([
+  const allowedTypes: string[] = [
     'image/jpeg',
     'image/jpg',
     'image/png',
@@ -54,7 +54,7 @@ export function PropertyForm({ property, onSave, onCancel, submitting = false }:
     'image/avif',
     'image/heic',
     'image/heif',
-  ])
+  ]
 
   const handleInputChange = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -62,7 +62,7 @@ export function PropertyForm({ property, onSave, onCancel, submitting = false }:
 
   const handleFilesSelected = (selected: File[]) => {
     setFileError(null)
-    const filtered = selected.filter((f) => allowedTypes.has(f.type))
+    const filtered = selected.filter((f) => allowedTypes.includes(f.type))
     if (filtered.length !== selected.length) {
       setFileError('Algunos archivos fueron descartados por formato no permitido')
     }
@@ -84,35 +84,6 @@ export function PropertyForm({ property, onSave, onCancel, submitting = false }:
     }
   }, [files])
 
-
-
-  const handleImageRemove = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      images: prev.images.filter((_: any, i: number) => i !== index),
-    }))
-  }
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFileError(null)
-    const selected = Array.from(e.target.files || [])
-    if (selected.length > 5) {
-      setFiles([])
-      setFileError('Máximo 5 imágenes')
-      e.target.value = ''
-      return
-    }
-    const valid: File[] = []
-    for (const f of selected) {
-      if (allowedTypes.has(f.type)) {
-        valid.push(f)
-      }
-    }
-    if (valid.length !== selected.length) {
-      setFileError('Algunos archivos fueron descartados por formato no permitido')
-    }
-    setFiles(valid)
-  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -292,15 +263,7 @@ export function PropertyForm({ property, onSave, onCancel, submitting = false }:
               <CardContent>
                 <FileDropzone
                   onFilesSelected={handleFilesSelected}
-                  accept={[
-                    'image/jpeg',
-                    'image/jpg',
-                    'image/png',
-                    'image/webp',
-                    'image/avif',
-                    'image/heic',
-                    'image/heif',
-                  ]}
+                  accept={allowedTypes}
                   maxFiles={5}
                   className="mb-2"
                 />
