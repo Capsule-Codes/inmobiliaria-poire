@@ -156,9 +156,9 @@ export function FeaturedProjects({ allFeaturedProjects }: { allFeaturedProjects:
                               {project.status}
                             </Badge>
                           </div>
-
-                          <div className="absolute top-6 right-6 bg-primary/90 backdrop-blur-sm text-primary-foreground px-4 py-2 rounded-full font-bold shadow-lg">
-                            Desde {project.price_from}
+                          {/* Price badge moved to bottom center to avoid overlap */}
+                          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-primary/90 backdrop-blur-sm text-primary-foreground px-4 py-2 rounded-full font-bold shadow-lg">
+                            Desde ${project.price_from}
                           </div>
 
                           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>

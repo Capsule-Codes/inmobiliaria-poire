@@ -143,7 +143,7 @@ export function FeaturedProperties({ allFeaturedProperties }: { allFeaturedPrope
                           className="object-cover transition-transform duration-700 hover:scale-110"
                         />
                         <div className="absolute top-4 right-4 bg-accent text-accent-foreground px-3 py-1 rounded-full font-semibold shadow-lg">
-                          {property.price}
+                          ${property.price}
                         </div>
                         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                       </div>
