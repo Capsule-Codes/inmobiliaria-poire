@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -11,10 +11,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { AdminSidebar } from "@/components/admin-sidebar"
-import { ArrowLeft, X, Plus } from "lucide-react"
+import { ArrowLeft, X } from "lucide-react"
 import { Property } from "@/types/Property"
 import { useConfig } from "@/contexts/config-context"
 import { Autocomplete } from "@/components/ui/autocomplete"
+import { FileDropzone } from "@/components/ui/file-dropzone"
 
 interface PropertyFormProps {
   property?: Property | null
@@ -58,6 +59,30 @@ export function PropertyForm({ property, onSave, onCancel, submitting = false }:
   const handleInputChange = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
+
+  const handleFilesSelected = (selected: File[]) => {
+    setFileError(null)
+    const filtered = selected.filter((f) => allowedTypes.has(f.type))
+    if (filtered.length !== selected.length) {
+      setFileError('Algunos archivos fueron descartados por formato no permitido')
+    }
+    const merged = [...files, ...filtered]
+    if (merged.length > 5) {
+      setFileError('Máximo 5 imágenes')
+    }
+    setFiles(merged.slice(0, 5))
+  }
+
+  const handleFileRemove = (index: number) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  const previews = files.map((f) => ({ file: f, url: URL.createObjectURL(f) }))
+  useEffect(() => {
+    return () => {
+      previews.forEach((p) => URL.revokeObjectURL(p.url))
+    }
+  }, [files])
 
 
 
@@ -265,12 +290,19 @@ export function PropertyForm({ property, onSave, onCancel, submitting = false }:
                 <CardDescription>Agrega imágenes de la propiedad</CardDescription>
               </CardHeader>
               <CardContent>
-                <input
-                  type="file"
-                  multiple
-                  accept=".jpeg,.jpg,.png,.webp,.avif,.heic,.heif,image/jpeg,image/jpg,image/png,image/webp,image/avif,image/heic,image/heif"
-                  onChange={handleFileChange}
-                  className="block w-full text-sm text-foreground file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-secondary file:text-secondary-foreground hover:file:bg-secondary/90"
+                <FileDropzone
+                  onFilesSelected={handleFilesSelected}
+                  accept={[
+                    'image/jpeg',
+                    'image/jpg',
+                    'image/png',
+                    'image/webp',
+                    'image/avif',
+                    'image/heic',
+                    'image/heif',
+                  ]}
+                  maxFiles={5}
+                  className="mb-2"
                 />
                 {fileError && (
                   <p className="text-sm text-red-600 mt-2">{fileError}</p>
@@ -278,27 +310,27 @@ export function PropertyForm({ property, onSave, onCancel, submitting = false }:
                 {files.length > 0 && (
                   <p className="text-sm text-muted-foreground mt-2">{files.length} archivo(s) seleccionado(s)</p>
                 )}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                  {formData.images.map((image: string, index: number) => (
-                    <div key={index} className="relative group">
-                      <img
-                        src={image || "/placeholder.svg"}
-                        alt={`Imagen ${index + 1}`}
-                        className="w-full h-32 object-cover rounded-lg"
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={() => handleImageRemove(index)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
 
+                {/* Thumbnails en memoria, similar a PropertyDetail */}
+                {files.length > 0 && (
+                  <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
+                    {previews.map((p, index) => (
+                      <div key={index} className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 border-transparent">
+                        <img src={p.url} alt={`Preview ${index + 1}`} className="w-full h-full object-cover" />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute top-1 right-1 h-6 w-6"
+                          onClick={() => handleFileRemove(index)}
+                          aria-label={`Eliminar imagen ${index + 1}`}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
 
