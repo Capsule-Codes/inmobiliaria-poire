@@ -94,10 +94,9 @@ export function FeaturedProperties({ allFeaturedProperties }: { allFeaturedPrope
 
           <div className="overflow-hidden mx-12 rounded-2xl">
             <div
-              className="flex transition-all duration-700 ease-out transform-gpu"
+              className="flex transition-transform duration-700 ease-out transform-gpu"
               style={{
-                transform: `translateX(-${currentSlide * (100 / itemsPerSlide)}%) rotateY(${currentSlide * -2}deg)`,
-                transformStyle: "preserve-3d",
+                transform: `translateX(-${currentSlide * (100 / itemsPerSlide)}%)`,
               }}
             >
               {featuredProperties.map((property, index) => {
@@ -129,13 +128,9 @@ export function FeaturedProperties({ allFeaturedProperties }: { allFeaturedPrope
                     className={`flex-shrink-0 px-2 ${itemsPerSlide === 1 ? "w-full" : itemsPerSlide === 2 ? "w-1/2" : "w-1/3"
                       }`}
                     style={{
-                      transform: `
-                        translateZ(${isActive ? "0px" : "-50px"}) 
-                        rotateY(${offset * 10}deg) 
-                        scale(0.95)
-                      `,
-                      opacity: Math.abs(offset) > 1 && totalSlides > 1 ? 0.6 : 1,
-                      transition: "all 0.7s cubic-bezier(0.4, 0, 0.2, 1)",
+                      transform: `scale(${isActive ? 1 : 0.98})`,
+                      opacity: 1,
+                      transition: "transform 0.7s cubic-bezier(0.4, 0, 0.2, 1)",
                     }}
                   >
                     <Card className="overflow-hidden hover:shadow-2xl transition-all duration-500 transform-gpu hover:scale-105 bg-card/80 backdrop-blur-sm">

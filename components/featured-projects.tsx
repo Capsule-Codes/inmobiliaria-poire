@@ -100,10 +100,9 @@ export function FeaturedProjects({ allFeaturedProjects }: { allFeaturedProjects:
 
           <div className="overflow-hidden rounded-2xl mx-12">
             <div
-              className="flex transition-all duration-700 ease-out transform-gpu"
+              className="flex transition-transform duration-700 ease-out transform-gpu"
               style={{
-                transform: `translateX(-${currentSlide * (100 / itemsPerSlide)}%) rotateY(${currentSlide * -1}deg)`,
-                transformStyle: "preserve-3d",
+                transform: `translateX(-${currentSlide * (100 / itemsPerSlide)}%)`,
               }}
             >
               {featuredProjects.map((project, index) => {
@@ -117,13 +116,9 @@ export function FeaturedProjects({ allFeaturedProjects }: { allFeaturedProjects:
                     className={`flex-shrink-0 px-2 ${itemsPerSlide === 1 ? "w-full" : itemsPerSlide === 2 ? "w-1/2" : "w-1/3"
                       }`}
                     style={{
-                      transform: `
-                        translateZ(${isActive ? "0px" : "-50px"}) 
-                        rotateY(${offset * 10}deg) 
-                        scale(0.95)
-                      `,
-                      opacity: Math.abs(offset) > 1 ? 0.4 : 1,
-                      transition: "all 0.7s cubic-bezier(0.4, 0, 0.2, 1)",
+                      transform: `scale(${isActive ? 1 : 0.98})`,
+                      opacity: 1,
+                      transition: "transform 0.7s cubic-bezier(0.4, 0, 0.2, 1)",
                     }}
                   >
                     <Card className="overflow-hidden bg-card/80 backdrop-blur-sm border-border/50 hover:shadow-2xl transition-all duration-500 transform-gpu hover:scale-[1.02] h-full min-h-[600px]">
