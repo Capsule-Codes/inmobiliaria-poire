@@ -13,7 +13,7 @@ async function getPropertyImages(propertyId: string): Promise<any | null> {
 
 export async function GET(req: Request, { params }: { params: { propertyId: string; mediaId: string } }) {
   try {
-    const { propertyId, mediaId } = params;
+    const { propertyId, mediaId } = await params;
     const imagesJson = await getPropertyImages(propertyId);
     if (!imagesJson || !imagesJson.items || !Array.isArray(imagesJson.items)) {
       return NextResponse.json({ message: 'Not found' }, { status: 404 });
