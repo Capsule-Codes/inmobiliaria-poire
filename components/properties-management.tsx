@@ -113,7 +113,7 @@ export function PropertiesManagement({ allProperties }: { allProperties: Propert
           fd.append('images', f)
         }
       }
-      fetch('/api/admin/propiedades/create', {
+      fetch('/api/admin/propiedades/', {
         method: 'POST',
         body: fd as any,
       }).then(async (res) => {
