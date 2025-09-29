@@ -4,18 +4,10 @@ import sharp from 'sharp';
 import { randomUUID } from 'node:crypto';
 import { getContainerClient } from '@/lib/azure';
 import { createProject, updateProject } from '@/domain/Project';
+import { ALLOWED_IMAGE_MIME } from '@/lib/constants/media';
 
 export const runtime = 'nodejs';
 
-const ALLOWED_MIME = new Set([
-  'image/jpeg',
-  'image/jpg',
-  'image/png',
-  'image/webp',
-  'image/avif',
-  'image/heic',
-  'image/heif',
-]);
 
 type ImagesJson = {
   version: number;
@@ -59,7 +51,7 @@ export async function POST(req: Request) {
     }
 
     for (const f of files) {
-      if (!ALLOWED_MIME.has(f.type)) {
+      if (!ALLOWED_IMAGE_MIME.has(f.type)) {
         return NextResponse.json({ message: 'Formato de imagen no permitido' }, { status: 400 });
       }
     }
