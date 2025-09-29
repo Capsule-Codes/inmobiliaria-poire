@@ -1,23 +1,9 @@
 import 'server-only';
 import { supabase } from "@/lib/supabase";
+import type { Images } from '@/lib/media'
+import type { Property as PropertyType } from '@/types/Property'
 
-type Property = {
-    id: string
-    title: string
-    description: string
-    price: number
-    location: string
-    type: string
-    bedrooms: number
-    bathrooms: number
-    area: number
-    features: string[]
-    images: string[]
-    is_featured: boolean
-    status: string
-    created_at: string
-    updated_at: string
-}
+type Property = PropertyType & { created_at: string; updated_at: string }
 
 // Funciones para Propiedades
 export async function getProperties(filters?: {
@@ -129,7 +115,7 @@ export async function getRelatedProperties(id: string) {
     return data as Property[];
 }
 
-export async function getPropertyImages(propertyId: string): Promise<any | null> {
+export async function getPropertyImages(propertyId: string): Promise<Images | null> {
   const { data, error } = await supabase.from('properties').select('images').eq('id', propertyId).single();
   if (error) throw error;
   return data?.images ?? null;

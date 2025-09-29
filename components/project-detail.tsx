@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { type Project } from "@/types/project"
+import { normalizeImages } from "@/lib/media"
 import { useState, useEffect, useMemo } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -32,33 +33,7 @@ interface ProjectDetailProps {
 export function ProjectDetail({ project }: ProjectDetailProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
-  const normalizedImages = useMemo(() => {
-    const images: Array<{ key: string; src: string; alt?: string | null }> = []
-    const buildMediaUrl = (projectId: string, mediaId: string) => `/api/emprendimientos/${projectId}/media/${mediaId}`
-
-    const raw: any = (project as any)?.images
-    if (!raw) return images
-
-    if (raw && typeof raw === 'object' && Array.isArray(raw.items)) {
-      const items = [...raw.items]
-      const coverId: string | null = raw.coverId ?? null
-      items.sort((a: any, b: any) => {
-        const aCover = coverId && a.mediaId === coverId ? -1 : 0
-        const bCover = coverId && b.mediaId === coverId ? -1 : 0
-        if (aCover !== bCover) return aCover - bCover
-        const ao = (a.sortOrder ?? 0) as number
-        const bo = (b.sortOrder ?? 0) as number
-        return ao - bo
-      })
-      for (const it of items) {
-        if (!it?.mediaId) continue
-        images.push({ key: it.mediaId, src: buildMediaUrl(project.id, it.mediaId), alt: it.alt ?? null })
-      }
-      return images
-    }
-
-    return images
-  }, [project])
+  const normalizedImages = useMemo(() => normalizeImages('emprendimientos', project.id, project.images), [project])
 
   const [contactForm, setContactForm] = useState({
     name: "",
@@ -346,4 +321,3 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
     </div>
   )
 }
-

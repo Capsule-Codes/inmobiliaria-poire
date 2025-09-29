@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress"
 import { MapPin, Calendar, Building, Users, ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { getCoverSrc } from "@/lib/media"
 import { useConfig } from "@/contexts/config-context"
 import { type Project } from "@/types/project"
 
@@ -125,18 +126,7 @@ export function FeaturedProjects({ allFeaturedProjects }: { allFeaturedProjects:
                       <div className={`grid gap-0 h-full ${itemsPerSlide === 1 ? "lg:grid-cols-2" : "grid-cols-1"}`}>
                         <div className="relative h-64 lg:h-96 overflow-hidden flex-shrink-0">
                           {(() => {
-                            const raw: any = (project as any)?.images
-                            let coverSrc = "/placeholder.svg"
-                            if (raw && typeof raw === 'object' && Array.isArray(raw.items)) {
-                              const items: any[] = raw.items as any[]
-                              const main = items.find((it) => typeof it?.sortOrder === 'number' && it.sortOrder === 0)
-                              const chosen = main ?? items[0]
-                              if (chosen?.mediaId) {
-                                coverSrc = `/api/emprendimientos/${project.id}/media/${chosen.mediaId}`
-                              }
-                            } else if (Array.isArray(raw) && raw.length > 0) {
-                              coverSrc = raw[0]
-                            }
+                            const coverSrc = getCoverSrc('emprendimientos', project.id, project.images)
                             return (
                               <Image
                                 src={coverSrc}
@@ -288,11 +278,7 @@ export function FeaturedProjects({ allFeaturedProjects }: { allFeaturedProjects:
         </div>
       </div>
 
-      <style jsx>{`
-        .perspective-1000 {
-          perspective: 1000px;
-        }
-      `}</style>
+      
     </section>
   )
 }

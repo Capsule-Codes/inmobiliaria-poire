@@ -2,7 +2,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { MapPin, Bed, Bath, Square } from "lucide-react"
 import Link from "next/link"
-import { Property } from "@/types/property"
+import { Property } from "@/types/Property"
+import { getCoverSrc } from "@/lib/media"
 import Image from "next/image"
 
 interface RelatedPropertyDetailProps {
@@ -23,19 +24,8 @@ export function RelatedProperties({ relatedProperties }: RelatedPropertyDetailPr
           {relatedProperties.map((property) => (
             <Card key={property.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
               <div className="relative h-48">
-                {(() => {
-                  const raw: any = (property as any)?.images
-                  let coverSrc = "/placeholder.svg"
-                  if (raw && typeof raw === 'object' && Array.isArray(raw.items)) {
-                    const items: any[] = raw.items as any[]
-                    const main = items.find((it) => typeof it?.sortOrder === 'number' && it.sortOrder === 0)
-                    const chosen = main ?? items[0]
-                    if (chosen?.mediaId) {
-                      coverSrc = `/api/propiedades/${property.id}/media/${chosen.mediaId}`
-                    }
-                  } else if (Array.isArray(raw) && raw.length > 0) {
-                    coverSrc = raw[0]
-                  }
+              {(() => {
+                  const coverSrc = getCoverSrc('propiedades', property.id, property.images)
                   return (
                     <Image
                       src={coverSrc}

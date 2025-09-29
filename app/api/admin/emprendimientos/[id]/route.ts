@@ -1,21 +1,11 @@
 import 'server-only';
 import { NextResponse } from "next/server";
-import sharp from 'sharp';
-import { randomUUID } from 'node:crypto';
 import { getContainerClient } from '@/lib/azure';
+import { ALLOWED_IMAGE_MIME, MAX_IMAGES } from '@/lib/constants/media'
+import { processAndUploadImages, mergeImagesJson } from '@/lib/server/media'
 import { deleteProject, updateProject, getProjectById } from "@/domain/Project";
 
 export const runtime = 'nodejs';
-
-const ALLOWED_MIME = new Set([
-  'image/jpeg',
-  'image/jpg',
-  'image/png',
-  'image/webp',
-  'image/avif',
-  'image/heic',
-  'image/heif',
-]);
 
 type ImagesJson = {
   version: number;
@@ -84,7 +74,7 @@ export async function PUT(
       }
 
       for (const f of files) {
-        if (!ALLOWED_MIME.has(f.type)) {
+        if (!ALLOWED_IMAGE_MIME.has(f.type)) {
           return NextResponse.json({ message: 'Formato de imagen no permitido' }, { status: 400 });
         }
       }
@@ -95,7 +85,7 @@ export async function PUT(
         existingItems = desiredImages.items as ImagesJson['items'];
         coverId = desiredImages.coverId ?? null;
       }
-      if (existingItems.length + files.length > 5) {
+      if (existingItems.length + files.length > MAX_IMAGES) {
         return NextResponse.json({ message: 'Máximo 5 imágenes permitidas' }, { status: 400 });
       }
 
@@ -112,59 +102,9 @@ export async function PUT(
         return NextResponse.json(current, { status: 200 });
       }
 
-      const container = getContainerClient();
-      const newItems: ImagesJson['items'] = [];
-      let sortIndex = existingItems.length;
-      for (const file of files) {
-        try {
-          const arrayBuf = await file.arrayBuffer();
-          const inputBuffer = Buffer.from(arrayBuf);
+      const newItems = await processAndUploadImages('emprendimientos', id, files, existingItems.length, 'Imagen del emprendimiento');
 
-          const optimized = await sharp(inputBuffer)
-            .rotate()
-            .resize({ width: 1600, withoutEnlargement: true })
-            .webp({ quality: 80 })
-            .toBuffer();
-
-          const meta = await sharp(optimized).metadata();
-          const width = meta.width ?? 0;
-          const height = meta.height ?? 0;
-
-          const assetId = randomUUID();
-          const mediaId = randomUUID();
-          const fileName = `${assetId}_1600.webp`;
-          const blobKey = `poirepropiedades/emprendimientos/${id}/optimized/${fileName}`;
-
-          const blobClient = container.getBlockBlobClient(blobKey);
-          await blobClient.uploadData(optimized, {
-            blobHTTPHeaders: {
-              blobContentType: 'image/webp',
-              blobCacheControl: 'public, max-age=31536000, immutable',
-            },
-          });
-
-          newItems.push({
-            mediaId,
-            blobKey,
-            mimeType: 'image/webp',
-            width,
-            height,
-            sizeBytes: optimized.length,
-            alt: 'Imagen del emprendimiento',
-            sortOrder: sortIndex++,
-            createdAt: new Date().toISOString(),
-          });
-        } catch (e: any) {
-          console.error('Image processing/upload error (projects PUT):', e?.message || e);
-        }
-      }
-
-      const finalImages: ImagesJson = emptyImagesJson();
-      if (existingItems.length > 0) finalImages.items.push(...existingItems);
-      if (newItems.length > 0) finalImages.items.push(...newItems);
-      finalImages.coverId = coverId && finalImages.items.find((it) => it.mediaId === coverId)
-        ? coverId
-        : (finalImages.items[0]?.mediaId ?? null);
+      const finalImages = mergeImagesJson(existingItems, newItems, coverId ?? null)
 
       const updated = await updateProject(id, { images: finalImages as any });
       return NextResponse.json(updated, { status: 200 });
@@ -182,3 +122,4 @@ export async function PUT(
     );
   }
 }
+

@@ -13,14 +13,19 @@ import { Switch } from "@/components/ui/switch"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { ArrowLeft, X } from "lucide-react"
 import { Property } from "@/types/Property"
+import type { Images, MediaItem } from "@/lib/media"
+import { compareMediaItems } from "@/lib/media"
+import { ALLOWED_IMAGE_MIME, MAX_IMAGES } from "@/lib/constants/media"
 import { useConfig } from "@/contexts/config-context"
 import { Autocomplete } from "@/components/ui/autocomplete"
 import { FileDropzone } from "@/components/ui/file-dropzone"
 import Image from "next/image"
 
+type PropertyFormData = Omit<Property, "id">
+
 interface PropertyFormProps {
   property?: Property | null
-  onSave: (property: any, files?: File[]) => void
+  onSave: (property: PropertyFormData, files?: File[]) => void
   onCancel: () => void
   submitting?: boolean
 }
@@ -29,7 +34,7 @@ export function PropertyForm({ property, onSave, onCancel, submitting = false }:
   const { config } = useConfig()
   const locationOptions = config.availableLocations ?? []
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [formData, setFormData] = useState<Omit<Property, "id">>({
+  const [formData, setFormData] = useState<PropertyFormData>({
     title: property?.title || "",
     location: property?.location || "",
     price: property?.price || 0,
@@ -48,17 +53,7 @@ export function PropertyForm({ property, onSave, onCancel, submitting = false }:
   const [fileError, setFileError] = useState<string | null>(null)
 
   // Existing images (when editing) in the structured JSON format used by the API
-  type ExistingItem = {
-    mediaId: string
-    blobKey: string
-    mimeType: string
-    width: number
-    height: number
-    sizeBytes: number
-    alt: string
-    sortOrder: number
-    createdAt: string
-  }
+  type ExistingItem = MediaItem
   const [existingItems, setExistingItems] = useState<ExistingItem[]>([])
   const [coverId, setCoverId] = useState<string | null>(null)
 
@@ -70,14 +65,7 @@ export function PropertyForm({ property, onSave, onCancel, submitting = false }:
     }
     const raw: any = (property as any)?.images
     if (raw && typeof raw === 'object' && Array.isArray(raw.items)) {
-      const items: ExistingItem[] = [...raw.items].sort((a: any, b: any) => {
-        const ao = (a.sortOrder ?? 0) as number
-        const bo = (b.sortOrder ?? 0) as number
-        if (ao !== bo) return ao - bo
-        const ad = new Date(a.createdAt || 0).getTime()
-        const bd = new Date(b.createdAt || 0).getTime()
-        return ad - bd
-      })
+      const items: ExistingItem[] = [...raw.items].sort((a: any, b: any) => compareMediaItems(a, b, raw.coverId ?? null))
       setExistingItems(items)
       setCoverId(raw.coverId ?? null)
     } else {
@@ -86,31 +74,23 @@ export function PropertyForm({ property, onSave, onCancel, submitting = false }:
     }
   }, [property?.id])
 
-  const allowedTypes: string[] = [
-    'image/jpeg',
-    'image/jpg',
-    'image/png',
-    'image/webp',
-    'image/avif',
-    'image/heic',
-    'image/heif',
-  ]
+  const allowedTypes: string[] = Array.from(ALLOWED_IMAGE_MIME)
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = <K extends keyof PropertyFormData>(field: K, value: PropertyFormData[K]) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
   const handleFilesSelected = (selected: File[]) => {
     setFileError(null)
-    const filtered = selected.filter((f) => allowedTypes.includes(f.type))
+    const filtered = selected.filter((f) => ALLOWED_IMAGE_MIME.has(f.type))
     if (filtered.length !== selected.length) {
       setFileError('Algunos archivos fueron descartados por formato no permitido')
     }
     const merged = [...files, ...filtered]
-    if (merged.length > 5) {
+    if (merged.length > MAX_IMAGES) {
       setFileError('Máximo 5 imágenes')
     }
-    setFiles(merged.slice(0, 5))
+    setFiles(merged.slice(0, MAX_IMAGES))
   }
 
   const handleFileRemove = (index: number) => {
@@ -120,11 +100,11 @@ export function PropertyForm({ property, onSave, onCancel, submitting = false }:
   // New handler that enforces total limit including existing images
   const handleFilesSelectedWithLimit = (selected: File[]) => {
     setFileError(null)
-    const filtered = selected.filter((f) => allowedTypes.includes(f.type))
+    const filtered = selected.filter((f) => ALLOWED_IMAGE_MIME.has(f.type))
     if (filtered.length !== selected.length) {
       setFileError('Algunos archivos fueron descartados por formato no permitido')
     }
-    const max = 5
+    const max = MAX_IMAGES
     const availableSlots = Math.max(0, max - existingItems.length)
     const next = [...files, ...filtered].slice(0, availableSlots)
     if (existingItems.length + (files.length + filtered.length) > max) {
@@ -152,7 +132,7 @@ export function PropertyForm({ property, onSave, onCancel, submitting = false }:
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    const payload = { ...formData, images: desiredImagesJson as any }
+    const payload: PropertyFormData = { ...formData, images: desiredImagesJson as Images }
     onSave(payload, files)
   }
 
@@ -215,7 +195,7 @@ export function PropertyForm({ property, onSave, onCancel, submitting = false }:
                     <Input
                       id="price"
                       value={formData.price}
-                      onChange={(e) => handleInputChange("price", e.target.value)}
+                      onChange={(e) => handleInputChange("price", Number(e.target.value))}
                       placeholder="Ej: USD 850.000"
                       required
                     />
@@ -359,7 +339,7 @@ export function PropertyForm({ property, onSave, onCancel, submitting = false }:
                 <FileDropzone
                   onFilesSelected={handleFilesSelectedWithLimit}
                   accept={allowedTypes}
-                  maxFiles={5}
+                  maxFiles={MAX_IMAGES}
                   className="mb-2"
                 />
                 {fileError && (
@@ -405,6 +385,8 @@ export function PropertyForm({ property, onSave, onCancel, submitting = false }:
     </div>
   )
 }
+
+
 
 
 

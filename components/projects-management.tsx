@@ -11,6 +11,8 @@ import { AdminSidebar } from "@/components/admin-sidebar"
 import { TrendingUp, Plus, Search, Edit, Trash2, Star, StarOff, MapPin, Calendar, Building, Users } from "lucide-react"
 import { type Project } from "@/types/project"
 import Image from "next/image"
+// statusColors centralizado disponible en @/lib/project-status
+import { getCoverSrc } from "@/lib/media"
 
 const statusColors = {
   "En Construcción": "bg-yellow-500",
@@ -84,7 +86,7 @@ export function ProjectsManagement({ allProjects }: { allProjects: Project[] }) 
     }
   }
 
-  const handleSaveProject = (projectData: any, files?: File[]) => {
+  const handleSaveProject = (projectData: Omit<Project, 'id'>, files?: File[]) => {
     if (editingProject) {
       // Update via multipart (data + files)
       setSubmitting(true)
@@ -232,18 +234,7 @@ export function ProjectsManagement({ allProjects }: { allProjects: Project[] }) 
               <Card key={project.id} className="overflow-hidden">
                 <div className="relative h-48">
                   {(() => {
-                    const raw: any = (project as any)?.images
-                    let coverSrc = "/placeholder.svg"
-                    if (raw && typeof raw === 'object' && Array.isArray(raw.items)) {
-                      const items: any[] = raw.items as any[]
-                      const main = items.find((it) => typeof it?.sortOrder === 'number' && it.sortOrder === 0)
-                      const chosen = main ?? items[0]
-                      if (chosen?.mediaId) {
-                        coverSrc = `/api/emprendimientos/${project.id}/media/${chosen.mediaId}`
-                      }
-                    } else if (Array.isArray(raw) && raw.length > 0) {
-                      coverSrc = raw[0]
-                    }
+                    const coverSrc = getCoverSrc('emprendimientos', project.id, project.images)
                     return (
                       <Image
                         src={coverSrc}

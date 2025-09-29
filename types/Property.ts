@@ -1,3 +1,5 @@
+import type { Images } from '@/lib/media'
+
 export interface Property {
     id: string
     title: string
@@ -9,7 +11,7 @@ export interface Property {
     bathrooms: number
     area: number
     features: string[]
-    images: string[]
+    images: Images
     is_featured: boolean
     status: string
 }

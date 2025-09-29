@@ -9,6 +9,8 @@ import { MapPin, Calendar, Building, Users } from "lucide-react"
 import Link from "next/link"
 import { Project } from "@/types/project"
 import Image from "next/image"
+// statusColors centralizado disponible en @/lib/project-status
+import { getCoverSrc } from "@/lib/media"
 
 const statusColors = {
   "En Construcción": "bg-yellow-500",
@@ -62,18 +64,7 @@ export function ProjectsGrid({ allProjects }: { allProjects: Project[] }) {
             <Card key={project.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 group">
               <div className="relative h-64">
                 {(() => {
-                  const raw: any = (project as any)?.images
-                  let coverSrc = "/placeholder.svg"
-                  if (raw && typeof raw === 'object' && Array.isArray(raw.items)) {
-                    const items: any[] = raw.items as any[]
-                    const main = items.find((it) => typeof it?.sortOrder === 'number' && it.sortOrder === 0)
-                    const chosen = main ?? items[0]
-                    if (chosen?.mediaId) {
-                      coverSrc = `/api/emprendimientos/${project.id}/media/${chosen.mediaId}`
-                    }
-                  } else if (Array.isArray(raw) && raw.length > 0) {
-                    coverSrc = raw[0]
-                  }
+                  const coverSrc = getCoverSrc('emprendimientos', project.id, project.images)
                   return (
                     <Image
                       src={coverSrc}

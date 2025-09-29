@@ -13,14 +13,19 @@ import { Badge } from "@/components/ui/badge"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { ArrowLeft, X, Plus } from "lucide-react"
 import { Project } from "@/types/project"
+import { compareMediaItems } from "@/lib/media"
+import type { Images, MediaItem } from "@/lib/media"
+import { ALLOWED_IMAGE_MIME, MAX_IMAGES } from "@/lib/constants/media"
 import { Autocomplete } from "@/components/ui/autocomplete"
 import { useConfig } from "@/contexts/config-context"
 import { FileDropzone } from "@/components/ui/file-dropzone"
 import Image from "next/image"
 
+type ProjectFormData = Omit<Project, "id">
+
 interface ProjectFormProps {
   project?: Project | null
-  onSave: (project: any, files?: File[]) => void
+  onSave: (project: ProjectFormData, files?: File[]) => void
   onCancel: () => void
   submitting?: boolean
 }
@@ -48,17 +53,7 @@ export function ProjectForm({ project, onSave, onCancel, submitting = false }: P
   const [files, setFiles] = useState<File[]>([])
   const [fileError, setFileError] = useState<string | null>(null)
 
-  type ExistingItem = {
-    mediaId: string
-    blobKey: string
-    mimeType: string
-    width: number
-    height: number
-    sizeBytes: number
-    alt: string
-    sortOrder: number
-    createdAt: string
-  }
+  type ExistingItem = MediaItem
   const [existingItems, setExistingItems] = useState<ExistingItem[]>([])
   const [coverId, setCoverId] = useState<string | null>(null)
 
@@ -70,14 +65,7 @@ export function ProjectForm({ project, onSave, onCancel, submitting = false }: P
     }
     const raw: any = (project as any)?.images
     if (raw && typeof raw === 'object' && Array.isArray(raw.items)) {
-      const items: ExistingItem[] = [...raw.items].sort((a: any, b: any) => {
-        const ao = (a.sortOrder ?? 0) as number
-        const bo = (b.sortOrder ?? 0) as number
-        if (ao !== bo) return ao - bo
-        const ad = new Date(a.createdAt || 0).getTime()
-        const bd = new Date(b.createdAt || 0).getTime()
-        return ad - bd
-      })
+      const items: ExistingItem[] = [...raw.items].sort((a: any, b: any) => compareMediaItems(a, b, raw.coverId ?? null))
       setExistingItems(items)
       setCoverId(raw.coverId ?? null)
     } else {
@@ -86,27 +74,19 @@ export function ProjectForm({ project, onSave, onCancel, submitting = false }: P
     }
   }, [project?.id])
 
-  const allowedTypes: string[] = [
-    'image/jpeg',
-    'image/jpg',
-    'image/png',
-    'image/webp',
-    'image/avif',
-    'image/heic',
-    'image/heif',
-  ]
+  const allowedTypes: string[] = Array.from(ALLOWED_IMAGE_MIME)
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = <K extends keyof typeof formData>(field: K, value: typeof formData[K]) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
   const handleFilesSelectedWithLimit = (selected: File[]) => {
     setFileError(null)
-    const filtered = selected.filter((f) => allowedTypes.includes(f.type))
+    const filtered = selected.filter((f) => ALLOWED_IMAGE_MIME.has(f.type))
     if (filtered.length !== selected.length) {
       setFileError('Algunos archivos fueron descartados por formato no permitido')
     }
-    const max = 5
+    const max = MAX_IMAGES
     const availableSlots = Math.max(0, max - existingItems.length)
     const merged = [...files, ...filtered].slice(0, availableSlots)
     if (filtered.length > availableSlots) {
@@ -360,7 +340,7 @@ export function ProjectForm({ project, onSave, onCancel, submitting = false }: P
                     </div>
                   </div>
                 )}
-                <FileDropzone onFilesSelected={handleFilesSelectedWithLimit} accept={allowedTypes} maxFiles={5} className="mb-2" />
+                <FileDropzone onFilesSelected={handleFilesSelectedWithLimit} accept={allowedTypes} maxFiles={MAX_IMAGES} className="mb-2" />
                 {fileError && <p className="text-sm text-red-600 mt-2">{fileError}</p>}
                 <p className="text-sm text-muted-foreground mt-2">{existingItems.length} existente(s) + {files.length} nueva(s) (máx. 5)</p>
                 {files.length > 0 && (

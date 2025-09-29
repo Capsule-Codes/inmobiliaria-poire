@@ -9,6 +9,7 @@ import { PropertyForm } from "@/components/property-form"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { Building2, Plus, Search, Edit, Trash2, Star, StarOff, MapPin, Bed, Bath, Square } from "lucide-react"
 import { Property } from "@/types/Property"
+import { getCoverSrc } from "@/lib/media"
 import Image from "next/image"
 
 
@@ -79,7 +80,7 @@ export function PropertiesManagement({ allProperties }: { allProperties: Propert
     }
   }
 
-  const handleSaveProperty = (propertyData: any, files?: File[]) => {
+  const handleSaveProperty = (propertyData: Omit<Property, 'id'>, files?: File[]) => {
 
     if (editingProperty) {
       // Update via multipart to support images add/remove
@@ -224,18 +225,7 @@ export function PropertiesManagement({ allProperties }: { allProperties: Propert
               <Card key={property.id} className="overflow-hidden">
                 <div className="relative h-48">
                   {(() => {
-                    const raw: any = (property as any)?.images
-                    let coverSrc = "/placeholder.svg"
-                    if (raw && typeof raw === 'object' && Array.isArray(raw.items)) {
-                      const items: any[] = raw.items as any[]
-                      const main = items.find((it) => typeof it?.sortOrder === 'number' && it.sortOrder === 0)
-                      const chosen = main ?? items[0]
-                      if (chosen?.mediaId) {
-                        coverSrc = `/api/propiedades/${property.id}/media/${chosen.mediaId}`
-                      }
-                    } else if (Array.isArray(raw) && raw.length > 0) {
-                      coverSrc = raw[0]
-                    }
+                    const coverSrc = getCoverSrc('propiedades', property.id, property.images)
                     return (
                       <Image
                         src={coverSrc}

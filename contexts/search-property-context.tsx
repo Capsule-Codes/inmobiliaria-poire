@@ -21,7 +21,7 @@ interface SearchPropertyContextType {
   setCurrentPage: React.Dispatch<React.SetStateAction<number>>
   totalPages: number
   currentProperties: {
-    data: any[]
+    data: Property[]
     startIndex: number
     perPage: number
   }
@@ -32,7 +32,7 @@ const SearchPropertyContext = createContext<SearchPropertyContextType | null>(nu
 
 export function SearchPropertyProvider({ children }: { children: ReactNode }) {
   const [filters, setFilters] = useState<SearchPropertyFilters>({})
-  const [properties, setProperties] = useState([])
+  const [properties, setProperties] = useState<Property[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const propertiesPerPage = 6

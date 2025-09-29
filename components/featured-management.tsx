@@ -10,6 +10,8 @@ import { Star, StarOff, MapPin, Bed, Bath, Square, Calendar, Building, Users, Ey
 import { type Property } from "@/types/Property"
 import { type Project } from "@/types/project"
 import Image from "next/image"
+// statusColors centralizado disponible en @/lib/project-status
+import { getCoverSrc } from "@/lib/media"
 
 
 const statusColors = {
@@ -23,7 +25,7 @@ export function FeaturedManagement({ featuredProperties, featuredProjects }: { f
   const [properties, setProperties] = useState(featuredProperties)
   const [projects, setProjects] = useState(featuredProjects)
 
-  const allFeatured = [...properties.map((p) => ({ ...p, type: 'Propiedad', title: p.title, image: p.images[0] || "/placeholder.svg" })), ...projects.map((p) => ({ ...p, type: 'Emprendimiento', title: p.name, price: `Desde ${p.price_from}`, image: p.images[0] || "/placeholder.svg" }))]
+  const allFeatured = [...properties.map((p) => ({ ...p, type: 'Propiedad', title: p.title, image: getCoverSrc('propiedades', p.id, p.images) })), ...projects.map((p) => ({ ...p, type: 'Emprendimiento', title: p.name, price: `Desde ${p.price_from}`, image: getCoverSrc('emprendimientos', p.id, p.images) }))]
 
   const handleToggleFeatured = (id: string, type: string) => {
     if (type === "Propiedad") {
@@ -181,18 +183,7 @@ export function FeaturedManagement({ featuredProperties, featuredProjects }: { f
                   <Card key={property.id} className="overflow-hidden">
                     <div className="relative h-32">
                       {(() => {
-                        const raw: any = (property as any)?.images
-                        let coverSrc = "/placeholder.svg"
-                        if (raw && typeof raw === 'object' && Array.isArray(raw.items)) {
-                          const items: any[] = raw.items as any[]
-                          const main = items.find((it) => typeof it?.sortOrder === 'number' && it.sortOrder === 0)
-                          const chosen = main ?? items[0]
-                          if (chosen?.mediaId) {
-                            coverSrc = `/api/propiedades/${property.id}/media/${chosen.mediaId}`
-                          }
-                        } else if (Array.isArray(raw) && raw.length > 0) {
-                          coverSrc = raw[0]
-                        }
+                        const coverSrc = getCoverSrc('propiedades', property.id, property.images)
                         return (
                           <Image
                             src={coverSrc}
@@ -257,18 +248,7 @@ export function FeaturedManagement({ featuredProperties, featuredProjects }: { f
                   <Card key={project.id} className="overflow-hidden">
                     <div className="relative h-32">
                       {(() => {
-                        const raw: any = (project as any)?.images
-                        let coverSrc = "/placeholder.svg"
-                        if (raw && typeof raw === 'object' && Array.isArray(raw.items)) {
-                          const items: any[] = raw.items as any[]
-                          const main = items.find((it) => typeof it?.sortOrder === 'number' && it.sortOrder === 0)
-                          const chosen = main ?? items[0]
-                          if (chosen?.mediaId) {
-                            coverSrc = `/api/emprendimientos/${project.id}/media/${chosen.mediaId}`
-                          }
-                        } else if (Array.isArray(raw) && raw.length > 0) {
-                          coverSrc = raw[0]
-                        }
+                        const coverSrc = getCoverSrc('emprendimientos', project.id, project.images)
                         return (
                           <Image
                             src={coverSrc}

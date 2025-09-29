@@ -1,3 +1,5 @@
+import type { Images } from '@/lib/media'
+
 export interface Project {
     id: string
     name: string
@@ -11,6 +13,6 @@ export interface Project {
     price_to: number
     delivery_date: string
     amenities: string[]
-    images: string[]
+    images: Images
     is_featured: boolean
 }

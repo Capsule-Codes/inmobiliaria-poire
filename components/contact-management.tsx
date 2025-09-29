@@ -8,7 +8,7 @@ import { Mail, Phone, Calendar, Eye } from "lucide-react"
 import { useState } from "react"
 import { type Contact } from "@/types/contact"
 import { type Project } from "@/types/project"
-import { type Property } from "@/types/property"
+import { type Property } from "@/types/Property"
 import Link from "next/link"
 import { formatDate } from "@/lib/utils"
 

@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { type Property } from "@/types/Property"
+import { normalizeImages } from "@/lib/media"
 import { useState, useEffect, useMemo } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import Image from "next/image"
@@ -31,33 +32,7 @@ interface PropertyDetailProps {
 export function PropertyDetail({ property }: PropertyDetailProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
-  const normalizedImages = useMemo(() => {
-    const images: Array<{ key: string; src: string; alt?: string | null }> = []
-    const buildMediaUrl = (propertyId: string, mediaId: string) => `/api/propiedades/${propertyId}/media/${mediaId}`
-
-    const raw: any = (property as any)?.images
-    if (!raw) return images
-
-    if (raw && typeof raw === 'object' && Array.isArray(raw.items)) {
-      const items = [...raw.items]
-      const coverId: string | null = raw.coverId ?? null
-      items.sort((a: any, b: any) => {
-        const aCover = coverId && a.mediaId === coverId ? -1 : 0
-        const bCover = coverId && b.mediaId === coverId ? -1 : 0
-        if (aCover !== bCover) return aCover - bCover
-        const ao = (a.sortOrder ?? 0) as number
-        const bo = (b.sortOrder ?? 0) as number
-        return ao - bo
-      })
-      for (const it of items) {
-        if (!it?.mediaId) continue
-        images.push({ key: it.mediaId, src: buildMediaUrl(property.id, it.mediaId), alt: it.alt ?? null })
-      }
-      return images
-    }
-
-    return images
-  }, [property])
+  const normalizedImages = useMemo(() => normalizeImages('propiedades', property.id, property.images), [property])
   
   const [contactForm, setContactForm] = useState({
     name: "",

@@ -3,7 +3,7 @@ import { HeroSection } from "@/components/hero-section";
 import { FeaturedProperties } from "@/components/featured-properties";
 import { FeaturedProjects } from "@/components/featured-projects";
 import { getFeaturedProperties } from "@/domain/Property";
-import { Property } from "@/types/property";
+import { Property } from "@/types/Property";
 import { getFeaturedProjects } from "@/domain/Project";
 import { Project } from "@/types/project";
 

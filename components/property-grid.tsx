@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { MapPin, Bed, Bath, Square, Heart, Eye } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { getCoverSrc } from "@/lib/media"
 
 export function PropertyGrid() {
   const { properties, currentPage, totalPages, setCurrentPage, currentProperties, isLoading } = useSearchPropertyContext()
@@ -55,18 +56,7 @@ export function PropertyGrid() {
           <Card key={property.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 group">
             <div className="relative h-64">
               {(() => {
-                const raw: any = (property as any)?.images
-                let coverSrc = "/placeholder.svg"
-                if (raw && typeof raw === 'object' && Array.isArray(raw.items)) {
-                  const items: any[] = raw.items as any[]
-                  const main = items.find((it) => typeof it?.sortOrder === 'number' && it.sortOrder === 0)
-                  const chosen = main ?? items[0]
-                  if (chosen?.mediaId) {
-                    coverSrc = `/api/propiedades/${property.id}/media/${chosen.mediaId}`
-                  }
-                } else if (Array.isArray(raw) && raw.length > 0) {
-                  coverSrc = raw[0]
-                }
+                const coverSrc = getCoverSrc('propiedades', property.id, property.images)
                 return (
                   <Image
                     src={coverSrc}

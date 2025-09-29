@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { MapPin, Bed, Bath, Square, ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { getCoverSrc } from "@/lib/media"
 import { useState, useEffect, useCallback } from "react"
 import { useConfig } from "@/contexts/config-context"
 import { Property } from "@/types/Property"
@@ -103,24 +104,7 @@ export function FeaturedProperties({ allFeaturedProperties }: { allFeaturedPrope
                 const slideIndex = Math.floor(index / itemsPerSlide)
                 const offset = slideIndex - currentSlide
                 const isActive = slideIndex === currentSlide
-                const coverSrc = (() => {
-                  const raw: any = (property as any)?.images
-                  // New format: { coverId: string | null, items: Array<{ mediaId: string; sortOrder?: number; alt?: string }> }
-                  if (raw && typeof raw === 'object' && Array.isArray(raw.items)) {
-                    const items: any[] = raw.items as any[]
-                    // Prefer the item with sortOrder === 0
-                    const main = items.find((it) => typeof it?.sortOrder === 'number' && it.sortOrder === 0)
-                    const chosen = main ?? items[0]
-                    if (chosen?.mediaId) {
-                      return `/api/propiedades/${property.id}/media/${chosen.mediaId}`
-                    }
-                  }
-                  // Legacy format: string[] of URLs
-                  if (Array.isArray(raw) && raw.length > 0) {
-                    return raw[0]
-                  }
-                  return "/placeholder.svg"
-                })()
+                const coverSrc = getCoverSrc('propiedades', property.id, property.images)
 
                 return (
                   <div
@@ -224,15 +208,7 @@ export function FeaturedProperties({ allFeaturedProperties }: { allFeaturedPrope
         </div>
       </div>
 
-      <style jsx>{`
-        .perspective-1000 {
-          perspective: 1000px;
-        }
-        @keyframes progress {
-          from { width: 0%; }
-          to { width: 100%; }
-        }
-      `}</style>
+      
     </section>
   )
 }
