@@ -12,13 +12,8 @@ import { DashboardStats } from "@/domain/services/dashboardStats"
 
 export function AdminDashboard({ stats }: { stats: DashboardStats }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const recentActivity = stats.recentActivity ?? []
 
-  const recentActivity = [
-    { id: 1, action: "Nueva propiedad agregada", item: "Casa en Belgrano", time: "Hace 2 horas" },
-    { id: 2, action: "Emprendimiento actualizado", item: "Torres del Río", time: "Hace 4 horas" },
-    { id: 3, action: "Propiedad marcada como destacada", item: "Penthouse Palermo", time: "Hace 1 día" },
-    { id: 4, action: "Nuevo proyecto creado", item: "Eco Village", time: "Hace 2 días" },
-  ]
 
   return (
     <div className="min-h-screen bg-background">
@@ -134,21 +129,25 @@ export function AdminDashboard({ stats }: { stats: DashboardStats }) {
             <Card>
               <CardHeader>
                 <CardTitle>Actividad Reciente</CardTitle>
-                <CardDescription>Últimas acciones realizadas</CardDescription>
+                <CardDescription>Ultimas acciones realizadas</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {recentActivity.map((activity) => (
-                    <div key={activity.id} className="flex items-start space-x-3">
-                      <div className="w-2 h-2 bg-secondary rounded-full mt-2"></div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground">{activity.action}</p>
-                        <p className="text-sm text-muted-foreground">{activity.item}</p>
-                        <p className="text-xs text-muted-foreground">{activity.time}</p>
+                {recentActivity.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Sin actividad reciente.</p>
+                ) : (
+                  <div className="space-y-4">
+                    {recentActivity.map((activity) => (
+                      <div key={activity.id} className="flex items-start space-x-3">
+                        <div className="w-2 h-2 bg-secondary rounded-full mt-2"></div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-foreground">{activity.action}</p>
+                          <p className="text-sm text-muted-foreground">{activity.item}</p>
+                          <p className="text-xs text-muted-foreground">{activity.time}</p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
