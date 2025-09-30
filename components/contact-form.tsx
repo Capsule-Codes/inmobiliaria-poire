@@ -15,9 +15,11 @@ import { Contact } from "@/types/contact"
 
 interface ContactFormProps {
   defaultService?: string
+  propertyId?: string
+  projectId?: string
 }
 
-export function ContactForm({ defaultService }: ContactFormProps) {
+export function ContactForm({ defaultService, projectId, propertyId }: ContactFormProps) {
   const [formData, setFormData] = useState<Omit<Contact, "id" | "status" | "created_at" | "updated_at">>({
     name: "",
     email: "",
@@ -28,8 +30,8 @@ export function ContactForm({ defaultService }: ContactFormProps) {
     budget: "",
     message: "",
     inquiry_type: "",
-    property_id: "",
-    project_id: ""
+    property_id: propertyId || "",
+    project_id: projectId || ""
   })
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)

@@ -65,7 +65,7 @@ export function PropertyCard({ property }: { property: Property }) {
             variant="outline"
             className="border-accent text-accent hover:bg-accent hover:text-accent-foreground bg-transparent"
           >
-            Contactar
+            <Link href={`/contacto/propiedad/${property.id}`}>Contactar</Link>
           </Button>
         </div>
       </CardContent>
