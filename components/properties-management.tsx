@@ -170,7 +170,7 @@ export function PropertiesManagement({ allProperties }: { allProperties: Propert
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
             <div>
-              <h1 className="text-3xl font-bold text-foreground mb-2">Gestión de Propiedades</h1>
+              <h1 className="text-3xl font-bold text-foreground mb-2 mt-8 md:mt-0">Gestión de Propiedades</h1>
               <p className="text-muted-foreground">Administra todas las propiedades del sitio</p>
             </div>
             <Button

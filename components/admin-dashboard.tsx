@@ -29,7 +29,7 @@ export function AdminDashboard({ stats }: { stats: DashboardStats }) {
         <div className="p-6 lg:p-8">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard</h1>
+            <h1 className="text-3xl font-bold text-foreground mb-2 mt-8 md:mt-0">Dashboard</h1>
             <p className="text-muted-foreground">Bienvenido al panel de administración</p>
           </div>
 

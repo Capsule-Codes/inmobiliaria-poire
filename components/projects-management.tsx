@@ -182,7 +182,7 @@ export function ProjectsManagement({ allProjects }: { allProjects: Project[] }) 
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
             <div>
-              <h1 className="text-3xl font-bold text-foreground mb-2">Gestión de Emprendimientos</h1>
+              <h1 className="text-3xl font-bold text-foreground mb-2 mt-8 md:mt-0">Gestión de Emprendimientos</h1>
               <p className="text-muted-foreground">Administra todos los proyectos inmobiliarios</p>
             </div>
             <Button onClick={handleAddProject} className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
