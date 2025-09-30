@@ -4,7 +4,6 @@ import { randomUUID } from 'node:crypto'
 import { getContainerClient } from '@/lib/azure'
 import type { Images, MediaItem } from '@/lib/media'
 import { ALLOWED_IMAGE_MIME, MAX_IMAGES } from '@/lib/constants/media'
-import { BlobServiceClient, type ContainerClient } from '@azure/storage-blob'
 
 export type ImagesJson = {
   version: 1
