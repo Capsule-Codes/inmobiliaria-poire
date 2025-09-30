@@ -1,6 +1,6 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { MapPin, Phone, Mail, Clock, MessageCircle } from "lucide-react"
 import Link from "next/link"
@@ -94,13 +94,20 @@ export function ContactInfo() {
         </CardHeader>
         <CardContent>
           <div className="w-full h-64 bg-muted/30 rounded-lg flex items-center justify-center">
-            <div className="text-center text-muted-foreground">
-              <MapPin className="h-12 w-12 mx-auto mb-2" />
-              <p>Mapa Interactivo</p>
-              <p className="text-sm">{config.companyAddress}</p>
+            <div style={{ width: "100%", height: "100%" }}>
+              <iframe src={config.embedMapUrl}
+                width="100%"
+                height="100%"
+                loading="lazy">
+              </iframe>
             </div>
           </div>
         </CardContent>
+        <CardFooter>
+          <div className="text-center text-muted-foreground">
+            <p className="text-sm">{config.companyAddress}</p>
+          </div>
+        </CardFooter>
       </Card>
     </div>
   )
