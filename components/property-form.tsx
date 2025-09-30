@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -11,22 +11,30 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { AdminSidebar } from "@/components/admin-sidebar"
-import { ArrowLeft, X, Plus } from "lucide-react"
+import { ArrowLeft, X } from "lucide-react"
 import { Property } from "@/types/Property"
+import type { Images, MediaItem } from "@/lib/media"
+import { compareMediaItems } from "@/lib/media"
+import { ALLOWED_IMAGE_MIME, MAX_IMAGES } from "@/lib/constants/media"
 import { useConfig } from "@/contexts/config-context"
 import { Autocomplete } from "@/components/ui/autocomplete"
+import { FileDropzone } from "@/components/ui/file-dropzone"
+import Image from "next/image"
+
+type PropertyFormData = Omit<Property, "id">
 
 interface PropertyFormProps {
   property?: Property | null
-  onSave: (property: any) => void
+  onSave: (property: PropertyFormData, files?: File[]) => void
   onCancel: () => void
+  submitting?: boolean
 }
 
-export function PropertyForm({ property, onSave, onCancel }: PropertyFormProps) {
+export function PropertyForm({ property, onSave, onCancel, submitting = false }: PropertyFormProps) {
   const { config } = useConfig()
   const locationOptions = config.availableLocations ?? []
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [formData, setFormData] = useState<Omit<Property, "id">>({
+  const [formData, setFormData] = useState<PropertyFormData>({
     title: property?.title || "",
     location: property?.location || "",
     price: property?.price || 0,
@@ -41,30 +49,91 @@ export function PropertyForm({ property, onSave, onCancel }: PropertyFormProps) 
     features: [],
   })
 
-  const handleInputChange = (field: string, value: any) => {
+  const [files, setFiles] = useState<File[]>([])
+  const [fileError, setFileError] = useState<string | null>(null)
+
+  // Existing images (when editing) in the structured JSON format used by the API
+  type ExistingItem = MediaItem
+  const [existingItems, setExistingItems] = useState<ExistingItem[]>([])
+  const [coverId, setCoverId] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!property) {
+      setExistingItems([])
+      setCoverId(null)
+      return
+    }
+    const raw: any = (property as any)?.images
+    if (raw && typeof raw === 'object' && Array.isArray(raw.items)) {
+      const items: ExistingItem[] = [...raw.items].sort((a: any, b: any) => compareMediaItems(a, b, raw.coverId ?? null))
+      setExistingItems(items)
+      setCoverId(raw.coverId ?? null)
+    } else {
+      setExistingItems([])
+      setCoverId(null)
+    }
+  }, [property?.id])
+
+  const allowedTypes: string[] = Array.from(ALLOWED_IMAGE_MIME)
+
+  const handleInputChange = <K extends keyof PropertyFormData>(field: K, value: PropertyFormData[K]) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const handleImageAdd = () => {
-    const imageUrl = prompt("Ingresa la URL de la imagen:")
-    if (imageUrl) {
-      setFormData((prev) => ({
-        ...prev,
-        images: [...prev.images, imageUrl],
-      }))
+  const handleFilesSelected = (selected: File[]) => {
+    setFileError(null)
+    const filtered = selected.filter((f) => ALLOWED_IMAGE_MIME.has(f.type))
+    if (filtered.length !== selected.length) {
+      setFileError('Algunos archivos fueron descartados por formato no permitido')
     }
+    const merged = [...files, ...filtered]
+    if (merged.length > MAX_IMAGES) {
+      setFileError('Máximo 5 imágenes')
+    }
+    setFiles(merged.slice(0, MAX_IMAGES))
   }
 
-  const handleImageRemove = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      images: prev.images.filter((_: any, i: number) => i !== index),
-    }))
+  const handleFileRemove = (index: number) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index))
   }
+
+  // New handler that enforces total limit including existing images
+  const handleFilesSelectedWithLimit = (selected: File[]) => {
+    setFileError(null)
+    const filtered = selected.filter((f) => ALLOWED_IMAGE_MIME.has(f.type))
+    if (filtered.length !== selected.length) {
+      setFileError('Algunos archivos fueron descartados por formato no permitido')
+    }
+    const max = MAX_IMAGES
+    const availableSlots = Math.max(0, max - existingItems.length)
+    const next = [...files, ...filtered].slice(0, availableSlots)
+    if (existingItems.length + (files.length + filtered.length) > max) {
+      setFileError('Máximo 5 imágenes (incluye existentes y nuevas)')
+    }
+    setFiles(next)
+  }
+
+  const previews = files.map((f) => ({ file: f, url: URL.createObjectURL(f) }))
+  useEffect(() => {
+    return () => {
+      previews.forEach((p) => URL.revokeObjectURL(p.url))
+    }
+  }, [files])
+
+  const desiredImagesJson = useMemo(() => {
+    if (!property) return [] as any
+    if (existingItems.length === 0) return [] as any
+    return {
+      version: 1,
+      coverId: coverId && existingItems.find((it) => it.mediaId === coverId) ? coverId : null,
+      items: existingItems,
+    }
+  }, [property?.id, existingItems, coverId])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onSave(formData)
+    const payload: PropertyFormData = { ...formData, images: desiredImagesJson as Images }
+    onSave(payload, files)
   }
 
   return (
@@ -126,7 +195,7 @@ export function PropertyForm({ property, onSave, onCancel }: PropertyFormProps) 
                     <Input
                       id="price"
                       value={formData.price}
-                      onChange={(e) => handleInputChange("price", e.target.value)}
+                      onChange={(e) => handleInputChange("price", Number(e.target.value))}
                       placeholder="Ej: USD 850.000"
                       required
                     />
@@ -238,31 +307,66 @@ export function PropertyForm({ property, onSave, onCancel }: PropertyFormProps) 
                 <CardDescription>Agrega imágenes de la propiedad</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                  {formData.images.map((image: string, index: number) => (
-                    <div key={index} className="relative group">
-                      <img
-                        src={image || "/placeholder.svg"}
-                        alt={`Imagen ${index + 1}`}
-                        className="w-full h-32 object-cover rounded-lg"
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={() => handleImageRemove(index)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
+                {/* Imágenes existentes al editar */}
+                {property && existingItems.length > 0 && (
+                  <div className="mb-4">
+                    <p className="text-sm text-muted-foreground mb-2">Imágenes actuales</p>
+                    <div className="flex gap-2 overflow-x-auto pb-2">
+                      {existingItems.map((item, index) => (
+                        <div key={item.mediaId} className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 border-transparent">
+                          <Image
+                            src={`/api/propiedades/${property.id}/media/${item.mediaId}`}
+                            alt={item.alt || `Imagen ${index + 1}`}
+                            fill
+                            sizes="80px"
+                            className="object-cover"
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            className="absolute top-1 right-1 h-6 w-6"
+                            onClick={() => setExistingItems((prev) => prev.filter((_, i) => i !== index))}
+                            aria-label={`Eliminar imagen existente ${index + 1}`}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </div>
+                )}
+                <FileDropzone
+                  onFilesSelected={handleFilesSelectedWithLimit}
+                  accept={allowedTypes}
+                  maxFiles={MAX_IMAGES}
+                  className="mb-2"
+                />
+                {fileError && (
+                  <p className="text-sm text-red-600 mt-2">{fileError}</p>
+                )}
+                <p className="text-sm text-muted-foreground mt-2">{existingItems.length} existente(s) + {files.length} nueva(s) (máx. 5)</p>
 
-                <Button type="button" variant="outline" onClick={handleImageAdd} className="w-full bg-transparent">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Agregar Imagen
-                </Button>
+                {/* Thumbnails en memoria, similar a PropertyDetail */}
+                {files.length > 0 && (
+                  <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
+                    {previews.map((p, index) => (
+                      <div key={index} className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 border-transparent">
+                        <Image src={p.url} alt={`Preview ${index + 1}`} fill sizes="80px" className="object-cover" />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute top-1 right-1 h-6 w-6"
+                          onClick={() => handleFileRemove(index)}
+                          aria-label={`Eliminar imagen ${index + 1}`}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -271,7 +375,7 @@ export function PropertyForm({ property, onSave, onCancel }: PropertyFormProps) 
               <Button type="button" variant="outline" onClick={onCancel}>
                 Cancelar
               </Button>
-              <Button type="submit" className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
+              <Button type="submit" disabled={submitting} className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
                 {property ? "Actualizar Propiedad" : "Crear Propiedad"}
               </Button>
             </div>
@@ -281,4 +385,8 @@ export function PropertyForm({ property, onSave, onCancel }: PropertyFormProps) 
     </div>
   )
 }
+
+
+
+
 

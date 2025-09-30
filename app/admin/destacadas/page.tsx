@@ -2,7 +2,7 @@ import { AdminRouteGuard } from "@/components/admin-route-guard";
 import { FeaturedManagement } from "@/components/featured-management";
 import { getFeaturedProperties } from "@/domain/Property";
 import { getFeaturedProjects } from "@/domain/Project";
-import { type Property } from "@/types/property";
+import { type Property } from "@/types/Property";
 import { type Project } from "@/types/project";
 
 export default async function AdminFeaturedPage() {

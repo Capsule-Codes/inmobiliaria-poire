@@ -1,8 +1,7 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -14,16 +13,24 @@ import { Badge } from "@/components/ui/badge"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { ArrowLeft, X, Plus } from "lucide-react"
 import { Project } from "@/types/project"
+import { compareMediaItems } from "@/lib/media"
+import type { Images, MediaItem } from "@/lib/media"
+import { ALLOWED_IMAGE_MIME, MAX_IMAGES } from "@/lib/constants/media"
 import { Autocomplete } from "@/components/ui/autocomplete"
 import { useConfig } from "@/contexts/config-context"
+import { FileDropzone } from "@/components/ui/file-dropzone"
+import Image from "next/image"
+
+type ProjectFormData = Omit<Project, "id">
 
 interface ProjectFormProps {
   project?: Project | null
-  onSave: (project: any) => void
+  onSave: (project: ProjectFormData, files?: File[]) => void
   onCancel: () => void
+  submitting?: boolean
 }
 
-export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
+export function ProjectForm({ project, onSave, onCancel, submitting = false }: ProjectFormProps) {
   const { config } = useConfig()
   const locationOptions = config.availableLocations ?? []
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -43,26 +50,53 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
   })
 
   const [newAmenity, setNewAmenity] = useState("")
+  const [files, setFiles] = useState<File[]>([])
+  const [fileError, setFileError] = useState<string | null>(null)
 
-  const handleInputChange = (field: string, value: any) => {
+  type ExistingItem = MediaItem
+  const [existingItems, setExistingItems] = useState<ExistingItem[]>([])
+  const [coverId, setCoverId] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!project) {
+      setExistingItems([])
+      setCoverId(null)
+      return
+    }
+    const raw: any = (project as any)?.images
+    if (raw && typeof raw === 'object' && Array.isArray(raw.items)) {
+      const items: ExistingItem[] = [...raw.items].sort((a: any, b: any) => compareMediaItems(a, b, raw.coverId ?? null))
+      setExistingItems(items)
+      setCoverId(raw.coverId ?? null)
+    } else {
+      setExistingItems([])
+      setCoverId(null)
+    }
+  }, [project?.id])
+
+  const allowedTypes: string[] = Array.from(ALLOWED_IMAGE_MIME)
+
+  const handleInputChange = <K extends keyof typeof formData>(field: K, value: typeof formData[K]) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const handleImageAdd = () => {
-    const imageUrl = prompt("Ingresa la URL de la imagen:")
-    if (imageUrl) {
-      setFormData((prev) => ({
-        ...prev,
-        images: [...prev.images, imageUrl],
-      }))
+  const handleFilesSelectedWithLimit = (selected: File[]) => {
+    setFileError(null)
+    const filtered = selected.filter((f) => ALLOWED_IMAGE_MIME.has(f.type))
+    if (filtered.length !== selected.length) {
+      setFileError('Algunos archivos fueron descartados por formato no permitido')
     }
+    const max = MAX_IMAGES
+    const availableSlots = Math.max(0, max - existingItems.length)
+    const merged = [...files, ...filtered].slice(0, availableSlots)
+    if (filtered.length > availableSlots) {
+      setFileError('Límite total 5 imágenes (incluye existentes)')
+    }
+    setFiles(merged)
   }
 
-  const handleImageRemove = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      images: prev.images.filter((_: any, i: number) => i !== index),
-    }))
+  const handleFileRemove = (index: number) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index))
   }
 
   const handleAmenityAdd = () => {
@@ -84,7 +118,10 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onSave(formData)
+    const imagesJson = existingItems.length > 0
+      ? { version: 1, coverId: coverId ?? (existingItems[0]?.mediaId ?? null), items: existingItems }
+      : []
+    onSave({ ...formData, images: imagesJson }, files)
   }
 
   return (
@@ -93,7 +130,6 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
 
       <div className="lg:ml-64">
         <div className="p-6 lg:p-8">
-          {/* Header */}
           <div className="flex items-center gap-4 mb-8">
             <Button variant="outline" onClick={onCancel}>
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -136,7 +172,7 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
                       value={formData.location}
                       onValueChange={(value) => handleInputChange("location", value)}
                       options={locationOptions}
-                      placeholder="Ej: Puerto Madero, Buenos Aires"
+                      placeholder="Ej: Puerto Madero"
                       required
                     />
                   </div>
@@ -176,8 +212,8 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
                   <div>
                     <Label htmlFor="status">Estado</Label>
                     <Select value={formData.status} onValueChange={(value) => handleInputChange("status", value)}>
-                      <SelectTrigger>
-                        <SelectValue />
+                      <SelectTrigger id="status">
+                        <SelectValue placeholder="Selecciona estado" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="Próximamente">Próximamente</SelectItem>
@@ -203,62 +239,33 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
                     <Label htmlFor="delivery_date">Fecha de Entrega</Label>
                     <Input
                       id="delivery_date"
+                      type="date"
                       value={formData.delivery_date}
                       onChange={(e) => handleInputChange("delivery_date", e.target.value)}
                       placeholder="AAAA-MM-DD"
                       required
                     />
-
                   </div>
 
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="total_units">Total de Unidades</Label>
+                      <Input id="total_units" type="number" min="0" value={formData.total_units} onChange={(e) => handleInputChange("total_units", Number.parseInt(e.target.value))} required />
+                    </div>
+                    <div>
+                      <Label htmlFor="available_units">Unidades Disponibles</Label>
+                      <Input id="available_units" type="number" min="0" value={formData.available_units} onChange={(e) => handleInputChange("available_units", Number.parseInt(e.target.value))} required />
+                    </div>
+                  </div>
                   <div className="flex items-center space-x-2">
-                    <Switch
-                      id="is_featured"
-                      checked={formData.is_featured}
-                      onCheckedChange={(checked) => handleInputChange("is_featured", checked)}
-                    />
+                    <Switch id="is_featured" checked={formData.is_featured} onCheckedChange={(checked) => handleInputChange("is_featured", checked)} />
                     <Label htmlFor="is_featured">Marcar como destacado</Label>
                   </div>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Unidades */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Información de Unidades</CardTitle>
-                <CardDescription>Datos sobre las unidades del proyecto</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="total_units">Total de Unidades</Label>
-                    <Input
-                      id="total_units"
-                      type="number"
-                      min="0"
-                      value={formData.total_units}
-                      onChange={(e) => handleInputChange("total_units", Number.parseInt(e.target.value))}
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="available_units">Unidades Disponibles</Label>
-                    <Input
-                      id="available_units"
-                      type="number"
-                      min="0"
-                      value={formData.available_units}
-                      onChange={(e) => handleInputChange("available_units", Number.parseInt(e.target.value))}
-                      required
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Amenities */}
             <Card>
               <CardHeader>
                 <CardTitle>Amenities</CardTitle>
@@ -305,47 +312,62 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
                 <CardDescription>Agrega imágenes del emprendimiento</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                  {formData.images.map((image: string, index: number) => (
-                    <div key={index} className="relative group">
-                      <img
-                        src={image || "/placeholder.svg"}
-                        alt={`Imagen ${index + 1}`}
-                        className="w-full h-32 object-cover rounded-lg"
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={() => handleImageRemove(index)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
+                {project && existingItems.length > 0 && (
+                  <div className="mb-4">
+                    <p className="text-sm text-muted-foreground mb-2">Imágenes actuales</p>
+                    <div className="flex gap-2 overflow-x-auto pb-2">
+                      {existingItems.map((item, index) => (
+                        <div key={item.mediaId} className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 border-transparent">
+                          <Image
+                            src={`/api/emprendimientos/${project.id}/media/${item.mediaId}`}
+                            alt={item.alt || `Imagen ${index + 1}`}
+                            fill
+                            sizes="80px"
+                            className="object-cover"
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            className="absolute top-1 right-1 h-6 w-6"
+                            onClick={() => setExistingItems((prev) => prev.filter((_, i) => i !== index))}
+                            aria-label={`Eliminar imagen existente ${index + 1}`}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-
-                <Button type="button" variant="outline" onClick={handleImageAdd} className="w-full bg-transparent">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Agregar Imagen
-                </Button>
+                  </div>
+                )}
+                <FileDropzone onFilesSelected={handleFilesSelectedWithLimit} accept={allowedTypes} maxFiles={MAX_IMAGES} className="mb-2" />
+                {fileError && <p className="text-sm text-red-600 mt-2">{fileError}</p>}
+                <p className="text-sm text-muted-foreground mt-2">{existingItems.length} existente(s) + {files.length} nueva(s) (máx. 5)</p>
+                {files.length > 0 && (
+                  <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
+                    {files.map((file, index) => {
+                      const url = URL.createObjectURL(file)
+                      return (
+                        <div key={index} className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 border-transparent">
+                          <Image src={url} alt={`Preview ${index + 1}`} fill sizes="80px" className="object-cover" />
+                          <Button type="button" variant="destructive" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => handleFileRemove(index)} aria-label={`Eliminar imagen ${index + 1}`}>
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
               </CardContent>
             </Card>
 
-            {/* Botones de Acción */}
             <div className="flex gap-4 justify-end">
-              <Button type="button" variant="outline" onClick={onCancel}>
-                Cancelar
-              </Button>
-              <Button type="submit" className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
-                {project ? "Actualizar Emprendimiento" : "Crear Emprendimiento"}
-              </Button>
+              <Button type="button" variant="outline" onClick={onCancel}>Cancelar</Button>
+              <Button type="submit" disabled={submitting} className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">{project ? "Actualizar Emprendimiento" : "Crear Emprendimiento"}</Button>
             </div>
           </form>
         </div>
-      </div>
-    </div>
+      </div >
+    </div >
   )
 }
-

@@ -8,7 +8,9 @@ import { Input } from "@/components/ui/input"
 import { PropertyForm } from "@/components/property-form"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { Building2, Plus, Search, Edit, Trash2, Star, StarOff, MapPin, Bed, Bath, Square } from "lucide-react"
-import { Property } from "@/types/property"
+import { Property } from "@/types/Property"
+import { getCoverSrc } from "@/lib/media"
+import Image from "next/image"
 
 
 export function PropertiesManagement({ allProperties }: { allProperties: Property[] }) {
@@ -17,6 +19,7 @@ export function PropertiesManagement({ allProperties }: { allProperties: Propert
   const [showForm, setShowForm] = useState(false)
   const [editingProperty, setEditingProperty] = useState<Property | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
   const filteredProperties = properties.filter(
     (property) =>
@@ -77,15 +80,21 @@ export function PropertiesManagement({ allProperties }: { allProperties: Propert
     }
   }
 
-  const handleSaveProperty = (propertyData: any) => {
+  const handleSaveProperty = (propertyData: Omit<Property, 'id'>, files?: File[]) => {
 
     if (editingProperty) {
+      // Update via multipart to support images add/remove
+      setSubmitting(true)
+      const fd = new FormData()
+      fd.append('data', JSON.stringify(propertyData))
+      if (files && files.length > 0) {
+        for (const f of files) {
+          fd.append('images', f)
+        }
+      }
       fetch(`/api/admin/propiedades/${editingProperty.id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(propertyData),
+        body: fd as any,
       }).then((res) => {
         if (res.ok) {
           res.json().then((updatedProperty) => {
@@ -97,30 +106,44 @@ export function PropertiesManagement({ allProperties }: { allProperties: Propert
       }).catch((error) => {
         console.error('Error al actualizar la propiedad', error);
       }).finally(() => {
+        setSubmitting(false)
         setShowForm(false);
         setEditingProperty(null);
       });
     } else {
-      fetch('/api/admin/propiedades', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(propertyData),
-      }).then((res) => {
-        if (res.ok) {
-          res.json().then((createdProperty) => {
-            setProperties([createdProperty, ...properties])
-          })
-        } else {
-          console.error('Error al crear la propiedad');
+      // Create via new endpoint with FormData and image files
+      setSubmitting(true)
+      const fd = new FormData()
+      fd.append('data', JSON.stringify(propertyData))
+      if (files && files.length > 0) {
+        for (const f of files) {
+          fd.append('images', f)
         }
-      }).catch((error) => {
-        console.error('Error al crear la propiedad', error);
+      }
+      fetch('/api/admin/propiedades/', {
+        method: 'POST',
+        body: fd as any,
+      }).then(async (res) => {
+        if (!res.ok) {
+          console.error('Error al crear la propiedad')
+          return
+        }
+        const json = await res.json()
+        if (json?.ok) {
+          if (json?.partialSuccess === true && json?.message) {
+            alert('La propiedad fue creada con exito pero ocurrio un error subiendo las imagenes, intente subirlas nuevamente editando la propiedad')
+          }
+          // Optimistically add the property to the list
+          const created = { ...propertyData, id: json.propertyId }
+          setProperties([created, ...properties])
+        }
+      }).catch((err) => {
+        console.error('Error al crear la propiedad', err)
       }).finally(() => {
-        setShowForm(false);
-        setEditingProperty(null);
-      });
+        setSubmitting(false)
+        setShowForm(false)
+        setEditingProperty(null)
+      })
     }
   }
 
@@ -129,6 +152,7 @@ export function PropertiesManagement({ allProperties }: { allProperties: Propert
       <PropertyForm
         property={editingProperty}
         onSave={handleSaveProperty}
+        submitting={submitting}
         onCancel={() => {
           setShowForm(false)
           setEditingProperty(null)
@@ -199,12 +223,19 @@ export function PropertiesManagement({ allProperties }: { allProperties: Propert
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProperties.map((property) => (
               <Card key={property.id} className="overflow-hidden">
-                <div className="relative">
-                  <img
-                    src={property.images[0] || "/placeholder.svg"}
-                    alt={property.title}
-                    className="w-full h-48 object-cover"
-                  />
+                <div className="relative h-48">
+                  {(() => {
+                    const coverSrc = getCoverSrc('propiedades', property.id, property.images)
+                    return (
+                      <Image
+                        src={coverSrc}
+                        alt={property.title}
+                        fill
+                        sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                        className="object-cover"
+                      />
+                    )
+                  })()}
                   <div className="absolute top-2 right-2 flex gap-2">
                     {property.is_featured && (
                       <Badge className="bg-secondary text-secondary-foreground">

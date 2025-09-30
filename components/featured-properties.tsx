@@ -4,9 +4,11 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { MapPin, Bed, Bath, Square, ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
+import { getCoverSrc } from "@/lib/media"
 import { useState, useEffect, useCallback } from "react"
 import { useConfig } from "@/contexts/config-context"
-import { Property } from "@/types/property"
+import { Property } from "@/types/Property"
 
 export function FeaturedProperties({ allFeaturedProperties }: { allFeaturedProperties: Property[] }) {
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -93,16 +95,16 @@ export function FeaturedProperties({ allFeaturedProperties }: { allFeaturedPrope
 
           <div className="overflow-hidden mx-12 rounded-2xl">
             <div
-              className="flex transition-all duration-700 ease-out transform-gpu"
+              className="flex transition-transform duration-700 ease-out transform-gpu"
               style={{
-                transform: `translateX(-${currentSlide * (100 / itemsPerSlide)}%) rotateY(${currentSlide * -2}deg)`,
-                transformStyle: "preserve-3d",
+                transform: `translateX(-${currentSlide * (100 / itemsPerSlide)}%)`,
               }}
             >
               {featuredProperties.map((property, index) => {
                 const slideIndex = Math.floor(index / itemsPerSlide)
                 const offset = slideIndex - currentSlide
                 const isActive = slideIndex === currentSlide
+                const coverSrc = getCoverSrc('propiedades', property.id, property.images)
 
                 return (
                   <div
@@ -110,24 +112,22 @@ export function FeaturedProperties({ allFeaturedProperties }: { allFeaturedPrope
                     className={`flex-shrink-0 px-2 ${itemsPerSlide === 1 ? "w-full" : itemsPerSlide === 2 ? "w-1/2" : "w-1/3"
                       }`}
                     style={{
-                      transform: `
-                        translateZ(${isActive ? "0px" : "-50px"}) 
-                        rotateY(${offset * 10}deg) 
-                        scale(0.95)
-                      `,
-                      opacity: Math.abs(offset) > 1 && totalSlides > 1 ? 0.6 : 1,
-                      transition: "all 0.7s cubic-bezier(0.4, 0, 0.2, 1)",
+                      transform: `scale(${isActive ? 1 : 0.98})`,
+                      opacity: 1,
+                      transition: "transform 0.7s cubic-bezier(0.4, 0, 0.2, 1)",
                     }}
                   >
                     <Card className="overflow-hidden hover:shadow-2xl transition-all duration-500 transform-gpu hover:scale-105 bg-card/80 backdrop-blur-sm">
-                      <div className="relative">
-                        <img
-                          src={property.images ? property.images[0] : "/placeholder.svg"}
+                      <div className="relative h-64">
+                        <Image
+                          src={coverSrc}
                           alt={property.title}
-                          className="w-full h-64 object-cover transition-transform duration-700 hover:scale-110"
+                          fill
+                          sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                          className="object-cover transition-transform duration-700 hover:scale-110"
                         />
                         <div className="absolute top-4 right-4 bg-accent text-accent-foreground px-3 py-1 rounded-full font-semibold shadow-lg">
-                          {property.price}
+                          ${property.price}
                         </div>
                         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                       </div>
@@ -208,15 +208,7 @@ export function FeaturedProperties({ allFeaturedProperties }: { allFeaturedPrope
         </div>
       </div>
 
-      <style jsx>{`
-        .perspective-1000 {
-          perspective: 1000px;
-        }
-        @keyframes progress {
-          from { width: 0%; }
-          to { width: 100%; }
-        }
-      `}</style>
+      
     </section>
   )
 }

@@ -1,9 +1,11 @@
 "use client"
 
 import type React from "react"
-import { type Property } from "@/types/property"
-import { useState, useEffect } from "react"
+import { type Property } from "@/types/Property"
+import { normalizeImages } from "@/lib/media"
+import { useState, useEffect, useMemo } from "react"
 import { Card, CardContent } from "@/components/ui/card"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -29,6 +31,9 @@ interface PropertyDetailProps {
 
 export function PropertyDetail({ property }: PropertyDetailProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+
+  const normalizedImages = useMemo(() => normalizeImages('propiedades', property.id, property.images), [property])
+  
   const [contactForm, setContactForm] = useState({
     name: "",
     email: "",
@@ -37,7 +42,18 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
   })
 
   useEffect(() => {
-    setCurrentImageIndex(0)
+    const raw: any = (property as any)?.images
+    if (raw && typeof raw === 'object' && Array.isArray(raw.items)) {
+      const coverId: string | null = raw.coverId ?? null
+      if (coverId) {
+        const idx = normalizedImages.findIndex((img) => img.key === coverId)
+        setCurrentImageIndex(idx >= 0 ? idx : 0)
+      } else {
+        setCurrentImageIndex(0)
+      }
+    } else {
+      setCurrentImageIndex(0)
+    }
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowLeft") {
@@ -52,27 +68,24 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
   }, [property.id])
 
   const nextImage = () => {
-    if (property.images.length > 0) {
+    if (normalizedImages.length > 0) {
       setCurrentImageIndex((prev) => {
-        const newIndex = (prev + 1) % property.images.length
-        console.log("[v0] Next image:", newIndex, "of", property.images.length)
+        const newIndex = (prev + 1) % normalizedImages.length
         return newIndex
       })
     }
   }
 
   const prevImage = () => {
-    if (property.images.length > 0) {
+    if (normalizedImages.length > 0) {
       setCurrentImageIndex((prev) => {
-        const newIndex = (prev - 1 + property.images.length) % property.images.length
-        console.log("[v0] Previous image:", newIndex, "of", property.images.length)
+        const newIndex = (prev - 1 + normalizedImages.length) % normalizedImages.length
         return newIndex
       })
     }
   }
 
   const selectImage = (index: number) => {
-    console.log("[v0] Selecting image:", index)
     setCurrentImageIndex(index)
   }
 
@@ -82,7 +95,7 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
     // Here you would handle the form submission
   }
 
-  if (!property.images || property.images.length === 0) {
+  if (!normalizedImages || normalizedImages.length === 0) {
     console.log("[v0] No images available for property:", property.id)
   }
 
@@ -94,13 +107,14 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
           {/* Image Gallery */}
           <div className="relative">
             <div className="relative h-96 md:h-[500px] rounded-lg overflow-hidden bg-muted">
-              {property.images && property.images.length > 0 ? (
-                <img
-                  src={property.images[currentImageIndex] || "/placeholder.svg"}
-                  alt={`${property.title} - Imagen ${currentImageIndex + 1}`}
-                  className="w-full h-full object-cover transition-opacity duration-300"
-                  onLoad={() => console.log("[v0] Image loaded:", currentImageIndex)}
-                  onError={() => console.log("[v0] Image failed to load:", property.images[currentImageIndex])}
+              {normalizedImages && normalizedImages.length > 0 ? (
+                <Image
+                  src={normalizedImages[currentImageIndex]?.src || "/placeholder.svg"}
+                  alt={normalizedImages[currentImageIndex]?.alt || `${property.title} - Imagen ${currentImageIndex + 1}`}
+                  fill
+                  sizes="100vw"
+                  className="object-cover transition-opacity duration-300"
+                  onError={() => console.error("[v0] Image failed to load:", normalizedImages[currentImageIndex]?.src)}
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-muted-foreground">
@@ -109,7 +123,7 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
               )}
 
               {/* Navigation Arrows - Only show if there are multiple images */}
-              {property.images && property.images.length > 1 && (
+              {normalizedImages && normalizedImages.length > 1 && (
                 <>
                   <button
                     onClick={prevImage}
@@ -129,31 +143,33 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
               )}
 
               {/* Image Counter */}
-              {property.images && property.images.length > 1 && (
+              {normalizedImages && normalizedImages.length > 1 && (
                 <div className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm">
-                  {currentImageIndex + 1} / {property.images.length}
+                  {currentImageIndex + 1} / {normalizedImages.length}
                 </div>
               )}
             </div>
 
             {/* Thumbnail Navigation - Only show if there are multiple images */}
-            {property.images && property.images.length > 1 && (
+            {normalizedImages && normalizedImages.length > 1 && (
               <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
-                {property.images.map((image, index) => (
+                {normalizedImages.map((image, index) => (
                   <button
-                    key={index}
+                    key={image.key || index}
                     onClick={() => selectImage(index)}
-                    className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200 hover:scale-105 ${index === currentImageIndex
+                    className={`relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200 hover:scale-105 ${index === currentImageIndex
                       ? "border-accent shadow-lg"
                       : "border-transparent hover:border-accent/50"
                       }`}
                     aria-label={`Ver imagen ${index + 1}`}
                   >
-                    <img
-                      src={image || "/placeholder.svg"}
+                    <Image
+                      src={image.src || "/placeholder.svg"}
                       alt={`Thumbnail ${index + 1}`}
-                      className="w-full h-full object-cover"
-                      onError={() => console.log("[v0] Thumbnail failed to load:", image)}
+                      fill
+                      sizes="80px"
+                      className="object-cover"
+                      onError={() => console.error("[v0] Thumbnail failed to load:", image.src)}
                     />
                   </button>
                 ))}

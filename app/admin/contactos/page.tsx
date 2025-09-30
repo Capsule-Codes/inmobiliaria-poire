@@ -1,7 +1,7 @@
 import { AdminRouteGuard } from "@/components/admin-route-guard"
 import { ContactManagement } from "@/components/contact-management"
 import { type Contact } from "@/types/contact"
-import { type Property } from "@/types/property"
+import { type Property } from "@/types/Property"
 import { type Project } from "@/types/project"
 import { getContacts } from "@/domain/Contact"
 import { getProjectById } from "@/domain/Project"

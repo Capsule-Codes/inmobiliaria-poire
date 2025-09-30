@@ -1,24 +1,9 @@
 import 'server-only';
 import { supabase } from "@/lib/supabase";
+import type { Images } from '@/lib/media'
+import type { Project as ProjectType } from '@/types/project'
 
-type Project = {
-    id: string
-    name: string
-    description: string
-    location: string
-    status: string
-    progress: number
-    total_units: number
-    available_units: number
-    price_from: number
-    price_to: number
-    delivery_date: string
-    amenities: string[]
-    images: string[]
-    is_featured: boolean
-    created_at: string
-    updated_at: string
-}
+type Project = ProjectType & { created_at: string; updated_at: string }
 
 // Funciones para Emprendimientos
 export async function getProjects(filters?: {
@@ -88,4 +73,14 @@ export async function deleteProject(id: string) {
     const { error } = await supabase.from("projects").delete().eq("id", id)
 
     if (error) throw error
+}
+
+export async function getProjectImages(projectId: string): Promise<Images | null> {
+  const { data, error } = await supabase
+    .from('projects')
+    .select('images')
+    .eq('id', projectId)
+    .single();
+  if (error) throw error;
+  return data?.images ?? null;
 }

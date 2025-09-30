@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { MapPin, Calendar, Building, Users, ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
+import { getCoverSrc } from "@/lib/media"
 import { useConfig } from "@/contexts/config-context"
 import { type Project } from "@/types/project"
 
@@ -99,10 +101,9 @@ export function FeaturedProjects({ allFeaturedProjects }: { allFeaturedProjects:
 
           <div className="overflow-hidden rounded-2xl mx-12">
             <div
-              className="flex transition-all duration-700 ease-out transform-gpu"
+              className="flex transition-transform duration-700 ease-out transform-gpu"
               style={{
-                transform: `translateX(-${currentSlide * (100 / itemsPerSlide)}%) rotateY(${currentSlide * -1}deg)`,
-                transformStyle: "preserve-3d",
+                transform: `translateX(-${currentSlide * (100 / itemsPerSlide)}%)`,
               }}
             >
               {featuredProjects.map((project, index) => {
@@ -116,23 +117,26 @@ export function FeaturedProjects({ allFeaturedProjects }: { allFeaturedProjects:
                     className={`flex-shrink-0 px-2 ${itemsPerSlide === 1 ? "w-full" : itemsPerSlide === 2 ? "w-1/2" : "w-1/3"
                       }`}
                     style={{
-                      transform: `
-                        translateZ(${isActive ? "0px" : "-50px"}) 
-                        rotateY(${offset * 10}deg) 
-                        scale(0.95)
-                      `,
-                      opacity: Math.abs(offset) > 1 ? 0.4 : 1,
-                      transition: "all 0.7s cubic-bezier(0.4, 0, 0.2, 1)",
+                      transform: `scale(${isActive ? 1 : 0.98})`,
+                      opacity: 1,
+                      transition: "transform 0.7s cubic-bezier(0.4, 0, 0.2, 1)",
                     }}
                   >
                     <Card className="overflow-hidden bg-card/80 backdrop-blur-sm border-border/50 hover:shadow-2xl transition-all duration-500 transform-gpu hover:scale-[1.02] h-full min-h-[600px]">
                       <div className={`grid gap-0 h-full ${itemsPerSlide === 1 ? "lg:grid-cols-2" : "grid-cols-1"}`}>
                         <div className="relative h-64 lg:h-96 overflow-hidden flex-shrink-0">
-                          <img
-                            src={project.images[0] || "/placeholder.svg"}
-                            alt={project.name}
-                            className="w-full h-full object-cover hover:scale-110 transition-transform duration-700"
-                          />
+                          {(() => {
+                            const coverSrc = getCoverSrc('emprendimientos', project.id, project.images)
+                            return (
+                              <Image
+                                src={coverSrc}
+                                alt={project.name}
+                                fill
+                                sizes="(min-width: 1024px) 33vw, 100vw"
+                                className="object-cover hover:scale-110 transition-transform duration-700"
+                              />
+                            )
+                          })()}
 
                           <div className="absolute top-6 left-6 flex gap-3">
                             <Badge className="bg-accent text-accent-foreground shadow-lg">Destacado</Badge>
@@ -142,9 +146,9 @@ export function FeaturedProjects({ allFeaturedProjects }: { allFeaturedProjects:
                               {project.status}
                             </Badge>
                           </div>
-
-                          <div className="absolute top-6 right-6 bg-primary/90 backdrop-blur-sm text-primary-foreground px-4 py-2 rounded-full font-bold shadow-lg">
-                            Desde {project.price_from}
+                          {/* Price badge moved to bottom center to avoid overlap */}
+                          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-primary/90 backdrop-blur-sm text-primary-foreground px-4 py-2 rounded-full font-bold shadow-lg">
+                            Desde ${project.price_from}
                           </div>
 
                           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
@@ -274,11 +278,7 @@ export function FeaturedProjects({ allFeaturedProjects }: { allFeaturedProjects:
         </div>
       </div>
 
-      <style jsx>{`
-        .perspective-1000 {
-          perspective: 1000px;
-        }
-      `}</style>
+      
     </section>
   )
 }
