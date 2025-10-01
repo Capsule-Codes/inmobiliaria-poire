@@ -150,10 +150,11 @@ export function ProjectsGrid({ allProjects }: { allProjects: Project[] }) {
                     <Link href={`/emprendimientos/${project.id}`}>Ver Proyecto</Link>
                   </Button>
                   <Button
+                    asChild
                     variant="outline"
                     className="border-accent text-accent hover:bg-accent hover:text-accent-foreground bg-transparent"
                   >
-                    Consultar
+                    <Link href={`/contacto/emprendimiento/${project.id}`}>Consultar</Link>
                   </Button>
                 </div>
               </CardContent>

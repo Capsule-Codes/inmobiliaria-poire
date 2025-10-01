@@ -75,23 +75,21 @@ export function FeaturedProperties({ allFeaturedProperties }: { allFeaturedPrope
           onMouseEnter={() => setIsAutoPlaying(false)}
           onMouseLeave={() => setIsAutoPlaying(true)}
         >
-          <Button
-            variant="outline"
-            size="icon"
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-background/90 backdrop-blur-sm border-accent hover:bg-accent hover:text-accent-foreground shadow-lg"
+          <button
+            type="button"
             onClick={prevSlide}
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-background/90 backdrop-blur-sm border border-border rounded-full p-3 hover:bg-accent hover:text-accent-foreground transition-all duration-300 shadow-lg"
           >
-            <ChevronLeft className="h-5 w-5" />
-          </Button>
+            <ChevronLeft className="h-6 w-6" />
+          </button>
 
-          <Button
-            variant="outline"
-            size="icon"
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-background/90 backdrop-blur-sm border-accent hover:bg-accent hover:text-accent-foreground shadow-lg"
+          <button
+            type="button"
             onClick={nextSlide}
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-background/90 backdrop-blur-sm border border-border rounded-full p-3 hover:bg-accent hover:text-accent-foreground transition-all duration-300 shadow-lg"
           >
-            <ChevronRight className="h-5 w-5" />
-          </Button>
+            <ChevronRight className="h-6 w-6" />
+          </button>
 
           <div className="overflow-hidden mx-12 rounded-2xl">
             <div
@@ -212,3 +210,4 @@ export function FeaturedProperties({ allFeaturedProperties }: { allFeaturedPrope
     </section>
   )
 }
+

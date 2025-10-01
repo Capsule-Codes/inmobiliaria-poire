@@ -146,8 +146,11 @@ export function FeaturedProjects({ allFeaturedProjects }: { allFeaturedProjects:
                               {project.status}
                             </Badge>
                           </div>
-                          {/* Price badge moved to bottom center to avoid overlap */}
-                          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-primary/90 backdrop-blur-sm text-primary-foreground px-4 py-2 rounded-full font-bold shadow-lg">
+                          {/* Price badge: mobile = full-width ribbon; md+ = centered pill */}
+                          <div
+                            className="absolute inset-x-0 bottom-0 z-10 bg-primary/90 backdrop-blur-sm text-primary-foreground text-center px-3 py-1.5 text-sm font-semibold shadow-lg
+                                       md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:bottom-4 md:w-auto md:px-4 md:py-2 md:rounded-full md:text-base"
+                          >
                             Desde ${project.price_from}
                           </div>
 
@@ -226,10 +229,11 @@ export function FeaturedProjects({ allFeaturedProjects }: { allFeaturedProjects:
                               <Link href={`/emprendimientos/${project.id}`}>Ver Proyecto</Link>
                             </Button>
                             <Button
+                              asChild
                               variant="outline"
                               className="border-accent text-accent hover:bg-accent hover:text-accent-foreground bg-transparent"
                             >
-                              Consultar
+                              <Link href={`/contacto/emprendimiento/${project.id}`}>Consultar</Link>
                             </Button>
                           </div>
                         </CardContent>
