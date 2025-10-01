@@ -17,15 +17,18 @@ export function Navigation() {
   ]
 
   return (
-    <nav className="bg-background border-b border-accent/20 sticky top-0 z-50">
+    <nav className="bg-foreground text-background border-b border-border sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-accent rounded-sm flex items-center justify-center">
-              <span className="text-accent-foreground font-bold text-lg">P</span>
-            </div>
-            <span className="font-bold text-xl text-foreground">Poire</span>
+          <Link href="/" className="flex items-left space-x-2" aria-label="Inicio">
+            <img
+              src="/logo.svg"
+              alt="Inmobiliaria Poire"
+              className="h-20 w-auto mb-2"
+              loading="eager"
+              decoding="async"
+            />
           </Link>
 
           {/* Desktop Navigation */}
@@ -34,7 +37,7 @@ export function Navigation() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-foreground hover:text-accent transition-colors duration-200 font-medium"
+                className="text-background hover:text-accent transition-colors duration-200 font-medium"
               >
                 {item.label}
               </Link>
@@ -43,7 +46,7 @@ export function Navigation() {
 
           {/* Mobile menu button */}
           <div className="md:hidden">
-            <Button variant="ghost" size="sm" onClick={() => setIsOpen(!isOpen)} className="text-foreground">
+            <Button variant="ghost" size="sm" onClick={() => setIsOpen(!isOpen)} className="text-background hover:text-accent">
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
           </div>
@@ -52,12 +55,12 @@ export function Navigation() {
         {/* Mobile Navigation */}
         {isOpen && (
           <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 bg-background border-t border-accent/20">
+            <div className="px-2 pt-2 pb-3 space-y-1 bg-foreground text-background border-t border-border">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="block px-3 py-2 text-foreground hover:text-accent transition-colors duration-200 font-medium"
+                  className="block px-3 py-2 text-background hover:text-accent transition-colors duration-200 font-medium"
                   onClick={() => setIsOpen(false)}
                 >
                   {item.label}
