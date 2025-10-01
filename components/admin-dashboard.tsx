@@ -129,7 +129,7 @@ export function AdminDashboard({ stats }: { stats: DashboardStats }) {
             <Card>
               <CardHeader>
                 <CardTitle>Actividad Reciente</CardTitle>
-                <CardDescription>Ultimas acciones realizadas</CardDescription>
+                <CardDescription>Últimas acciones realizadas</CardDescription>
               </CardHeader>
               <CardContent>
                 {recentActivity.length === 0 ? (

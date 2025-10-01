@@ -233,7 +233,7 @@ export function FeaturedProjects({ allFeaturedProjects }: { allFeaturedProjects:
                               variant="outline"
                               className="border-accent text-accent hover:bg-accent hover:text-accent-foreground bg-transparent"
                             >
-                              <Link href={`/contacto/emprenidmiento/${project.id}`}>Consultar</Link>
+                              <Link href={`/contacto/emprendimiento/${project.id}`}>Consultar</Link>
                             </Button>
                           </div>
                         </CardContent>

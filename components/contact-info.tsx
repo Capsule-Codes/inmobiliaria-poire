@@ -98,7 +98,8 @@ export function ContactInfo() {
               <iframe src={config.embedMapUrl}
                 width="100%"
                 height="100%"
-                loading="lazy">
+                loading="lazy"
+                title="Mapa de Ubicación">
               </iframe>
             </div>
           </div>

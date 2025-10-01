@@ -2,7 +2,7 @@ import { Navigation } from "@/components/navigation"
 import { ContactForm } from "@/components/contact-form"
 import { ContactInfo } from "@/components/contact-info"
 
-export default function ContactoEmprenidmientoPage({
+export default function ContactoemprendimientoPage({
   params,
 }: {
   params: { id: string }
