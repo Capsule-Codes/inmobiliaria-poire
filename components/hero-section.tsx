@@ -1,28 +1,41 @@
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+// Deje comentado esto porque cambiamos la imagen el hero image y tiene mucho texto como para sumar lo que tenemos aca pero no lo borro por si el cliente se arrepeiente
 
 export function HeroSection() {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background Image */}
+      {/* Background Image - Mobile */}
       <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat xl:hidden"
         style={{
-          backgroundImage: `url('/luxury-modern-living-room.png')`,
+          backgroundImage: `url('/hero-image-vertical.jpg')`,
         }}
       >
-        <div className="absolute inset-0 bg-black/40"></div>
+        <div className="absolute inset-0"></div>
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 text-center text-white max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-          Bienvenidos a<span className="block text-accent">Poire Propiedades</span>
-        </h1>
+      {/* Background Image - Desktop */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat hidden xl:block"
+        style={{
+          backgroundImage: `url('/hero-image.webp')`,
+        }}
+      >
+        <div className="absolute inset-0 "></div>
+      </div>
 
-        <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-2xl mx-auto leading-relaxed">
-          Descubre propiedades exclusivas que definen el lujo y la elegancia. Tu hogar ideal te está esperando.
-        </p>
+      {/* {/* Content */}
+      <div className="relative z-10 text-center text-white max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 xl:hidden mt-100">
+        {/* <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight"> */}
+        {/*   Bienvenidos a */}
+        {/*   <span className="block text-accent">Poire Propiedades</span> */}
+        {/* </h1> */}
+        {/**/}
+        {/* <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-2xl mx-auto leading-relaxed"> */}
+        {/*   Descubre propiedades exclusivas que definen el lujo y la elegancia. Tu */}
+        {/*   hogar ideal te está esperando. */}
+        {/* </p> */}
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <Button
@@ -51,5 +64,5 @@ export function HeroSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }
