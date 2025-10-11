@@ -23,6 +23,11 @@ export const metadata: Metadata = {
   description:
     "Encuentra tu propiedad ideal con nuestra selección exclusiva de inmuebles premium",
   generator: "v0.app",
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({

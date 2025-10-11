@@ -11,6 +11,10 @@ import type { Property } from "@/types/Property"
 
 export function PropertyCard({ property }: { property: Property }) {
   const coverSrc = getCoverSrc('propiedades', property.id, property.images)
+  const formatPrice = (price: number, currency: string) => {
+    return `${currency} ${price.toLocaleString('es-AR')}`
+  }
+
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group">
       <div className="relative h-64">
@@ -23,10 +27,17 @@ export function PropertyCard({ property }: { property: Property }) {
         />
         <div className="absolute top-4 left-4 flex gap-2">
           {property.is_featured && <Badge className="bg-accent text-accent-foreground">Destacada</Badge>}
-          <Badge variant="secondary">{property.status}</Badge>
+          <Badge
+            className={property.operation_type === 'alquiler'
+              ? 'bg-blue-600 text-white hover:bg-blue-700'
+              : 'bg-green-600 text-white hover:bg-green-700'
+            }
+          >
+            {property.operation_type === 'alquiler' ? 'Alquiler' : 'Venta'}
+          </Badge>
         </div>
         <div className="absolute top-4 right-4 bg-primary text-primary-foreground px-3 py-1 rounded-full font-semibold">
-          {property.price}
+          {formatPrice(property.price, property.currency || 'USD')}
         </div>
       </div>
 

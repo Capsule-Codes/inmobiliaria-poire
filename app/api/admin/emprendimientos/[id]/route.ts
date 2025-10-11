@@ -86,7 +86,7 @@ export async function PUT(
         coverId = desiredImages.coverId ?? null;
       }
       if (existingItems.length + files.length > MAX_IMAGES) {
-        return NextResponse.json({ message: 'Máximo 5 imágenes permitidas' }, { status: 400 });
+        return NextResponse.json({ message: 'Máximo 10 imágenes permitidas' }, { status: 400 });
       }
 
       if (files.length === 0) {

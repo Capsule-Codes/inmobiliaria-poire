@@ -5,8 +5,11 @@ export interface Property {
     title: string
     description: string
     price: number
+    currency: string
     location: string
+    address: string
     type: string
+    operation_type: string
     bedrooms: number
     bathrooms: number
     area: number

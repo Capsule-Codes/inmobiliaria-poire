@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Separator } from "@/components/ui/separator"
+import Link from "next/link"
+import { useConfig } from "@/contexts/config-context"
 import {
   MapPin,
   Heart,
@@ -31,6 +33,9 @@ interface ProjectDetailProps {
 }
 
 export function ProjectDetail({ project }: ProjectDetailProps) {
+  const { config } = useConfig()
+  const sanitizedTelHref = config.companyPhone.replace(/[^+\d]/g, "")
+  const waNumber = config.companyPhone.replace(/\D/g, "")
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
   const normalizedImages = useMemo(() => normalizeImages('emprendimientos', project.id, project.images), [project])
@@ -41,6 +46,8 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
     phone: "",
     message: "",
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null)
 
   useEffect(() => {
     const raw: any = (project as any)?.images
@@ -237,6 +244,37 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
               </div>
             </CardContent>
           </Card>
+
+          {/* Map Section */}
+          {project.address && (
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="text-xl font-semibold mb-4">Ubicación</h3>
+                <div className="w-full h-96 bg-muted/30 rounded-lg overflow-hidden">
+                  <iframe
+                    src={`https://maps.google.com/maps?q=${encodeURIComponent(project.address)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                    width="100%"
+                    height="100%"
+                    loading="lazy"
+                    title={`Mapa de ${project.name}`}
+                    className="border-0"
+                  ></iframe>
+                </div>
+                <div className="flex items-center text-muted-foreground mt-3">
+                  <MapPin className="h-4 w-4 mr-2" />
+                  <span className="text-sm">{project.address}</span>
+                </div>
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(project.address)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center text-sm text-accent hover:underline mt-2"
+                >
+                  Ver en Google Maps
+                </a>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Right Column - Contact Form */}
@@ -245,7 +283,65 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
             <CardContent className="p-6">
               <h3 className="text-xl font-semibold mb-4">Contactar por este emprendimiento</h3>
 
-              <form onSubmit={(e) => { e.preventDefault() }} className="space-y-4">
+              <form onSubmit={async (e) => {
+                e.preventDefault()
+                setIsSubmitting(true)
+                setSubmitStatus(null)
+
+                try {
+                  // Guardar en la base de datos
+                  const saveResponse = await fetch('/api/contacto', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      name: contactForm.name,
+                      email: contactForm.email,
+                      phone: contactForm.phone,
+                      message: contactForm.message,
+                      inquiry_type: 'emprendimiento',
+                      project_id: project.id,
+                      service: '',
+                      propertyType: '',
+                      location: project.location,
+                      budget: '',
+                    }),
+                  })
+
+                  if (!saveResponse.ok) {
+                    throw new Error('Error al guardar la consulta')
+                  }
+
+                  // Enviar email de notificación
+                  const emailResponse = await fetch('/api/contact', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      name: contactForm.name,
+                      email: contactForm.email,
+                      phone: contactForm.phone,
+                      message: contactForm.message,
+                      subject: `Consulta sobre: ${project.name}`,
+                      propertyTitle: project.name,
+                    }),
+                  })
+
+                  if (!emailResponse.ok) {
+                    console.error('Error sending email notification')
+                  }
+
+                  setSubmitStatus({ type: 'success', message: 'Tu consulta fue enviada con éxito. Te contactaremos pronto!' })
+                  setContactForm({ name: '', email: '', phone: '', message: '' })
+                } catch (error) {
+                  console.error('Error:', error)
+                  setSubmitStatus({ type: 'error', message: 'Hubo un error al enviar tu consulta. Por favor intenta nuevamente.' })
+                } finally {
+                  setIsSubmitting(false)
+                }
+              }} className="space-y-4">
                 <div>
                   <Input
                     placeholder="Nombre completo"
@@ -281,8 +377,14 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
                   />
                 </div>
 
-                <Button type="submit" className="w-full bg-primary hover:bg-primary/90">
-                  Enviar Consulta
+                {submitStatus && (
+                  <div className={`p-3 rounded-lg text-sm ${submitStatus.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                    {submitStatus.message}
+                  </div>
+                )}
+
+                <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={isSubmitting}>
+                  {isSubmitting ? 'Enviando...' : 'Enviar Consulta'}
                 </Button>
               </form>
 
@@ -290,17 +392,23 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
 
               {/* Quick Contact Options */}
               <div className="space-y-3">
-                <Button variant="outline" className="w-full justify-start bg-transparent">
-                  <Phone className="h-4 w-4 mr-2" />
-                  Llamar Ahora
+                <Button variant="outline" className="w-full justify-start bg-transparent" asChild>
+                  <Link href={`tel:${sanitizedTelHref}`}>
+                    <Phone className="h-4 w-4 mr-2" />
+                    Llamar Ahora
+                  </Link>
                 </Button>
-                <Button variant="outline" className="w-full justify-start bg-transparent">
-                  <MessageCircle className="h-4 w-4 mr-2" />
-                  WhatsApp
+                <Button variant="outline" className="w-full justify-start bg-green-600 hover:bg-green-700 text-white" asChild>
+                  <Link href={`https://wa.me/${waNumber}?text=${encodeURIComponent(`Hola! Me interesa el emprendimiento: ${project.name}`)}`} target="_blank" rel="noopener noreferrer">
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    WhatsApp
+                  </Link>
                 </Button>
-                <Button variant="outline" className="w-full justify-start bg-transparent">
-                  <Mail className="h-4 w-4 mr-2" />
-                  Email
+                <Button variant="outline" className="w-full justify-start bg-transparent" asChild>
+                  <Link href={`mailto:${config.companyEmail}?subject=${encodeURIComponent(`Consulta sobre: ${project.name}`)}`}>
+                    <Mail className="h-4 w-4 mr-2" />
+                    Email
+                  </Link>
                 </Button>
               </div>
 

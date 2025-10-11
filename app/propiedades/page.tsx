@@ -1,6 +1,7 @@
 import { Navigation } from "@/components/navigation"
 import { PropertyFilters } from "@/components/property-filters"
 import { PropertyGrid } from "@/components/property-grid"
+import { Footer } from "@/components/footer"
 import { SearchPropertyProvider } from "@/contexts/search-property-context"
 
 export default function PropiedadesPage() {
@@ -29,6 +30,8 @@ export default function PropiedadesPage() {
           </div>
         </section>
       </SearchPropertyProvider>
+
+      <Footer />
     </main>
   )
 }

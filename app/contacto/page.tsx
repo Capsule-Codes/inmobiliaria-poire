@@ -1,6 +1,7 @@
 import { Navigation } from "@/components/navigation"
 import { ContactForm } from "@/components/contact-form"
 import { ContactInfo } from "@/components/contact-info"
+import { Footer } from "@/components/footer"
 
 export default function ContactoPage() {
   return (
@@ -28,6 +29,7 @@ export default function ContactoPage() {
           </div>
         </div>
       </section>
+      <Footer />
     </main>
   )
 }

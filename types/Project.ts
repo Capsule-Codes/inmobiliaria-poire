@@ -5,6 +5,7 @@ export interface Project {
     name: string
     description: string
     location: string
+    address: string
     status: string
     progress: number
     total_units: number

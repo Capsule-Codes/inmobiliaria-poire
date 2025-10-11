@@ -1,6 +1,7 @@
 import { Navigation } from "@/components/navigation"
 import { ContactForm } from "@/components/contact-form"
 import { ContactInfo } from "@/components/contact-info"
+import { Footer } from "@/components/footer"
 
 export default function TasacionesPage() {
   return (
@@ -53,6 +54,7 @@ export default function TasacionesPage() {
           </div>
         </div>
       </section>
+      <Footer />
     </main>
   )
 }

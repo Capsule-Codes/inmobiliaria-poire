@@ -14,7 +14,6 @@ export type SiteConfig = {
   siteTitle: string;
   siteDescription: string;
   availableLocations: string[];
-  embedMapUrl: string;
 };
 
 const defaultConfig: SiteConfig = {
@@ -40,7 +39,6 @@ const defaultConfig: SiteConfig = {
     "Barracas",
     "Nuñez",
   ],
-  embedMapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3284.0056136375115!2d-58.3867115234177!3d-34.604019557515635!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95bccac59a5bd441%3A0x1408e2f06974627!2sAv.%20Corrientes%201234%2C%20C1043AAZ%20Cdad.%20Aut%C3%B3noma%20de%20Buenos%20Aires!5e0!3m2!1ses!2sar!4v1759270928974!5m2!1ses!2sar",
 };
 
 type ConfigContextType = {

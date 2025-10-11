@@ -87,29 +87,38 @@ export function ContactInfo() {
         </CardContent>
       </Card>
 
-      {/* Map Placeholder */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-xl text-foreground">Nuestra Ubicación</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="w-full h-64 bg-muted/30 rounded-lg flex items-center justify-center">
-            <div style={{ width: "100%", height: "100%" }}>
-              <iframe src={config.embedMapUrl}
+      {/* Map */}
+      {config.companyAddress && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl text-foreground">Nuestra Ubicación</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="w-full h-64 bg-muted/30 rounded-lg overflow-hidden">
+              <iframe
+                src={`https://maps.google.com/maps?q=${encodeURIComponent(config.companyAddress)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
                 width="100%"
                 height="100%"
                 loading="lazy"
-                title="Mapa de Ubicación">
-              </iframe>
+                title="Mapa de Ubicación"
+                className="border-0"
+              ></iframe>
             </div>
-          </div>
-        </CardContent>
-        <CardFooter>
-          <div className="text-center text-muted-foreground">
-            <p className="text-sm">{config.companyAddress}</p>
-          </div>
-        </CardFooter>
-      </Card>
+            <div className="flex items-center text-muted-foreground mt-3">
+              <MapPin className="h-4 w-4 mr-2" />
+              <span className="text-sm">{config.companyAddress}</span>
+            </div>
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(config.companyAddress)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center text-sm text-accent hover:underline mt-2"
+            >
+              Ver en Google Maps
+            </a>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

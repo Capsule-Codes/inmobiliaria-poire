@@ -37,6 +37,7 @@ export function ProjectForm({ project, onSave, onCancel, submitting = false }: P
   const [formData, setFormData] = useState({
     name: project?.name ?? "",
     location: project?.location ?? "",
+    address: project?.address ?? "",
     description: project?.description ?? "",
     status: project?.status ?? "Próximamente",
     progress: project?.progress ?? 0,
@@ -90,7 +91,7 @@ export function ProjectForm({ project, onSave, onCancel, submitting = false }: P
     const availableSlots = Math.max(0, max - existingItems.length)
     const merged = [...files, ...filtered].slice(0, availableSlots)
     if (filtered.length > availableSlots) {
-      setFileError('Límite total 5 imágenes (incluye existentes)')
+      setFileError('Límite total 10 imágenes (incluye existentes)')
     }
     setFiles(merged)
   }
@@ -173,6 +174,17 @@ export function ProjectForm({ project, onSave, onCancel, submitting = false }: P
                       onValueChange={(value) => handleInputChange("location", value)}
                       options={locationOptions}
                       placeholder="Ej: Puerto Madero"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="address">Dirección Completa</Label>
+                    <Input
+                      id="address"
+                      value={formData.address}
+                      onChange={(e) => handleInputChange("address", e.target.value)}
+                      placeholder="Ej: Av. del Libertador 2500, CABA"
                       required
                     />
                   </div>
@@ -342,7 +354,7 @@ export function ProjectForm({ project, onSave, onCancel, submitting = false }: P
                 )}
                 <FileDropzone onFilesSelected={handleFilesSelectedWithLimit} accept={allowedTypes} maxFiles={MAX_IMAGES} className="mb-2" />
                 {fileError && <p className="text-sm text-red-600 mt-2">{fileError}</p>}
-                <p className="text-sm text-muted-foreground mt-2">{existingItems.length} existente(s) + {files.length} nueva(s) (máx. 5)</p>
+                <p className="text-sm text-muted-foreground mt-2">{existingItems.length} existente(s) + {files.length} nueva(s) (máx. 10)</p>
                 {files.length > 0 && (
                   <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
                     {files.map((file, index) => {

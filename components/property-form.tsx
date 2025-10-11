@@ -37,7 +37,10 @@ export function PropertyForm({ property, onSave, onCancel, submitting = false }:
   const [formData, setFormData] = useState<PropertyFormData>({
     title: property?.title || "",
     location: property?.location || "",
+    address: property?.address || "",
     price: property?.price || 0,
+    currency: property?.currency || "USD",
+    operation_type: property?.operation_type || "venta",
     bedrooms: property?.bedrooms || 1,
     bathrooms: property?.bathrooms || 1,
     area: property?.area || 0,
@@ -88,7 +91,7 @@ export function PropertyForm({ property, onSave, onCancel, submitting = false }:
     }
     const merged = [...files, ...filtered]
     if (merged.length > MAX_IMAGES) {
-      setFileError('Máximo 5 imágenes')
+      setFileError('Máximo 10 imágenes')
     }
     setFiles(merged.slice(0, MAX_IMAGES))
   }
@@ -108,7 +111,7 @@ export function PropertyForm({ property, onSave, onCancel, submitting = false }:
     const availableSlots = Math.max(0, max - existingItems.length)
     const next = [...files, ...filtered].slice(0, availableSlots)
     if (existingItems.length + (files.length + filtered.length) > max) {
-      setFileError('Máximo 5 imágenes (incluye existentes y nuevas)')
+      setFileError('Máximo 10 imágenes (incluye existentes y nuevas)')
     }
     setFiles(next)
   }
@@ -191,17 +194,58 @@ export function PropertyForm({ property, onSave, onCancel, submitting = false }:
                   </div>
 
                   <div>
-                    <Label htmlFor="price">Precio</Label>
+                    <Label htmlFor="address">Dirección Completa</Label>
                     <Input
-                      id="price"
-                      value={formData.price}
-                      onChange={(e) => handleInputChange("price", Number(e.target.value))}
-                      placeholder="Ej: USD 850.000"
+                      id="address"
+                      value={formData.address}
+                      onChange={(e) => handleInputChange("address", e.target.value)}
+                      placeholder="Ej: Av. Corrientes 1234, CABA"
                       required
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="currency">Moneda</Label>
+                      <Select value={formData.currency} onValueChange={(value) => handleInputChange("currency", value)}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="USD">USD</SelectItem>
+                          <SelectItem value="ARS">ARS</SelectItem>
+                          <SelectItem value="EUR">EUR</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="price">Precio</Label>
+                      <Input
+                        id="price"
+                        type="number"
+                        value={formData.price}
+                        onChange={(e) => handleInputChange("price", Number(e.target.value))}
+                        placeholder="850000"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="operation_type">Operación</Label>
+                      <Select value={formData.operation_type} onValueChange={(value) => handleInputChange("operation_type", value)}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="venta">Venta</SelectItem>
+                          <SelectItem value="alquiler">Alquiler</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
                     <div>
                       <Label htmlFor="type">Tipo</Label>
                       <Select value={formData.type} onValueChange={(value) => handleInputChange("type", value)}>
@@ -211,9 +255,12 @@ export function PropertyForm({ property, onSave, onCancel, submitting = false }:
                         <SelectContent>
                           <SelectItem value="Casa">Casa</SelectItem>
                           <SelectItem value="Departamento">Departamento</SelectItem>
+                          <SelectItem value="Edificio">Edificio</SelectItem>
+                          <SelectItem value="Galpón">Galpón</SelectItem>
+                          <SelectItem value="Cochera">Cochera</SelectItem>
+                          <SelectItem value="Local">Local comercial</SelectItem>
                           <SelectItem value="Oficina">Oficina</SelectItem>
-                          <SelectItem value="Local">Local</SelectItem>
-                          <SelectItem value="Terreno">Terreno</SelectItem>
+                          <SelectItem value="Lote">Lote</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -345,7 +392,7 @@ export function PropertyForm({ property, onSave, onCancel, submitting = false }:
                 {fileError && (
                   <p className="text-sm text-red-600 mt-2">{fileError}</p>
                 )}
-                <p className="text-sm text-muted-foreground mt-2">{existingItems.length} existente(s) + {files.length} nueva(s) (máx. 5)</p>
+                <p className="text-sm text-muted-foreground mt-2">{existingItems.length} existente(s) + {files.length} nueva(s) (máx. 10)</p>
 
                 {/* Thumbnails en memoria, similar a PropertyDetail */}
                 {files.length > 0 && (

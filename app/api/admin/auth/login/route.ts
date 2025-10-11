@@ -31,19 +31,22 @@ export async function POST(req: NextRequest) {
     }
 
     const user = await getAdminUserByEmail(loginEmail)
-    console.log(loginEmail, user)
+    console.log('[LOGIN] Email:', loginEmail, 'User found:', !!user)
 
     if (!user) {
       return NextResponse.json({ error: "Credenciales inválidas" }, { status: 401 })
     }
 
-    const ok = verifyPassword(user.password_hash, password)
+    const ok = await verifyPassword(user.password_hash, password)
+    console.log('[LOGIN] Password verify result:', ok)
+
     if (!ok) {
       return NextResponse.json({ error: "Credenciales inválidas" }, { status: 401 })
     }
 
     const secret = process.env.ADMIN_SESSION_SECRET
     if (!secret) {
+      console.error('[LOGIN] Missing ADMIN_SESSION_SECRET')
       return NextResponse.json({ error: "Falta ADMIN_SESSION_SECRET" }, { status: 500 })
     }
 
@@ -61,7 +64,8 @@ export async function POST(req: NextRequest) {
       maxAge: Math.floor(IDLE_MS / 1000),
     })
     return res
-  } catch (e) {
-    return NextResponse.json({ error: "Error de autenticación" }, { status: 500 })
+  } catch (e: any) {
+    console.error('[LOGIN] Error:', e.message, e.stack)
+    return NextResponse.json({ error: "Error de autenticación: " + e.message }, { status: 500 })
   }
 }

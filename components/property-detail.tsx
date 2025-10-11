@@ -11,6 +11,8 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Separator } from "@/components/ui/separator"
+import Link from "next/link"
+import { useConfig } from "@/contexts/config-context"
 import {
   MapPin,
   Bed,
@@ -30,6 +32,9 @@ interface PropertyDetailProps {
 }
 
 export function PropertyDetail({ property }: PropertyDetailProps) {
+  const { config } = useConfig()
+  const sanitizedTelHref = config.companyPhone.replace(/[^+\d]/g, "")
+  const waNumber = config.companyPhone.replace(/\D/g, "")
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
   const normalizedImages = useMemo(() => normalizeImages('propiedades', property.id, property.images), [property])
@@ -40,6 +45,8 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
     phone: "",
     message: "",
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null)
 
   useEffect(() => {
     const raw: any = (property as any)?.images
@@ -89,10 +96,64 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
     setCurrentImageIndex(index)
   }
 
-  const handleContactSubmit = (e: React.FormEvent) => {
+  const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Contact form submitted:", contactForm)
-    // Here you would handle the form submission
+    setIsSubmitting(true)
+    setSubmitStatus(null)
+
+    try {
+      // Guardar en la base de datos
+      const saveResponse = await fetch('/api/contacto', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: contactForm.name,
+          email: contactForm.email,
+          phone: contactForm.phone,
+          message: contactForm.message,
+          inquiry_type: 'propiedad',
+          property_id: property.id,
+          service: '',
+          propertyType: property.type,
+          location: property.location,
+          budget: '',
+        }),
+      })
+
+      if (!saveResponse.ok) {
+        throw new Error('Error al guardar la consulta')
+      }
+
+      // Enviar email de notificación
+      const emailResponse = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: contactForm.name,
+          email: contactForm.email,
+          phone: contactForm.phone,
+          message: contactForm.message,
+          subject: `Consulta sobre: ${property.title}`,
+          propertyTitle: property.title,
+        }),
+      })
+
+      if (!emailResponse.ok) {
+        console.error('Error sending email notification')
+      }
+
+      setSubmitStatus({ type: 'success', message: 'Tu consulta fue enviada con éxito. Te contactaremos pronto!' })
+      setContactForm({ name: '', email: '', phone: '', message: '' })
+    } catch (error) {
+      console.error('Error:', error)
+      setSubmitStatus({ type: 'error', message: 'Hubo un error al enviar tu consulta. Por favor intenta nuevamente.' })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   if (!normalizedImages || normalizedImages.length === 0) {
@@ -255,6 +316,37 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
               </div>
             </CardContent>
           </Card>
+
+          {/* Map Section */}
+          {property.address && (
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="text-xl font-semibold mb-4">Ubicación</h3>
+                <div className="w-full h-96 bg-muted/30 rounded-lg overflow-hidden">
+                  <iframe
+                    src={`https://maps.google.com/maps?q=${encodeURIComponent(property.address)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                    width="100%"
+                    height="100%"
+                    loading="lazy"
+                    title={`Mapa de ${property.title}`}
+                    className="border-0"
+                  ></iframe>
+                </div>
+                <div className="flex items-center text-muted-foreground mt-3">
+                  <MapPin className="h-4 w-4 mr-2" />
+                  <span className="text-sm">{property.address}</span>
+                </div>
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(property.address)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center text-sm text-accent hover:underline mt-2"
+                >
+                  Ver en Google Maps
+                </a>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Right Column - Contact Form */}
@@ -299,8 +391,14 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
                   />
                 </div>
 
-                <Button type="submit" className="w-full bg-primary hover:bg-primary/90">
-                  Enviar Consulta
+                {submitStatus && (
+                  <div className={`p-3 rounded-lg text-sm ${submitStatus.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                    {submitStatus.message}
+                  </div>
+                )}
+
+                <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={isSubmitting}>
+                  {isSubmitting ? 'Enviando...' : 'Enviar Consulta'}
                 </Button>
               </form>
 
@@ -308,17 +406,23 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
 
               {/* Quick Contact Options */}
               <div className="space-y-3">
-                <Button variant="outline" className="w-full justify-start bg-transparent">
-                  <Phone className="h-4 w-4 mr-2" />
-                  Llamar Ahora
+                <Button variant="outline" className="w-full justify-start bg-transparent" asChild>
+                  <Link href={`tel:${sanitizedTelHref}`}>
+                    <Phone className="h-4 w-4 mr-2" />
+                    Llamar Ahora
+                  </Link>
                 </Button>
-                <Button variant="outline" className="w-full justify-start bg-transparent">
-                  <MessageCircle className="h-4 w-4 mr-2" />
-                  WhatsApp
+                <Button variant="outline" className="w-full justify-start bg-green-600 hover:bg-green-700 text-white" asChild>
+                  <Link href={`https://wa.me/${waNumber}?text=${encodeURIComponent(`Hola! Me interesa la propiedad: ${property.title}`)}`} target="_blank" rel="noopener noreferrer">
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    WhatsApp
+                  </Link>
                 </Button>
-                <Button variant="outline" className="w-full justify-start bg-transparent">
-                  <Mail className="h-4 w-4 mr-2" />
-                  Email
+                <Button variant="outline" className="w-full justify-start bg-transparent" asChild>
+                  <Link href={`mailto:${config.companyEmail}?subject=${encodeURIComponent(`Consulta sobre: ${property.title}`)}`}>
+                    <Mail className="h-4 w-4 mr-2" />
+                    Email
+                  </Link>
                 </Button>
               </div>
 

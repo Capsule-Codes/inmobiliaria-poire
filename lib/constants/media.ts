@@ -8,5 +8,5 @@ export const ALLOWED_IMAGE_MIME = new Set<string>([
   'image/heif',
 ])
 
-export const MAX_IMAGES = 5
+export const MAX_IMAGES = 10
 

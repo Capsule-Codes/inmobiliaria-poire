@@ -54,8 +54,8 @@ export async function POST(req: Request) {
       if (key === 'images' && value instanceof File) files.push(value);
     }
 
-    if (files.length > 5) {
-      return NextResponse.json({ message: 'Máximo 5 imágenes permitidas' }, { status: 400 });
+    if (files.length > 10) {
+      return NextResponse.json({ message: 'Máximo 10 imágenes permitidas' }, { status: 400 });
     }
 
     for (const f of files) {

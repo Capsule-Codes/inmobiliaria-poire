@@ -82,11 +82,10 @@ export type AdminConfig = {
   companyAddress: string;
   siteTitle: string;
   siteDescription: string;
-  embedMapUrl: string;
 };
 
 export async function getAdminConfig(): Promise<AdminConfig> {
-  const [locations, maxFeatProps, maxFeatProjs, maxSlideProps, maxSlideProjs, companyName, companyEmail, companyPhone, companyAddress, siteTitle, siteDescripcion, embedMapUrl] = await Promise.all([
+  const [locations, maxFeatProps, maxFeatProjs, maxSlideProps, maxSlideProjs, companyName, companyEmail, companyPhone, companyAddress, siteTitle, siteDescripcion] = await Promise.all([
     getConfigValuesByKey('available_locations'),
     getSingleConfigValue('max_featured_properties'),
     getSingleConfigValue('max_featured_projects'),
@@ -98,7 +97,6 @@ export async function getAdminConfig(): Promise<AdminConfig> {
     getSingleConfigValue('company_address'),
     getSingleConfigValue('site_title'),
     getSingleConfigValue('site_descripcion'),
-    getSingleConfigValue('location_map_embed_url'),
   ]);
 
   const availableLocations = locations.map(l => String(l.value));
@@ -115,7 +113,6 @@ export async function getAdminConfig(): Promise<AdminConfig> {
     companyAddress: String(companyAddress ?? ''),
     siteTitle: String(siteTitle ?? ''),
     siteDescription: String(siteDescripcion ?? ''),
-    embedMapUrl: String(embedMapUrl ?? ''),
   };
 }
 

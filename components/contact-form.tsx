@@ -42,23 +42,44 @@ export function ContactForm({ defaultService, projectId, propertyId }: ContactFo
     setIsLoading(true);
     setIsSubmitted(false);
 
-    const url = '/api/contacto';
-    let request = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) };
-
-    fetch(url, request)
-      .then(res => {
-        if (!res.ok) {
-          return res.json()
-            .then(j => Promise.reject(new Error(j?.message ?? `HTTP ${res.status}`)));
-        }
-        return res.json();
-      })
-      .then(data => console.log('Creado:', data))
-      .catch(err => console.error(err))
-      .finally(() => {
-        setIsSubmitted(true);
-        setIsLoading(false);
+    try {
+      // Guardar en la base de datos
+      const saveResponse = await fetch('/api/contacto', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
       });
+
+      if (!saveResponse.ok) {
+        const error = await saveResponse.json();
+        throw new Error(error?.message ?? `HTTP ${saveResponse.status}`);
+      }
+
+      // Enviar email
+      const emailResponse = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          message: `Tipo de consulta: ${formData.inquiry_type}\n${formData.message}`,
+          subject: `Nueva consulta: ${formData.inquiry_type}`,
+          propertyTitle: formData.inquiry_type
+        })
+      });
+
+      if (!emailResponse.ok) {
+        console.error('Error sending email, but contact saved');
+      }
+
+      setIsSubmitted(true);
+    } catch (err) {
+      console.error(err);
+      alert('Hubo un error al enviar tu consulta. Por favor intenta nuevamente.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleInputChange = (field: string, value: string | boolean) => {

@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
 import { Search, SlidersHorizontal, Loader2 } from "lucide-react"
 import { useSearchPropertyContext } from "@/contexts/search-property-context"
@@ -75,7 +77,7 @@ export function PropertyFilters() {
       {showFilters && (
         <Card className="mb-6">
           <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">Ubicación</label>
                 <Select
@@ -96,22 +98,53 @@ export function PropertyFilters() {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">Tipo de Propiedad</label>
+                <label className="text-sm font-medium text-foreground mb-2 block">Operación</label>
                 <Select
-                  value={filters.type ?? ""}
-                  onValueChange={(value) => setFilters({ ...filters, type: value })}
+                  value={filters.operationType ?? ""}
+                  onValueChange={(value) => setFilters({ ...filters, operationType: value || undefined })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Seleccionar tipo" />
+                    <SelectValue placeholder="Alquiler o Venta" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="casa">Casa</SelectItem>
-                    <SelectItem value="departamento">Departamento</SelectItem>
-                    <SelectItem value="penthouse">Penthouse</SelectItem>
-                    <SelectItem value="villa">Villa</SelectItem>
-                    <SelectItem value="loft">Loft</SelectItem>
+                    <SelectItem value="venta">Venta</SelectItem>
+                    <SelectItem value="alquiler">Alquiler</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div className="md:col-span-2 lg:col-span-4">
+                <label className="text-sm font-medium text-foreground mb-3 block">Tipo de Propiedad</label>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {[
+                    { value: "casa", label: "Casa" },
+                    { value: "departamento", label: "Departamento" },
+                    { value: "edificio", label: "Edificio" },
+                    { value: "galpon", label: "Galpón" },
+                    { value: "cochera", label: "Cochera" },
+                    { value: "local", label: "Local comercial" },
+                    { value: "oficina", label: "Oficina" },
+                    { value: "lote", label: "Lote" },
+                  ].map((type) => (
+                    <div key={type.value} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`type-${type.value}`}
+                        checked={filters.types?.includes(type.value) ?? false}
+                        onCheckedChange={(checked) => {
+                          const currentTypes = filters.types ?? []
+                          const newTypes = checked
+                            ? [...currentTypes, type.value]
+                            : currentTypes.filter((t) => t !== type.value)
+                          setFilters({ ...filters, types: newTypes.length > 0 ? newTypes : undefined })
+                        }}
+                        className="border-2 border-muted-foreground data-[state=checked]:bg-accent data-[state=checked]:border-accent"
+                      />
+                      <Label htmlFor={`type-${type.value}`} className="text-sm cursor-pointer">
+                        {type.label}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div>

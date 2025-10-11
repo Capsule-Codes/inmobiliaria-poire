@@ -1,6 +1,7 @@
 import { Navigation } from "@/components/navigation";
 import { ProjectsGrid } from "@/components/projects-grid";
 import { ProjectsHero } from "@/components/projects-hero";
+import { Footer } from "@/components/footer";
 import { getProjects } from "@/domain/Project";
 import { Project } from "@/types/project";
 
@@ -12,6 +13,7 @@ export default async function EmprendimientosPage() {
       <Navigation />
       <ProjectsHero />
       <ProjectsGrid allProjects={allProjects} />
+      <Footer />
     </main>
   );
 }
