@@ -6,6 +6,19 @@ import type { Property as PropertyType } from '@/types/Property'
 type Property = PropertyType & { created_at: string; updated_at: string }
 
 // Funciones para Propiedades
+
+// For admin panel - gets ALL properties regardless of status
+export async function getAllProperties() {
+    const { data, error } = await supabase
+        .from("properties")
+        .select("*")
+        .order("created_at", { ascending: false })
+
+    if (error) throw error
+    return data as Property[]
+}
+
+// For public view - only gets available properties
 export async function getProperties(filters?: {
     type?: string
     minPrice?: number
@@ -87,7 +100,18 @@ export async function updateProperty(id: string, updates: Partial<Property>) {
 }
 
 export async function deleteProperty(id: string) {
+    // First, delete all contacts associated with this property
+    const { error: contactsError } = await supabase
+        .from("contacts")
+        .delete()
+        .eq("property_id", id)
 
+    if (contactsError) {
+        console.error("Error deleting associated contacts:", contactsError)
+        // Continue anyway to try to delete the property
+    }
+
+    // Then delete the property
     const { error } = await supabase.from("properties").delete().eq("id", id)
 
     if (error) throw error

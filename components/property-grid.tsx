@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { MapPin, Bed, Bath, Square, Heart, Eye } from "lucide-react"
+import { MapPin, Bed, Bath, Square } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { getCoverSrc } from "@/lib/media"
@@ -77,16 +77,6 @@ export function PropertyGrid() {
               {/* Price badge */}
               <div className="absolute top-4 right-4 bg-primary text-primary-foreground px-3 py-1 rounded-full font-semibold">
                 {property.price}
-              </div>
-
-              {/* Action buttons */}
-              <div className="absolute bottom-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <Button size="sm" variant="secondary" className="h-8 w-8 p-0">
-                  <Heart className="h-4 w-4" />
-                </Button>
-                <Button size="sm" variant="secondary" className="h-8 w-8 p-0">
-                  <Eye className="h-4 w-4" />
-                </Button>
               </div>
             </div>
 

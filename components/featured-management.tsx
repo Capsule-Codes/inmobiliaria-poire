@@ -27,11 +27,52 @@ export function FeaturedManagement({ featuredProperties, featuredProjects }: { f
 
   const allFeatured = [...properties.map((p) => ({ ...p, type: 'Propiedad', title: p.title, image: getCoverSrc('propiedades', p.id, p.images) })), ...projects.map((p) => ({ ...p, type: 'Emprendimiento', title: p.name, price: `Desde ${p.price_from}`, image: getCoverSrc('emprendimientos', p.id, p.images) }))]
 
-  const handleToggleFeatured = (id: string, type: string) => {
-    if (type === "Propiedad") {
-      setProperties(properties.map((p) => (p.id === id ? { ...p, is_featured: !p.is_featured } : p)))
-    } else {
-      setProjects(projects.map((p) => (p.id === id ? { ...p, is_featured: !p.is_featured } : p)))
+  const handleToggleFeatured = async (id: string, type: string) => {
+    try {
+      if (type === "Propiedad") {
+        const property = properties.find(p => p.id === id)
+        if (!property) return
+
+        const response = await fetch(`/api/admin/propiedades/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            is_featured: false
+          }),
+        })
+
+        if (!response.ok) {
+          throw new Error('Error al actualizar la propiedad')
+        }
+
+        // Remover de la lista local
+        setProperties(properties.filter(p => p.id !== id))
+      } else {
+        const project = projects.find(p => p.id === id)
+        if (!project) return
+
+        const response = await fetch(`/api/admin/emprendimientos/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            is_featured: false
+          }),
+        })
+
+        if (!response.ok) {
+          throw new Error('Error al actualizar el emprendimiento')
+        }
+
+        // Remover de la lista local
+        setProjects(projects.filter(p => p.id !== id))
+      }
+    } catch (error) {
+      console.error('Error al quitar destacada:', error)
+      alert('Error al quitar destacada. Por favor intenta nuevamente.')
     }
   }
 

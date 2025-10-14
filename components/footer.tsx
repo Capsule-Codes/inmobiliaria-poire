@@ -13,7 +13,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Company Info */}
           <div>
-            <h3 className="text-xl font-bold mb-4">Inmobiliaria Poire</h3>
+            <h3 className="text-xl font-bold mb-4">Silvia Pobre Propiedades</h3>
             <p className="text-sm text-background/80">
               Tu inmobiliaria de confianza. Comprometidos con encontrar la propiedad perfecta para vos.
             </p>
@@ -93,7 +93,7 @@ export function Footer() {
         {/* Copyright */}
         <div className="mt-8 pt-8 border-t border-background/10">
           <p className="text-center text-sm text-background/60">
-            © {new Date().getFullYear()} Inmobiliaria Poire. Todos los derechos reservados.
+            © {new Date().getFullYear()} Silvia Pobre Propiedades. Todos los derechos reservados.
           </p>
         </div>
       </div>

@@ -73,6 +73,32 @@ export function PropertyFilters() {
         </Button>
       </div>
 
+      {/* Operation Type Buttons - Always Visible */}
+      <div className="flex gap-3 mb-6">
+        <Button
+          variant={filters.operationType === "venta" ? "default" : "outline"}
+          onClick={() => {
+            const newFilters = { ...filters, operationType: filters.operationType === "venta" ? undefined : "venta" }
+            setFilters(newFilters)
+            fetchProperties(newFilters)
+          }}
+          className={filters.operationType === "venta" ? "bg-primary hover:bg-primary/90" : ""}
+        >
+          Venta
+        </Button>
+        <Button
+          variant={filters.operationType === "alquiler" ? "default" : "outline"}
+          onClick={() => {
+            const newFilters = { ...filters, operationType: filters.operationType === "alquiler" ? undefined : "alquiler" }
+            setFilters(newFilters)
+            fetchProperties(newFilters)
+          }}
+          className={filters.operationType === "alquiler" ? "bg-primary hover:bg-primary/90" : ""}
+        >
+          Alquiler
+        </Button>
+      </div>
+
       {/* Advanced Filters */}
       {showFilters && (
         <Card className="mb-6">
@@ -93,22 +119,6 @@ export function PropertyFilters() {
                         {location}
                       </SelectItem>
                     ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">Operación</label>
-                <Select
-                  value={filters.operationType ?? ""}
-                  onValueChange={(value) => setFilters({ ...filters, operationType: value || undefined })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Alquiler o Venta" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="venta">Venta</SelectItem>
-                    <SelectItem value="alquiler">Alquiler</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

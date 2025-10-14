@@ -14,7 +14,6 @@ import Link from "next/link"
 import { useConfig } from "@/contexts/config-context"
 import {
   MapPin,
-  Heart,
   Share2,
   ChevronLeft,
   ChevronRight,
@@ -190,10 +189,22 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
                 <div className="text-right">
                   <div className="text-3xl font-bold text-accent mb-2">Desde {project.price_from}</div>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm">
-                      <Heart className="h-4 w-4" />
-                    </Button>
-                    <Button variant="outline" size="sm">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        if (navigator.share) {
+                          navigator.share({
+                            title: project.name,
+                            text: `${project.name} - Desde ${project.price_from}`,
+                            url: window.location.href,
+                          }).catch((error) => console.log('Error sharing:', error))
+                        } else {
+                          navigator.clipboard.writeText(window.location.href)
+                          alert('Enlace copiado al portapapeles')
+                        }
+                      }}
+                    >
                       <Share2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -246,13 +257,13 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
           </Card>
 
           {/* Map Section */}
-          {project.address && (
+          {(project.address || project.location) && (
             <Card>
               <CardContent className="p-6">
                 <h3 className="text-xl font-semibold mb-4">Ubicación</h3>
                 <div className="w-full h-96 bg-muted/30 rounded-lg overflow-hidden">
                   <iframe
-                    src={`https://maps.google.com/maps?q=${encodeURIComponent(project.address)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                    src={`https://maps.google.com/maps?q=${encodeURIComponent(project.address || project.location)}&t=&z=15&ie=UTF8&iwloc=B&output=embed`}
                     width="100%"
                     height="100%"
                     loading="lazy"
@@ -262,10 +273,10 @@ export function ProjectDetail({ project }: ProjectDetailProps) {
                 </div>
                 <div className="flex items-center text-muted-foreground mt-3">
                   <MapPin className="h-4 w-4 mr-2" />
-                  <span className="text-sm">{project.address}</span>
+                  <span className="text-sm">{project.address || project.location}</span>
                 </div>
                 <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(project.address)}`}
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(project.address || project.location)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center text-sm text-accent hover:underline mt-2"

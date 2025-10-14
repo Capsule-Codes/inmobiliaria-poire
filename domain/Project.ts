@@ -69,7 +69,18 @@ export async function updateProject(id: string, updates: Partial<Project>) {
 }
 
 export async function deleteProject(id: string) {
+    // First, delete all contacts associated with this project
+    const { error: contactsError } = await supabase
+        .from("contacts")
+        .delete()
+        .eq("project_id", id)
 
+    if (contactsError) {
+        console.error("Error deleting associated contacts:", contactsError)
+        // Continue anyway to try to delete the project
+    }
+
+    // Then delete the project
     const { error } = await supabase.from("projects").delete().eq("id", id)
 
     if (error) throw error
