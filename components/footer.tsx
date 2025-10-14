@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { Mail, Phone, MapPin } from "lucide-react"
-import { useConfig } from "@/contexts/config-context"
+import Link from "next/link";
+import { Mail, Phone, MapPin } from "lucide-react";
+import { useConfig } from "@/contexts/config-context";
 
 export function Footer() {
-  const { config } = useConfig()
+  const { config } = useConfig();
 
   return (
     <footer className="bg-foreground text-background border-t border-border">
@@ -13,9 +13,12 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Company Info */}
           <div>
-            <h3 className="text-xl font-bold mb-4">Silvia Pobre Propiedades</h3>
+            <h3 className="text-xl font-bold mb-4">
+              Inmobiliaria Silvia Poire
+            </h3>
             <p className="text-sm text-background/80">
-              Tu inmobiliaria de confianza. Comprometidos con encontrar la propiedad perfecta para vos.
+              Tu inmobiliaria de confianza. Comprometidos con encontrar la
+              propiedad perfecta para vos.
             </p>
           </div>
 
@@ -93,10 +96,11 @@ export function Footer() {
         {/* Copyright */}
         <div className="mt-8 pt-8 border-t border-background/10">
           <p className="text-center text-sm text-background/60">
-            © {new Date().getFullYear()} Silvia Pobre Propiedades. Todos los derechos reservados.
+            © {new Date().getFullYear()} Inmobiliaria Silvia Poire. Todos los
+            derechos reservados.
           </p>
         </div>
       </div>
     </footer>
-  )
+  );
 }
