@@ -37,7 +37,7 @@ export function HeroSection() {
         {/*   hogar ideal te está esperando. */}
         {/* </p> */}
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        {/* <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <Button
             asChild
             size="lg"
@@ -54,7 +54,7 @@ export function HeroSection() {
           >
             <Link href="/contacto">Contactar Asesor</Link>
           </Button>
-        </div>
+        </div> */}
       </div>
 
       {/* Scroll indicator */}
