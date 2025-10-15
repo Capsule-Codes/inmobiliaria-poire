@@ -29,10 +29,10 @@ export function HeroSection() {
         />
       </div>
 
-      {/* Content - Botones posicionados de manera fija */}
-      <div className="absolute inset-0 z-10 flex items-end justify-center pb-24 xl:pb-28">
-        <div className="text-center text-white max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+      {/* Content - Botones posicionados verticalmente a la derecha en desktop */}
+      <div className="absolute inset-0 z-10 flex items-end justify-center xl:items-end xl:justify-end pr-0 xl:pr-16 pb-28 xl:pb-28">
+        <div className="text-center text-white max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 xl:hidden">
+          <div className="flex flex-row gap-4 justify-center items-center">
             <Button
               asChild
               size="lg"
@@ -50,6 +50,26 @@ export function HeroSection() {
               <Link href="/contacto">Contactar Asesor</Link>
             </Button>
           </div>
+        </div>
+
+        {/* Botones verticales para desktop */}
+        <div className="hidden xl:flex flex-col gap-4 items-end">
+          <Button
+            asChild
+            size="lg"
+            className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-6 py-4 shadow-lg min-w-[200px]"
+          >
+            <Link href="/propiedades">Ver Propiedades</Link>
+          </Button>
+
+          <Button
+            asChild
+            variant="outline"
+            size="lg"
+            className="border-white text-white hover:bg-white hover:text-black px-6 py-4 bg-transparent shadow-lg backdrop-blur-sm min-w-[200px]"
+          >
+            <Link href="/contacto">Contactar Asesor</Link>
+          </Button>
         </div>
       </div>
 
