@@ -32,7 +32,7 @@ export function HeroSection() {
       {/* Content - Botones posicionados verticalmente a la derecha en desktop */}
       <div className="absolute inset-0 z-10 flex items-end justify-center xl:items-end xl:justify-end pr-0 xl:pr-16 pb-28 xl:pb-28">
         <div className="text-center text-white max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 xl:hidden">
-          <div className="flex flex-row gap-4 justify-center items-center">
+          <div className="flex flex-col gap-4 justify-center items-center">
             <Button
               asChild
               size="lg"
@@ -53,11 +53,11 @@ export function HeroSection() {
         </div>
 
         {/* Botones verticales para desktop */}
-        <div className="hidden xl:flex flex-col gap-4 items-end">
+        <div className="hidden xl:flex flex-col gap-6 items-end">
           <Button
             asChild
             size="lg"
-            className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-6 py-4 shadow-lg min-w-[200px]"
+            className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-8 py-6 shadow-xl min-w-[240px] text-lg animate-pulse hover:animate-none hover:scale-105 transition-all duration-300 hover:shadow-2xl"
           >
             <Link href="/propiedades">Ver Propiedades</Link>
           </Button>
@@ -66,7 +66,7 @@ export function HeroSection() {
             asChild
             variant="outline"
             size="lg"
-            className="border-white text-white hover:bg-white hover:text-black px-6 py-4 bg-transparent shadow-lg backdrop-blur-sm min-w-[200px]"
+            className="border-white text-white hover:bg-white hover:text-black px-8 py-6 bg-transparent shadow-xl backdrop-blur-sm min-w-[240px] text-lg hover:scale-105 transition-all duration-300 hover:shadow-2xl hover:border-accent"
           >
             <Link href="/contacto">Contactar Asesor</Link>
           </Button>
