@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import {
   getConfigValuesByKey,
   replaceSingleConfigValue,
@@ -27,8 +28,20 @@ export async function PUT(
   try {
     const { key } = await params;
     const body = await req.json();
-    const { value, type } = body as { value: any; type?: 'string' | 'int' | 'bool' | 'json' | 'decimal' };
-    const saved = await replaceSingleConfigValue(key, value, (type as any) ?? 'string');
+    const { value, type } = body as {
+      value: any;
+      type?: "string" | "int" | "bool" | "json" | "decimal";
+    };
+    const saved = await replaceSingleConfigValue(
+      key,
+      value,
+      (type as any) ?? "string"
+    );
+
+    // Revalidar páginas que usan configuración
+    revalidatePath("/admin/configuracion");
+    revalidatePath("/");
+
     return NextResponse.json(saved, { status: 200 });
   } catch (err: any) {
     return NextResponse.json({ message: err.message }, { status: 500 });
@@ -43,8 +56,20 @@ export async function POST(
   try {
     const { key } = await params;
     const body = await req.json();
-    const { value, type } = body as { value: any; type?: 'string' | 'int' | 'bool' | 'json' | 'decimal' };
-    const added = await addListConfigValue(key, value, (type as any) ?? 'string');
+    const { value, type } = body as {
+      value: any;
+      type?: "string" | "int" | "bool" | "json" | "decimal";
+    };
+    const added = await addListConfigValue(
+      key,
+      value,
+      (type as any) ?? "string"
+    );
+
+    // Revalidar páginas que usan configuración
+    revalidatePath("/admin/configuracion");
+    revalidatePath("/");
+
     return NextResponse.json(added, { status: 201 });
   } catch (err: any) {
     return NextResponse.json({ message: err.message }, { status: 500 });
@@ -65,9 +90,13 @@ export async function DELETE(
       // ignore, allow deleting all values for key if no body
     }
     await deleteListConfigValue(key, value);
+
+    // Revalidar páginas que usan configuración
+    revalidatePath("/admin/configuracion");
+    revalidatePath("/");
+
     return NextResponse.json({ ok: true }, { status: 200 });
   } catch (err: any) {
     return NextResponse.json({ message: err.message }, { status: 500 });
   }
 }
-
