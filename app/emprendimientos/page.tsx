@@ -5,6 +5,9 @@ import { Footer } from "@/components/footer";
 import { getProjects } from "@/domain/Project";
 import { Project } from "@/types/project";
 
+// Revalidar cada 60 segundos
+export const revalidate = 60;
+
 export default async function EmprendimientosPage() {
   const allProjects = (await getProjects()) as Project[];
 

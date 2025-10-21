@@ -1,11 +1,16 @@
-import 'server-only';
+import "server-only";
 import { NextResponse } from "next/server";
-import { getContainerClient } from '@/lib/azure';
-import { ALLOWED_IMAGE_MIME, MAX_IMAGES } from '@/lib/constants/media'
-import { processAndUploadImages, mergeImagesJson } from '@/lib/server/media'
-import { deleteProperty, updateProperty, getPropertyById } from "@/domain/Property";
+import { revalidatePath } from "next/cache";
+import { getContainerClient } from "@/lib/azure";
+import { ALLOWED_IMAGE_MIME, MAX_IMAGES } from "@/lib/constants/media";
+import { processAndUploadImages, mergeImagesJson } from "@/lib/server/media";
+import {
+  deleteProperty,
+  updateProperty,
+  getPropertyById,
+} from "@/domain/Property";
 
-export const runtime = 'nodejs';
+export const runtime = "nodejs";
 
 type ImagesJson = {
   version: number;
@@ -36,6 +41,11 @@ export async function DELETE(
 
     await deleteProperty(id);
 
+    // Revalidar páginas relacionadas
+    revalidatePath("/");
+    revalidatePath("/propiedades");
+    revalidatePath("/admin/propiedades");
+
     return NextResponse.json({ ok: true }, { status: 200 });
   } catch (err: any) {
     const status = 500;
@@ -52,14 +62,17 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
-    const contentType = req.headers.get('content-type') || '';
+    const contentType = req.headers.get("content-type") || "";
 
-    if (contentType.includes('multipart/form-data')) {
+    if (contentType.includes("multipart/form-data")) {
       // New edit flow: update base data first, then optionally upload images and update JSON
       const form = await req.formData();
-      const dataRaw = form.get('data');
-      if (typeof dataRaw !== 'string') {
-        return NextResponse.json({ message: 'Invalid payload' }, { status: 400 });
+      const dataRaw = form.get("data");
+      if (typeof dataRaw !== "string") {
+        return NextResponse.json(
+          { message: "Invalid payload" },
+          { status: 400 }
+        );
       }
       const payload = JSON.parse(dataRaw);
 
@@ -72,35 +85,54 @@ export async function PUT(
       // Collect files
       const files: File[] = [];
       for (const [key, value] of form.entries()) {
-        if (key === 'images' && value instanceof File) files.push(value);
+        if (key === "images" && value instanceof File) files.push(value);
       }
 
       for (const f of files) {
         if (!ALLOWED_IMAGE_MIME.has(f.type)) {
-          return NextResponse.json({ message: 'Formato de imagen no permitido' }, { status: 400 });
+          return NextResponse.json(
+            { message: "Formato de imagen no permitido" },
+            { status: 400 }
+          );
         }
       }
 
       // Determine existing items count to enforce total limit 5
-      let existingItems: ImagesJson['items'] = [];
+      let existingItems: ImagesJson["items"] = [];
       let coverId: string | null = null;
-      if (desiredImages && typeof desiredImages === 'object' && Array.isArray(desiredImages.items)) {
-        existingItems = desiredImages.items as ImagesJson['items'];
+      if (
+        desiredImages &&
+        typeof desiredImages === "object" &&
+        Array.isArray(desiredImages.items)
+      ) {
+        existingItems = desiredImages.items as ImagesJson["items"];
         coverId = desiredImages.coverId ?? null;
       }
       if (existingItems.length + files.length > MAX_IMAGES) {
-        return NextResponse.json({ message: 'Máximo 10 imágenes permitidas' }, { status: 400 });
+        return NextResponse.json(
+          { message: "Máximo 10 imágenes permitidas" },
+          { status: 400 }
+        );
       }
 
       // If there are no files, just update images to what client sent (possibly empty array)
       if (files.length === 0) {
-        if (!desiredImages || (Array.isArray(desiredImages) && desiredImages.length === 0)) {
+        if (
+          !desiredImages ||
+          (Array.isArray(desiredImages) && desiredImages.length === 0)
+        ) {
           const updated = await updateProperty(id, { images: [] as any });
           return NextResponse.json(updated, { status: 200 });
         }
         // If client sent structured json with remaining items
-        if (desiredImages && typeof desiredImages === 'object' && Array.isArray(desiredImages.items)) {
-          const updated = await updateProperty(id, { images: desiredImages as any });
+        if (
+          desiredImages &&
+          typeof desiredImages === "object" &&
+          Array.isArray(desiredImages.items)
+        ) {
+          const updated = await updateProperty(id, {
+            images: desiredImages as any,
+          });
           return NextResponse.json(updated, { status: 200 });
         }
         // Fallback: return current property
@@ -109,17 +141,39 @@ export async function PUT(
       }
 
       // Process and upload images with shared helper
-      const newItems = await processAndUploadImages('propiedades', id, files, existingItems.length, 'Foto de la propiedad');
+      const newItems = await processAndUploadImages(
+        "propiedades",
+        id,
+        files,
+        existingItems.length,
+        "Foto de la propiedad"
+      );
 
-      const finalImages = mergeImagesJson(existingItems, newItems, coverId ?? null);
+      const finalImages = mergeImagesJson(
+        existingItems,
+        newItems,
+        coverId ?? null
+      );
 
       const updated = await updateProperty(id, { images: finalImages as any });
+
+      // Revalidar páginas relacionadas
+      revalidatePath("/");
+      revalidatePath("/propiedades");
+      revalidatePath("/admin/propiedades");
+
       return NextResponse.json(updated, { status: 200 });
     }
 
     // Backward-compat JSON updates (e.g., toggle featured)
     const updates = await req.json();
     const updatedProperty = await updateProperty(id, updates);
+
+    // Revalidar páginas relacionadas
+    revalidatePath("/");
+    revalidatePath("/propiedades");
+    revalidatePath("/admin/propiedades");
+
     return NextResponse.json(updatedProperty, { status: 200 });
   } catch (err: any) {
     const status = 500;
@@ -129,6 +183,3 @@ export async function PUT(
     );
   }
 }
-
-
-

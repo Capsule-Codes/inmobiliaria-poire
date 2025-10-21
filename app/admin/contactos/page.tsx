@@ -1,12 +1,15 @@
-import { AdminRouteGuard } from "@/components/admin-route-guard"
-import { ContactManagement } from "@/components/contact-management"
-import { type Contact } from "@/types/contact"
-import { type Property } from "@/types/Property"
-import { type Project } from "@/types/project"
-import { getContacts } from "@/domain/Contact"
-import { getProjectById } from "@/domain/Project"
-import { getPropertyById } from "@/domain/Property"
+import { AdminRouteGuard } from "@/components/admin-route-guard";
+import { ContactManagement } from "@/components/contact-management";
+import { type Contact } from "@/types/contact";
+import { type Property } from "@/types/Property";
+import { type Project } from "@/types/project";
+import { getContacts } from "@/domain/Contact";
+import { getProjectById } from "@/domain/Project";
+import { getPropertyById } from "@/domain/Property";
 
+// Deshabilitar caché para el admin - siempre datos frescos
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function ContactosPage() {
   const allContacts = (await getContacts()) as Contact[];
@@ -17,8 +20,8 @@ export default async function ContactosPage() {
     const propertyId = contact.property_id ?? "";
     const projectId = contact.project_id ?? "";
 
-    const propFetched = relatedProperties.some(p => p.id === propertyId);
-    const projFetched = relatedProjects.some(p => p.id === projectId);
+    const propFetched = relatedProperties.some((p) => p.id === propertyId);
+    const projFetched = relatedProjects.some((p) => p.id === projectId);
 
     try {
       if (projectId && !projFetched) {
@@ -36,7 +39,11 @@ export default async function ContactosPage() {
 
   return (
     <AdminRouteGuard>
-      <ContactManagement allContacts={allContacts} relatedProperties={relatedProperties} relatedProjects={relatedProjects} />
+      <ContactManagement
+        allContacts={allContacts}
+        relatedProperties={relatedProperties}
+        relatedProjects={relatedProjects}
+      />
     </AdminRouteGuard>
-  )
+  );
 }

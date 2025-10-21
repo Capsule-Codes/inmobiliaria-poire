@@ -8,6 +8,9 @@ import { Property } from "@/types/Property";
 import { getFeaturedProjects } from "@/domain/Project";
 import { Project } from "@/types/project";
 
+// Revalidar cada 60 segundos para mostrar cambios recientes
+export const revalidate = 60;
+
 export default async function HomePage() {
   const allFeaturedProperties = (await getFeaturedProperties()) as Property[];
 
