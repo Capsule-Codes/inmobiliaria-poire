@@ -1,31 +1,44 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { MapPin, Bed, Bath, Square } from "lucide-react"
-import Link from "next/link"
-import { Property } from "@/types/Property"
-import { getCoverSrc } from "@/lib/media"
-import Image from "next/image"
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { MapPin, Bed, Bath, Square } from "lucide-react";
+import Link from "next/link";
+import { Property } from "@/types/Property";
+import { getCoverSrc } from "@/lib/media";
+import { formatPrice } from "@/lib/utils";
+import Image from "next/image";
 
 interface RelatedPropertyDetailProps {
-  relatedProperties: Property[]
+  relatedProperties: Property[];
 }
 
-export function RelatedProperties({ relatedProperties }: RelatedPropertyDetailProps) {
-
+export function RelatedProperties({
+  relatedProperties,
+}: RelatedPropertyDetailProps) {
   return (
     <section className="py-16 bg-muted/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-foreground mb-4">Propiedades Similares</h2>
-          <p className="text-lg text-muted-foreground">Otras propiedades que podrían interesarte</p>
+          <h2 className="text-3xl font-bold text-foreground mb-4">
+            Propiedades Similares
+          </h2>
+          <p className="text-lg text-muted-foreground">
+            Otras propiedades que podrían interesarte
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {relatedProperties.map((property) => (
-            <Card key={property.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
+            <Card
+              key={property.id}
+              className="overflow-hidden hover:shadow-lg transition-shadow duration-300"
+            >
               <div className="relative h-48">
-              {(() => {
-                  const coverSrc = getCoverSrc('propiedades', property.id, property.images)
+                {(() => {
+                  const coverSrc = getCoverSrc(
+                    "propiedades",
+                    property.id,
+                    property.images
+                  );
                   return (
                     <Image
                       src={coverSrc}
@@ -34,16 +47,18 @@ export function RelatedProperties({ relatedProperties }: RelatedPropertyDetailPr
                       sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
                       className="object-cover"
                     />
-                  )
+                  );
                 })()}
-                <div className="absolute top-4 right-4 bg-accent text-accent-foreground px-3 py-1 rounded-full font-semibold">
-                  {property.price}
+                <div className="absolute top-4 right-4 bg-accent text-accent-foreground px-2 py-1 sm:px-3 sm:py-1 rounded-full font-semibold text-xs sm:text-sm">
+                  {formatPrice(property.price, property.currency)}
                 </div>
               </div>
 
               <CardContent className="p-6">
                 <div className="h-[4rem]">
-                <h3 className="text-lg font-semibold text-foreground mb-2">{property.title}</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">
+                    {property.title}
+                  </h3>
                 </div>
 
                 <div className="flex items-center text-muted-foreground mb-4">
@@ -66,7 +81,10 @@ export function RelatedProperties({ relatedProperties }: RelatedPropertyDetailPr
                   </div>
                 </div>
 
-                <Button asChild className="w-full bg-primary hover:bg-primary/90">
+                <Button
+                  asChild
+                  className="w-full bg-primary hover:bg-primary/90"
+                >
                   <Link href={`/propiedades/${property.id}`}>Ver Detalles</Link>
                 </Button>
               </CardContent>
@@ -75,5 +93,5 @@ export function RelatedProperties({ relatedProperties }: RelatedPropertyDetailPr
         </div>
       </div>
     </section>
-  )
+  );
 }

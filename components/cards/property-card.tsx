@@ -1,19 +1,17 @@
-"use client"
+"use client";
 
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { MapPin, Bed, Bath, Square } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
-import { getCoverSrc } from "@/lib/media"
-import type { Property } from "@/types/Property"
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { MapPin, Bed, Bath, Square } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
+import { getCoverSrc } from "@/lib/media";
+import { formatPrice } from "@/lib/utils";
+import type { Property } from "@/types/Property";
 
 export function PropertyCard({ property }: { property: Property }) {
-  const coverSrc = getCoverSrc('propiedades', property.id, property.images)
-  const formatPrice = (price: number, currency: string) => {
-    return `${currency} ${price.toLocaleString('es-AR')}`
-  }
+  const coverSrc = getCoverSrc("propiedades", property.id, property.images);
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group">
@@ -25,19 +23,24 @@ export function PropertyCard({ property }: { property: Property }) {
           sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
           className="object-cover group-hover:scale-105 transition-transform duration-300"
         />
-        <div className="absolute top-4 left-4 flex gap-2">
-          {property.is_featured && <Badge className="bg-accent text-accent-foreground">Destacada</Badge>}
+        <div className="absolute top-4 left-4 flex flex-col gap-2 sm:flex-row">
+          {property.is_featured && (
+            <Badge className="bg-accent text-accent-foreground">
+              Destacada
+            </Badge>
+          )}
           <Badge
-            className={property.operation_type === 'alquiler'
-              ? 'bg-blue-600 text-white hover:bg-blue-700'
-              : 'bg-green-600 text-white hover:bg-green-700'
+            className={
+              property.operation_type === "alquiler"
+                ? "bg-blue-600 text-white hover:bg-blue-700"
+                : "bg-green-600 text-white hover:bg-green-700"
             }
           >
-            {property.operation_type === 'alquiler' ? 'Alquiler' : 'Venta'}
+            {property.operation_type === "alquiler" ? "Alquiler" : "Venta"}
           </Badge>
         </div>
-        <div className="absolute top-4 right-4 bg-primary text-primary-foreground px-3 py-1 rounded-full font-semibold">
-          {formatPrice(property.price, property.currency || 'USD')}
+        <div className="absolute top-4 right-4 bg-primary text-primary-foreground px-2 py-1 sm:px-3 sm:py-1 rounded-full font-semibold text-xs sm:text-sm">
+          {formatPrice(property.price, property.currency || "USD")}
         </div>
       </div>
 
@@ -82,6 +85,5 @@ export function PropertyCard({ property }: { property: Property }) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
-

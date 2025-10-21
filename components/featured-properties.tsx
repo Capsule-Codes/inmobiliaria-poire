@@ -13,6 +13,7 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import { getCoverSrc } from "@/lib/media";
+import { formatPrice } from "@/lib/utils";
 import { useState, useEffect, useCallback } from "react";
 import { useConfig } from "@/contexts/config-context";
 import { Property } from "@/types/Property";
@@ -149,8 +150,8 @@ export function FeaturedProperties({
                           sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
                           className="object-cover transition-transform duration-700 hover:scale-110"
                         />
-                        <div className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-accent text-accent-foreground px-2 py-1 sm:px-3 sm:py-1 rounded-full font-semibold shadow-lg text-xs sm:text-sm">
-                          ${property.price}
+                        <div className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-accent text-accent-foreground px-1 py-0.5 sm:px-2 sm:py-1 rounded-full font-semibold shadow-lg text-xs sm:text-sm">
+                          {formatPrice(property.price, property.currency)}
                         </div>
                         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                       </div>

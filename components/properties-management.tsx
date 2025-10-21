@@ -1,151 +1,190 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { PropertyForm } from "@/components/property-form"
-import { AdminSidebar } from "@/components/admin-sidebar"
-import { Building2, Plus, Search, Edit, Trash2, Star, StarOff, MapPin, Bed, Bath, Square } from "lucide-react"
-import { Property } from "@/types/Property"
-import { getCoverSrc } from "@/lib/media"
-import Image from "next/image"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { PropertyForm } from "@/components/property-form";
+import { AdminSidebar } from "@/components/admin-sidebar";
+import {
+  Building2,
+  Plus,
+  Search,
+  Edit,
+  Trash2,
+  Star,
+  StarOff,
+  MapPin,
+  Bed,
+  Bath,
+  Square,
+} from "lucide-react";
+import { Property } from "@/types/Property";
+import { getCoverSrc } from "@/lib/media";
+import { formatPrice } from "@/lib/utils";
+import Image from "next/image";
 
-
-export function PropertiesManagement({ allProperties }: { allProperties: Property[] }) {
-  const [properties, setProperties] = useState(allProperties)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [showForm, setShowForm] = useState(false)
-  const [editingProperty, setEditingProperty] = useState<Property | null>(null)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
+export function PropertiesManagement({
+  allProperties,
+}: {
+  allProperties: Property[];
+}) {
+  const [properties, setProperties] = useState(allProperties);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showForm, setShowForm] = useState(false);
+  const [editingProperty, setEditingProperty] = useState<Property | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const filteredProperties = properties.filter(
     (property) =>
       property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      property.location.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+      property.location.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleAddProperty = () => {
-    setEditingProperty(null)
-    setShowForm(true)
-  }
+    setEditingProperty(null);
+    setShowForm(true);
+  };
 
   const handleEditProperty = (property: Property) => {
-    setEditingProperty(property)
-    setShowForm(true)
-  }
+    setEditingProperty(property);
+    setShowForm(true);
+  };
 
   const handleDeleteProperty = (id: string) => {
     if (confirm("¿Estás seguro de que quieres eliminar esta propiedad?")) {
-      console.log('Eliminando propiedad con id:', id);
+      console.log("Eliminando propiedad con id:", id);
 
       fetch(`/api/admin/propiedades/${id}`, {
-        method: 'DELETE',
-      }).then((res) => {
-        if (res.ok) {
-          setProperties(properties.filter((p) => p.id !== id));
-        } else {
-          console.error('Error al eliminar la propiedad');
-        }
-      }).catch((error) => {
-        console.error('Error al eliminar la propiedad', error);
-      });
+        method: "DELETE",
+      })
+        .then((res) => {
+          if (res.ok) {
+            setProperties(properties.filter((p) => p.id !== id));
+          } else {
+            console.error("Error al eliminar la propiedad");
+          }
+        })
+        .catch((error) => {
+          console.error("Error al eliminar la propiedad", error);
+        });
     }
-  }
+  };
 
   const handleToggleFeatured = (id: string) => {
     const property = properties.find((p) => p.id === id);
     if (property) {
-      const updatedProperty = { ...property, is_featured: !property.is_featured };
+      const updatedProperty = {
+        ...property,
+        is_featured: !property.is_featured,
+      };
 
       fetch(`/api/admin/propiedades/${id}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(updatedProperty),
-      }).then((res) => {
-        if (res.ok) {
-          res.json().then((updatedProperty) => {
-            setProperties(properties.map((p) => (p.id === id ? updatedProperty : p)))
-          });
-        } else {
-          console.error('Error al destacar la propiedad');
-        }
-      }).catch((error) => {
-        console.error('Error al destacar la propiedad', error);
-      });
+      })
+        .then((res) => {
+          if (res.ok) {
+            res.json().then((updatedProperty) => {
+              setProperties(
+                properties.map((p) => (p.id === id ? updatedProperty : p))
+              );
+            });
+          } else {
+            console.error("Error al destacar la propiedad");
+          }
+        })
+        .catch((error) => {
+          console.error("Error al destacar la propiedad", error);
+        });
     }
-  }
+  };
 
-  const handleSaveProperty = (propertyData: Omit<Property, 'id'>, files?: File[]) => {
-
+  const handleSaveProperty = (
+    propertyData: Omit<Property, "id">,
+    files?: File[]
+  ) => {
     if (editingProperty) {
       // Update via multipart to support images add/remove
-      setSubmitting(true)
-      const fd = new FormData()
-      fd.append('data', JSON.stringify(propertyData))
+      setSubmitting(true);
+      const fd = new FormData();
+      fd.append("data", JSON.stringify(propertyData));
       if (files && files.length > 0) {
         for (const f of files) {
-          fd.append('images', f)
+          fd.append("images", f);
         }
       }
       fetch(`/api/admin/propiedades/${editingProperty.id}`, {
-        method: 'PUT',
+        method: "PUT",
         body: fd as any,
-      }).then((res) => {
-        if (res.ok) {
-          res.json().then((updatedProperty) => {
-            setProperties(properties.map((p) => (p.id === editingProperty.id ? updatedProperty : p)))
-          })
-        } else {
-          console.error('Error al actualizar la propiedad');
-        }
-      }).catch((error) => {
-        console.error('Error al actualizar la propiedad', error);
-      }).finally(() => {
-        setSubmitting(false)
-        setShowForm(false);
-        setEditingProperty(null);
-      });
+      })
+        .then((res) => {
+          if (res.ok) {
+            res.json().then((updatedProperty) => {
+              setProperties(
+                properties.map((p) =>
+                  p.id === editingProperty.id ? updatedProperty : p
+                )
+              );
+            });
+          } else {
+            console.error("Error al actualizar la propiedad");
+          }
+        })
+        .catch((error) => {
+          console.error("Error al actualizar la propiedad", error);
+        })
+        .finally(() => {
+          setSubmitting(false);
+          setShowForm(false);
+          setEditingProperty(null);
+        });
     } else {
       // Create via new endpoint with FormData and image files
-      setSubmitting(true)
-      const fd = new FormData()
-      fd.append('data', JSON.stringify(propertyData))
+      setSubmitting(true);
+      const fd = new FormData();
+      fd.append("data", JSON.stringify(propertyData));
       if (files && files.length > 0) {
         for (const f of files) {
-          fd.append('images', f)
+          fd.append("images", f);
         }
       }
-      fetch('/api/admin/propiedades/', {
-        method: 'POST',
+      fetch("/api/admin/propiedades/", {
+        method: "POST",
         body: fd as any,
-      }).then(async (res) => {
-        if (!res.ok) {
-          console.error('Error al crear la propiedad')
-          return
-        }
-        const json = await res.json()
-        if (json?.ok) {
-          if (json?.partialSuccess === true && json?.message) {
-            alert('La propiedad fue creada con exito pero ocurrio un error subiendo las imagenes, intente subirlas nuevamente editando la propiedad')
-          }
-          // Optimistically add the property to the list
-          const created = { ...propertyData, id: json.propertyId }
-          setProperties([created, ...properties])
-        }
-      }).catch((err) => {
-        console.error('Error al crear la propiedad', err)
-      }).finally(() => {
-        setSubmitting(false)
-        setShowForm(false)
-        setEditingProperty(null)
       })
+        .then(async (res) => {
+          if (!res.ok) {
+            console.error("Error al crear la propiedad");
+            return;
+          }
+          const json = await res.json();
+          if (json?.ok) {
+            if (json?.partialSuccess === true && json?.message) {
+              alert(
+                "La propiedad fue creada con exito pero ocurrio un error subiendo las imagenes, intente subirlas nuevamente editando la propiedad"
+              );
+            }
+            // Optimistically add the property to the list
+            const created = { ...propertyData, id: json.propertyId };
+            setProperties([created, ...properties]);
+          }
+        })
+        .catch((err) => {
+          console.error("Error al crear la propiedad", err);
+        })
+        .finally(() => {
+          setSubmitting(false);
+          setShowForm(false);
+          setEditingProperty(null);
+        });
     }
-  }
+  };
 
   if (showForm) {
     return (
@@ -154,24 +193,32 @@ export function PropertiesManagement({ allProperties }: { allProperties: Propert
         onSave={handleSaveProperty}
         submitting={submitting}
         onCancel={() => {
-          setShowForm(false)
-          setEditingProperty(null)
+          setShowForm(false);
+          setEditingProperty(null);
         }}
       />
-    )
+    );
   }
 
   return (
     <div className="min-h-screen bg-background">
-      <AdminSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} currentPage="propiedades" />
+      <AdminSidebar
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        currentPage="propiedades"
+      />
 
       <div className="lg:ml-64">
         <div className="p-6 lg:p-8">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
             <div>
-              <h1 className="text-3xl font-bold text-foreground mb-2 mt-8 md:mt-0">Gestión de Propiedades</h1>
-              <p className="text-muted-foreground">Administra todas las propiedades del sitio</p>
+              <h1 className="text-3xl font-bold text-foreground mb-2 mt-8 md:mt-0">
+                Gestión de Propiedades
+              </h1>
+              <p className="text-muted-foreground">
+                Administra todas las propiedades del sitio
+              </p>
             </div>
             <Button
               onClick={handleAddProperty}
@@ -211,7 +258,9 @@ export function PropertiesManagement({ allProperties }: { allProperties: Propert
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-muted-foreground">Destacadas</p>
-                    <p className="text-2xl font-bold">{properties.filter((p) => p.is_featured).length}</p>
+                    <p className="text-2xl font-bold">
+                      {properties.filter((p) => p.is_featured).length}
+                    </p>
                   </div>
                   <Star className="h-8 w-8 text-secondary" />
                 </div>
@@ -225,7 +274,11 @@ export function PropertiesManagement({ allProperties }: { allProperties: Propert
               <Card key={property.id} className="overflow-hidden">
                 <div className="relative h-48">
                   {(() => {
-                    const coverSrc = getCoverSrc('propiedades', property.id, property.images)
+                    const coverSrc = getCoverSrc(
+                      "propiedades",
+                      property.id,
+                      property.images
+                    );
                     return (
                       <Image
                         src={coverSrc}
@@ -234,7 +287,7 @@ export function PropertiesManagement({ allProperties }: { allProperties: Propert
                         sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
                         className="object-cover"
                       />
-                    )
+                    );
                   })()}
                   <div className="absolute top-2 right-2 flex gap-2">
                     {property.is_featured && (
@@ -251,13 +304,19 @@ export function PropertiesManagement({ allProperties }: { allProperties: Propert
 
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-semibold text-foreground line-clamp-1">{property.title}</h3>
-                    <span className="text-sm font-bold text-secondary">{property.price}</span>
+                    <h3 className="font-semibold text-foreground line-clamp-1">
+                      {property.title}
+                    </h3>
+                    <span className="text-xs sm:text-sm font-bold text-secondary">
+                      {formatPrice(property.price, property.currency)}
+                    </span>
                   </div>
 
                   <div className="flex items-center text-muted-foreground mb-3">
                     <MapPin className="h-4 w-4 mr-1" />
-                    <span className="text-sm line-clamp-1">{property.location}</span>
+                    <span className="text-sm line-clamp-1">
+                      {property.location}
+                    </span>
                   </div>
 
                   <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
@@ -282,10 +341,18 @@ export function PropertiesManagement({ allProperties }: { allProperties: Propert
                       onClick={() => handleToggleFeatured(property.id)}
                       className="flex-1"
                     >
-                      {property.is_featured ? <StarOff className="h-4 w-4 mr-1" /> : <Star className="h-4 w-4 mr-1" />}
+                      {property.is_featured ? (
+                        <StarOff className="h-4 w-4 mr-1" />
+                      ) : (
+                        <Star className="h-4 w-4 mr-1" />
+                      )}
                       {property.is_featured ? "Quitar" : "Destacar"}
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => handleEditProperty(property)}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEditProperty(property)}
+                    >
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button
@@ -305,9 +372,13 @@ export function PropertiesManagement({ allProperties }: { allProperties: Propert
           {filteredProperties.length === 0 && (
             <div className="text-center py-12">
               <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">No se encontraron propiedades</h3>
+              <h3 className="text-lg font-semibold text-foreground mb-2">
+                No se encontraron propiedades
+              </h3>
               <p className="text-muted-foreground mb-4">
-                {searchTerm ? "Intenta con otros términos de búsqueda" : "Comienza agregando tu primera propiedad"}
+                {searchTerm
+                  ? "Intenta con otros términos de búsqueda"
+                  : "Comienza agregando tu primera propiedad"}
               </p>
               {!searchTerm && (
                 <Button
@@ -323,5 +394,5 @@ export function PropertiesManagement({ allProperties }: { allProperties: Propert
         </div>
       </div>
     </div>
-  )
+  );
 }

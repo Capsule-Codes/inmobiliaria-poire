@@ -21,6 +21,8 @@ export async function getAllProperties() {
 // For public view - only gets available properties
 export async function getProperties(filters?: {
   type?: string;
+  operationType?: string;
+  currency?: string;
   minPrice?: number;
   maxPrice?: number;
   location?: string;
@@ -34,6 +36,12 @@ export async function getProperties(filters?: {
 
   if (filters?.type) {
     query = query.eq("type", filters.type);
+  }
+  if (filters?.operationType) {
+    query = query.eq("operation_type", filters.operationType);
+  }
+  if (filters?.currency) {
+    query = query.eq("currency", filters.currency);
   }
   if (filters?.minPrice) {
     query = query.gte("price", filters.minPrice);
@@ -123,7 +131,16 @@ export async function updateProperty(id: string, updates: Partial<Property>) {
 }
 
 export async function deleteProperty(id: string) {
-  // First, delete all contacts associated with this property
+  // First, get property to access images
+  let propertyImages: Images | null = null;
+  try {
+    const property = await getPropertyById(id);
+    propertyImages = property.images;
+  } catch (err) {
+    console.error("Error fetching property for deletion:", err);
+  }
+
+  // Delete all contacts associated with this property
   const { error: contactsError } = await supabase
     .from("contacts")
     .delete()
@@ -134,10 +151,36 @@ export async function deleteProperty(id: string) {
     // Continue anyway to try to delete the property
   }
 
-  // Then delete the property
+  // Delete the property from database
   const { error } = await supabase.from("properties").delete().eq("id", id);
 
   if (error) throw error;
+
+  // Delete images from Azure Storage (best effort, don't fail if this fails)
+  if (
+    propertyImages &&
+    typeof propertyImages === "object" &&
+    "items" in propertyImages
+  ) {
+    try {
+      const { getContainerClient } = await import("@/lib/azure");
+      const container = getContainerClient();
+
+      for (const item of propertyImages.items) {
+        try {
+          const blobClient = container.getBlobClient(item.blobKey);
+          await blobClient.deleteIfExists();
+          console.log(`Deleted blob: ${item.blobKey}`);
+        } catch (blobError) {
+          console.error(`Failed to delete blob ${item.blobKey}:`, blobError);
+          // Continue deleting other images
+        }
+      }
+    } catch (azureError) {
+      console.error("Error deleting images from Azure:", azureError);
+      // Property is already deleted from DB, just log the error
+    }
+  }
 }
 
 export async function getRelatedProperties(id: string) {

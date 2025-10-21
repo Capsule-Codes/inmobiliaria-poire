@@ -16,6 +16,7 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import { getCoverSrc } from "@/lib/media";
+import { formatPrice } from "@/lib/utils";
 import { useConfig } from "@/contexts/config-context";
 import { type Project } from "@/types/project";
 
@@ -167,7 +168,7 @@ export function FeaturedProjects({
                             );
                           })()}
 
-                          <div className="absolute top-6 left-6 flex gap-3">
+                          <div className="absolute top-6 left-6 flex flex-col gap-2 sm:flex-row sm:gap-3">
                             <Badge className="bg-accent text-accent-foreground shadow-lg">
                               Destacado
                             </Badge>
@@ -183,10 +184,12 @@ export function FeaturedProjects({
                           </div>
                           {/* Price badge: mobile = full-width ribbon; md+ = centered pill */}
                           <div
-                            className="absolute inset-x-0 bottom-0 z-10 bg-primary/90 backdrop-blur-sm text-primary-foreground text-center px-3 py-1.5 text-sm font-semibold shadow-lg
+                            className="absolute inset-x-0 bottom-0 z-10 bg-primary/90 backdrop-blur-sm text-primary-foreground text-center px-2 py-1 text-xs font-semibold shadow-lg
+                                       sm:px-3 sm:py-1.5 sm:text-sm
                                        md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:bottom-4 md:w-auto md:px-4 md:py-2 md:rounded-full md:text-base"
                           >
-                            Desde ${project.price_from}
+                            <span className="hidden sm:inline">Desde </span>
+                            {formatPrice(project.price_from, "USD")}
                           </div>
 
                           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>

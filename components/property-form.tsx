@@ -22,8 +22,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import { AdminSidebar } from "@/components/admin-sidebar";
-import { ArrowLeft, X } from "lucide-react";
+import { ArrowLeft, X, Plus } from "lucide-react";
 import { Property } from "@/types/Property";
 import type { Images, MediaItem } from "@/lib/media";
 import { compareMediaItems } from "@/lib/media";
@@ -67,9 +68,10 @@ export function PropertyForm({
     is_featured: property?.is_featured || false,
     description: property?.description || "",
     images: property?.images || [],
-    features: [],
+    features: property?.features || [],
   });
 
+  const [newFeature, setNewFeature] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [fileError, setFileError] = useState<string | null>(null);
 
@@ -123,6 +125,21 @@ export function PropertyForm({
 
   const handleFileRemove = (index: number) => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleFeatureAdd = () => {
+    const v = newFeature.trim();
+    if (!v) return;
+    if (formData.features.includes(v)) return;
+    setFormData((prev) => ({ ...prev, features: [...prev.features, v] }));
+    setNewFeature("");
+  };
+
+  const handleFeatureRemove = (feature: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      features: prev.features.filter((f) => f !== feature),
+    }));
   };
 
   // New handler that enforces total limit including existing images
@@ -442,6 +459,59 @@ export function PropertyForm({
                 </CardContent>
               </Card>
             </div>
+
+            {/* Amenities/Características */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Amenities</CardTitle>
+                <CardDescription>
+                  Servicios y características adicionales de la propiedad
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex flex-wrap gap-2">
+                    {formData.features.map((feature: string, index: number) => (
+                      <Badge
+                        key={index}
+                        variant="secondary"
+                        className="flex items-center gap-1"
+                      >
+                        {feature}
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-4 w-4 p-0 hover:bg-transparent"
+                          onClick={() => handleFeatureRemove(feature)}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </Badge>
+                    ))}
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Input
+                      value={newFeature}
+                      onChange={(e) => setNewFeature(e.target.value)}
+                      placeholder="Agregar amenity..."
+                      onKeyPress={(e) =>
+                        e.key === "Enter" &&
+                        (e.preventDefault(), handleFeatureAdd())
+                      }
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleFeatureAdd}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Imágenes */}
             <Card>

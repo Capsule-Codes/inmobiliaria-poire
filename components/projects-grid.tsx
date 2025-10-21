@@ -1,27 +1,31 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { MapPin, Calendar, Building, Users } from "lucide-react"
-import Link from "next/link"
-import { Project } from "@/types/project"
-import Image from "next/image"
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { MapPin, Calendar, Building, Users } from "lucide-react";
+import Link from "next/link";
+import { Project } from "@/types/project";
+import Image from "next/image";
 // statusColors centralizado disponible en @/lib/project-status
-import { getCoverSrc } from "@/lib/media"
+import { getCoverSrc } from "@/lib/media";
+import { formatPrice } from "@/lib/utils";
 
 const statusColors = {
   "En Construcción": "bg-yellow-500",
   "En Venta": "bg-green-500",
   Próximamente: "bg-blue-500",
-}
+};
 
 export function ProjectsGrid({ allProjects }: { allProjects: Project[] }) {
-  const [filter, setFilter] = useState<string>("all")
+  const [filter, setFilter] = useState<string>("all");
 
-  const filteredProjects = filter === "all" ? allProjects : allProjects.filter((project) => project.status === filter)
+  const filteredProjects =
+    filter === "all"
+      ? allProjects
+      : allProjects.filter((project) => project.status === filter);
 
   return (
     <section className="py-16">
@@ -31,28 +35,42 @@ export function ProjectsGrid({ allProjects }: { allProjects: Project[] }) {
           <Button
             variant={filter === "all" ? "outline" : "default"}
             onClick={() => setFilter("all")}
-            className={filter === "all" ? "border-accent text-accent bg-transparent" : ""}
+            className={
+              filter === "all" ? "border-accent text-accent bg-transparent" : ""
+            }
           >
             Todos los Proyectos
           </Button>
           <Button
             variant={filter === "En Venta" ? "outline" : "default"}
             onClick={() => setFilter("En Venta")}
-            className={filter === "En Venta" ? "border-accent text-accent bg-transparent" : ""}
+            className={
+              filter === "En Venta"
+                ? "border-accent text-accent bg-transparent"
+                : ""
+            }
           >
             En Venta
           </Button>
           <Button
             variant={filter === "En Construcción" ? "outline" : "default"}
             onClick={() => setFilter("En Construcción")}
-            className={filter === "En Construcción" ? "border-accent text-accent bg-transparent" : ""}
+            className={
+              filter === "En Construcción"
+                ? "border-accent text-accent bg-transparent"
+                : ""
+            }
           >
             En Construcción
           </Button>
           <Button
             variant={filter === "Próximamente" ? "outline" : "default"}
             onClick={() => setFilter("Próximamente")}
-            className={filter === "Próximamente" ? "border-accent text-accent bg-transparent" : ""}
+            className={
+              filter === "Próximamente"
+                ? "border-accent text-accent bg-transparent"
+                : ""
+            }
           >
             Próximamente
           </Button>
@@ -61,10 +79,17 @@ export function ProjectsGrid({ allProjects }: { allProjects: Project[] }) {
         {/* Projects Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {filteredProjects.map((project) => (
-            <Card key={project.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 group">
+            <Card
+              key={project.id}
+              className="overflow-hidden hover:shadow-xl transition-all duration-300 group"
+            >
               <div className="relative h-64">
                 {(() => {
-                  const coverSrc = getCoverSrc('emprendimientos', project.id, project.images)
+                  const coverSrc = getCoverSrc(
+                    "emprendimientos",
+                    project.id,
+                    project.images
+                  );
                   return (
                     <Image
                       src={coverSrc}
@@ -73,20 +98,29 @@ export function ProjectsGrid({ allProjects }: { allProjects: Project[] }) {
                       sizes="(min-width: 1024px) 50vw, 100vw"
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
-                  )
+                  );
                 })()}
 
                 {/* Status and Featured badges */}
-                <div className="absolute top-4 left-4 flex gap-2">
-                  {project.is_featured && <Badge className="bg-accent text-accent-foreground">Destacado</Badge>}
-                  <Badge className={`${statusColors[project.status as keyof typeof statusColors]} text-white`}>
+                <div className="absolute top-4 left-4 flex flex-col gap-2 sm:flex-row">
+                  {project.is_featured && (
+                    <Badge className="bg-accent text-accent-foreground">
+                      Destacado
+                    </Badge>
+                  )}
+                  <Badge
+                    className={`${
+                      statusColors[project.status as keyof typeof statusColors]
+                    } text-white`}
+                  >
                     {project.status}
                   </Badge>
                 </div>
 
                 {/* Price badge */}
-                <div className="absolute top-4 right-4 bg-primary text-primary-foreground px-4 py-2 rounded-full font-semibold">
-                  Desde {project.price_from}
+                <div className="absolute top-4 right-4 bg-primary text-primary-foreground px-2 py-1 sm:px-4 sm:py-2 rounded-full font-semibold text-xs sm:text-sm">
+                  <span className="hidden sm:inline">Desde </span>
+                  {formatPrice(project.price_from, "USD")}
                 </div>
               </div>
 
@@ -99,14 +133,20 @@ export function ProjectsGrid({ allProjects }: { allProjects: Project[] }) {
                     <MapPin className="h-4 w-4 mr-1" />
                     <span className="text-sm">{project.location}</span>
                   </div>
-                  <p className="text-muted-foreground leading-relaxed">{project.description}</p>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {project.description}
+                  </p>
                 </div>
 
                 {/* Progress Bar */}
                 <div className="mb-4">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium text-foreground">Progreso de Obra</span>
-                    <span className="text-sm text-muted-foreground">{project.progress}%</span>
+                    <span className="text-sm font-medium text-foreground">
+                      Progreso de Obra
+                    </span>
+                    <span className="text-sm text-muted-foreground">
+                      {project.progress}%
+                    </span>
                   </div>
                   <Progress value={project.progress} className="h-2" />
                 </div>
@@ -129,10 +169,16 @@ export function ProjectsGrid({ allProjects }: { allProjects: Project[] }) {
 
                 {/* Amenities */}
                 <div className="mb-6">
-                  <h4 className="text-sm font-medium text-foreground mb-2">Amenities</h4>
+                  <h4 className="text-sm font-medium text-foreground mb-2">
+                    Amenities
+                  </h4>
                   <div className="flex flex-wrap gap-2">
                     {project.amenities.slice(0, 4).map((amenity, index) => (
-                      <Badge key={index} variant="secondary" className="text-xs">
+                      <Badge
+                        key={index}
+                        variant="secondary"
+                        className="text-xs"
+                      >
                         {amenity}
                       </Badge>
                     ))}
@@ -146,15 +192,22 @@ export function ProjectsGrid({ allProjects }: { allProjects: Project[] }) {
 
                 {/* Action Buttons */}
                 <div className="flex gap-3">
-                  <Button asChild className="flex-1 bg-primary hover:bg-primary/90">
-                    <Link href={`/emprendimientos/${project.id}`}>Ver Proyecto</Link>
+                  <Button
+                    asChild
+                    className="flex-1 bg-primary hover:bg-primary/90"
+                  >
+                    <Link href={`/emprendimientos/${project.id}`}>
+                      Ver Proyecto
+                    </Link>
                   </Button>
                   <Button
                     asChild
                     variant="outline"
                     className="border-accent text-accent hover:bg-accent hover:text-accent-foreground bg-transparent"
                   >
-                    <Link href={`/contacto/emprendimiento/${project.id}`}>Consultar</Link>
+                    <Link href={`/contacto/emprendimiento/${project.id}`}>
+                      Consultar
+                    </Link>
                   </Button>
                 </div>
               </CardContent>
@@ -165,9 +218,12 @@ export function ProjectsGrid({ allProjects }: { allProjects: Project[] }) {
         {/* Call to Action */}
         <div className="text-center mt-16">
           <div className="bg-muted/30 rounded-lg p-8">
-            <h3 className="text-2xl font-bold text-foreground mb-4">¿Buscas algo específico?</h3>
+            <h3 className="text-2xl font-bold text-foreground mb-4">
+              ¿Buscas algo específico?
+            </h3>
             <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-              Nuestro equipo de especialistas puede ayudarte a encontrar el emprendimiento perfecto para tu inversión.
+              Nuestro equipo de especialistas puede ayudarte a encontrar el
+              emprendimiento perfecto para tu inversión.
             </p>
             <Button
               asChild
@@ -180,5 +236,5 @@ export function ProjectsGrid({ allProjects }: { allProjects: Project[] }) {
         </div>
       </div>
     </section>
-  )
+  );
 }

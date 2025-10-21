@@ -8,6 +8,8 @@ export async function GET(req: NextRequest) {
 
     const location = searchParams.get("location");
     const type = searchParams.get("type");
+    const operationType = searchParams.get("operationType") || undefined;
+    const currency = searchParams.get("currency") || undefined;
     const minPrice = Number(searchParams.get("minPrice")) || undefined;
     const maxPrice = Number(searchParams.get("maxPrice")) || undefined;
     const bedrooms = Number(searchParams.get("bedrooms")) || undefined;
@@ -15,6 +17,8 @@ export async function GET(req: NextRequest) {
 
     const filters = {
       type,
+      operationType,
+      currency,
       minPrice,
       maxPrice,
       location,

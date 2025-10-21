@@ -1,100 +1,143 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { AdminSidebar } from "@/components/admin-sidebar"
-import { Star, StarOff, MapPin, Bed, Bath, Square, Calendar, Building, Users, Eye, TrendingUp } from "lucide-react"
-import { type Property } from "@/types/Property"
-import { type Project } from "@/types/project"
-import Image from "next/image"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { AdminSidebar } from "@/components/admin-sidebar";
+import {
+  Star,
+  StarOff,
+  MapPin,
+  Bed,
+  Bath,
+  Square,
+  Calendar,
+  Building,
+  Users,
+  Eye,
+  TrendingUp,
+} from "lucide-react";
+import { type Property } from "@/types/Property";
+import { type Project } from "@/types/project";
+import Image from "next/image";
 // statusColors centralizado disponible en @/lib/project-status
-import { getCoverSrc } from "@/lib/media"
-
+import { getCoverSrc } from "@/lib/media";
+import { formatPrice } from "@/lib/utils";
 
 const statusColors = {
   "En Construcción": "bg-yellow-500",
   "En Venta": "bg-green-500",
-  "Próximamente": "bg-blue-500",
-}
+  Próximamente: "bg-blue-500",
+};
 
-export function FeaturedManagement({ featuredProperties, featuredProjects }: { featuredProperties: Property[], featuredProjects: Project[] }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [properties, setProperties] = useState(featuredProperties)
-  const [projects, setProjects] = useState(featuredProjects)
+export function FeaturedManagement({
+  featuredProperties,
+  featuredProjects,
+}: {
+  featuredProperties: Property[];
+  featuredProjects: Project[];
+}) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [properties, setProperties] = useState(featuredProperties);
+  const [projects, setProjects] = useState(featuredProjects);
 
-  const allFeatured = [...properties.map((p) => ({ ...p, type: 'Propiedad', title: p.title, image: getCoverSrc('propiedades', p.id, p.images) })), ...projects.map((p) => ({ ...p, type: 'Emprendimiento', title: p.name, price: `Desde ${p.price_from}`, image: getCoverSrc('emprendimientos', p.id, p.images) }))]
+  const allFeatured = [
+    ...properties.map((p) => ({
+      ...p,
+      type: "Propiedad",
+      title: p.title,
+      image: getCoverSrc("propiedades", p.id, p.images),
+    })),
+    ...projects.map((p) => ({
+      ...p,
+      type: "Emprendimiento",
+      title: p.name,
+      price: `Desde ${formatPrice(p.price_from, "USD")}`,
+      image: getCoverSrc("emprendimientos", p.id, p.images),
+    })),
+  ];
 
   const handleToggleFeatured = async (id: string, type: string) => {
     try {
       if (type === "Propiedad") {
-        const property = properties.find(p => p.id === id)
-        if (!property) return
+        const property = properties.find((p) => p.id === id);
+        if (!property) return;
 
         const response = await fetch(`/api/admin/propiedades/${id}`, {
-          method: 'PUT',
+          method: "PUT",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            is_featured: false
+            is_featured: false,
           }),
-        })
+        });
 
         if (!response.ok) {
-          throw new Error('Error al actualizar la propiedad')
+          throw new Error("Error al actualizar la propiedad");
         }
 
         // Remover de la lista local
-        setProperties(properties.filter(p => p.id !== id))
+        setProperties(properties.filter((p) => p.id !== id));
       } else {
-        const project = projects.find(p => p.id === id)
-        if (!project) return
+        const project = projects.find((p) => p.id === id);
+        if (!project) return;
 
         const response = await fetch(`/api/admin/emprendimientos/${id}`, {
-          method: 'PUT',
+          method: "PUT",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            is_featured: false
+            is_featured: false,
           }),
-        })
+        });
 
         if (!response.ok) {
-          throw new Error('Error al actualizar el emprendimiento')
+          throw new Error("Error al actualizar el emprendimiento");
         }
 
         // Remover de la lista local
-        setProjects(projects.filter(p => p.id !== id))
+        setProjects(projects.filter((p) => p.id !== id));
       }
     } catch (error) {
-      console.error('Error al quitar destacada:', error)
-      alert('Error al quitar destacada. Por favor intenta nuevamente.')
+      console.error("Error al quitar destacada:", error);
+      alert("Error al quitar destacada. Por favor intenta nuevamente.");
     }
-  }
+  };
 
   const handlePreviewHome = () => {
-    window.open("/", "_blank")
-  }
+    window.open("/", "_blank");
+  };
 
   return (
     <div className="min-h-screen bg-background">
-      <AdminSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} currentPage="destacadas" />
+      <AdminSidebar
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        currentPage="destacadas"
+      />
 
       <div className="lg:ml-64">
         <div className="p-6 lg:p-8">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
             <div>
-              <h1 className="text-3xl font-bold text-foreground mb-2 mt-8 md:mt-0">Gestión de Destacadas</h1>
+              <h1 className="text-3xl font-bold text-foreground mb-2 mt-8 md:mt-0">
+                Gestión de Destacadas
+              </h1>
               <p className="text-muted-foreground">
-                Administra las propiedades y emprendimientos destacados en la home
+                Administra las propiedades y emprendimientos destacados en la
+                home
               </p>
             </div>
-            <Button onClick={handlePreviewHome} variant="outline" className="bg-transparent">
+            <Button
+              onClick={handlePreviewHome}
+              variant="outline"
+              className="bg-transparent"
+            >
               <Eye className="h-4 w-4 mr-2" />
               Ver en Home
             </Button>
@@ -106,7 +149,9 @@ export function FeaturedManagement({ featuredProperties, featuredProjects }: { f
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">Total Destacadas</p>
+                    <p className="text-sm text-muted-foreground">
+                      Total Destacadas
+                    </p>
                     <p className="text-2xl font-bold">{allFeatured.length}</p>
                   </div>
                   <Star className="h-8 w-8 text-secondary" />
@@ -128,7 +173,9 @@ export function FeaturedManagement({ featuredProperties, featuredProjects }: { f
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">Emprendimientos</p>
+                    <p className="text-sm text-muted-foreground">
+                      Emprendimientos
+                    </p>
                     <p className="text-2xl font-bold">{projects.length}</p>
                   </div>
                   <TrendingUp className="h-8 w-8 text-muted-foreground" />
@@ -139,8 +186,12 @@ export function FeaturedManagement({ featuredProperties, featuredProjects }: { f
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">Slides Activos</p>
-                    <p className="text-2xl font-bold">{Math.ceil(allFeatured.length / 3)}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Slides Activos
+                    </p>
+                    <p className="text-2xl font-bold">
+                      {Math.ceil(allFeatured.length / 3)}
+                    </p>
                   </div>
                   <Eye className="h-8 w-8 text-muted-foreground" />
                 </div>
@@ -158,24 +209,41 @@ export function FeaturedManagement({ featuredProperties, featuredProjects }: { f
             </CardHeader>
             <CardContent>
               <div className="text-sm text-muted-foreground mb-4">
-                Así se verán las destacadas en la página principal (mostrando 3 por slide):
+                Así se verán las destacadas en la página principal (mostrando 3
+                por slide):
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {allFeatured.slice(0, 3).map((item) => (
-                  <div key={`${item.type}-${item.id}`} className="relative h-32">
+                  <div
+                    key={`${item.type}-${item.id}`}
+                    className="relative h-32"
+                  >
                     {(() => {
-                      const raw: any = (item as any)?.images
-                      let coverSrc = "/placeholder.svg"
-                      if (raw && typeof raw === 'object' && Array.isArray(raw.items)) {
-                        const items: any[] = raw.items as any[]
-                        const main = items.find((it) => typeof it?.sortOrder === 'number' && it.sortOrder === 0)
-                        const chosen = main ?? items[0]
+                      const raw: any = (item as any)?.images;
+                      let coverSrc = "/placeholder.svg";
+                      if (
+                        raw &&
+                        typeof raw === "object" &&
+                        Array.isArray(raw.items)
+                      ) {
+                        const items: any[] = raw.items as any[];
+                        const main = items.find(
+                          (it) =>
+                            typeof it?.sortOrder === "number" &&
+                            it.sortOrder === 0
+                        );
+                        const chosen = main ?? items[0];
                         if (chosen?.mediaId) {
-                          const base = item.type === 'Propiedad' ? 'propiedades' : 'emprendimientos'
-                          coverSrc = `/api/${base}/${(item as any).id}/media/${chosen.mediaId}`
+                          const base =
+                            item.type === "Propiedad"
+                              ? "propiedades"
+                              : "emprendimientos";
+                          coverSrc = `/api/${base}/${(item as any).id}/media/${
+                            chosen.mediaId
+                          }`;
                         }
                       } else if (Array.isArray(raw) && raw.length > 0) {
-                        coverSrc = raw[0]
+                        coverSrc = raw[0];
                       }
                       return (
                         <Image
@@ -185,7 +253,7 @@ export function FeaturedManagement({ featuredProperties, featuredProjects }: { f
                           sizes="(min-width: 1024px) 33vw, 100vw"
                           className="object-cover rounded-lg"
                         />
-                      )
+                      );
                     })()}
                     <div className="absolute top-2 left-2">
                       <Badge className="bg-secondary text-secondary-foreground text-xs">
@@ -196,15 +264,21 @@ export function FeaturedManagement({ featuredProperties, featuredProjects }: { f
                       {item.price}
                     </div>
                     <div className="mt-2">
-                      <h4 className="font-medium text-sm line-clamp-1">{item.title}</h4>
-                      <p className="text-xs text-muted-foreground line-clamp-1">{item.location}</p>
+                      <h4 className="font-medium text-sm line-clamp-1">
+                        {item.title}
+                      </h4>
+                      <p className="text-xs text-muted-foreground line-clamp-1">
+                        {item.location}
+                      </p>
                     </div>
                   </div>
                 ))}
               </div>
               {allFeatured.length > 3 && (
                 <div className="mt-4 text-center">
-                  <Badge variant="outline">+{allFeatured.length - 3} más en otros slides</Badge>
+                  <Badge variant="outline">
+                    +{allFeatured.length - 3} más en otros slides
+                  </Badge>
                 </div>
               )}
             </CardContent>
@@ -224,7 +298,11 @@ export function FeaturedManagement({ featuredProperties, featuredProjects }: { f
                   <Card key={property.id} className="overflow-hidden">
                     <div className="relative h-32">
                       {(() => {
-                        const coverSrc = getCoverSrc('propiedades', property.id, property.images)
+                        const coverSrc = getCoverSrc(
+                          "propiedades",
+                          property.id,
+                          property.images
+                        );
                         return (
                           <Image
                             src={coverSrc}
@@ -233,17 +311,21 @@ export function FeaturedManagement({ featuredProperties, featuredProjects }: { f
                             sizes="(min-width: 1024px) 33vw, 100vw"
                             className="object-cover"
                           />
-                        )
+                        );
                       })()}
-                      <div className="absolute top-2 right-2 bg-accent text-accent-foreground px-2 py-1 rounded text-xs font-semibold">
-                        {property.price}
+                      <div className="absolute top-2 right-2 bg-accent text-accent-foreground px-1 py-0.5 rounded text-xs font-semibold">
+                        {formatPrice(property.price, property.currency)}
                       </div>
                     </div>
                     <CardContent className="p-3">
-                      <h4 className="font-medium text-sm mb-1 line-clamp-1">{property.title}</h4>
+                      <h4 className="font-medium text-sm mb-1 line-clamp-1">
+                        {property.title}
+                      </h4>
                       <div className="flex items-center text-muted-foreground mb-2">
                         <MapPin className="h-3 w-3 mr-1" />
-                        <span className="text-xs line-clamp-1">{property.location}</span>
+                        <span className="text-xs line-clamp-1">
+                          {property.location}
+                        </span>
                       </div>
                       <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
                         <div className="flex items-center">
@@ -262,7 +344,9 @@ export function FeaturedManagement({ featuredProperties, featuredProjects }: { f
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleToggleFeatured(property.id, "Propiedad")}
+                        onClick={() =>
+                          handleToggleFeatured(property.id, "Propiedad")
+                        }
                         className="w-full"
                       >
                         <StarOff className="h-3 w-3 mr-1" />
@@ -289,7 +373,11 @@ export function FeaturedManagement({ featuredProperties, featuredProjects }: { f
                   <Card key={project.id} className="overflow-hidden">
                     <div className="relative h-32">
                       {(() => {
-                        const coverSrc = getCoverSrc('emprendimientos', project.id, project.images)
+                        const coverSrc = getCoverSrc(
+                          "emprendimientos",
+                          project.id,
+                          project.images
+                        );
                         return (
                           <Image
                             src={coverSrc}
@@ -298,31 +386,43 @@ export function FeaturedManagement({ featuredProperties, featuredProjects }: { f
                             sizes="(min-width: 1024px) 33vw, 100vw"
                             className="object-cover"
                           />
-                        )
+                        );
                       })()}
                       <div className="absolute top-2 left-2">
                         <Badge
-                          className={`${statusColors[project.status as keyof typeof statusColors]} text-white text-xs`}
+                          className={`${
+                            statusColors[
+                              project.status as keyof typeof statusColors
+                            ]
+                          } text-white text-xs`}
                         >
                           {project.status}
                         </Badge>
                       </div>
-                      <div className="absolute top-2 right-2 bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-semibold">
-                        Desde {project.price_from}
+                      <div className="absolute top-2 right-2 bg-primary text-primary-foreground px-1 py-0.5 rounded text-xs font-semibold">
+                        {formatPrice(project.price_from, "USD")}
                       </div>
                     </div>
                     <CardContent className="p-3">
-                      <h4 className="font-medium text-sm mb-1 line-clamp-1">{project.name}</h4>
+                      <h4 className="font-medium text-sm mb-1 line-clamp-1">
+                        {project.name}
+                      </h4>
                       <div className="flex items-center text-muted-foreground mb-2">
                         <MapPin className="h-3 w-3 mr-1" />
-                        <span className="text-xs line-clamp-1">{project.location}</span>
+                        <span className="text-xs line-clamp-1">
+                          {project.location}
+                        </span>
                       </div>
 
                       {/* Progress */}
                       <div className="mb-2">
                         <div className="flex justify-between items-center mb-1">
-                          <span className="text-xs text-foreground">Progreso</span>
-                          <span className="text-xs text-muted-foreground">{project.progress}%</span>
+                          <span className="text-xs text-foreground">
+                            Progreso
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {project.progress}%
+                          </span>
                         </div>
                         <Progress value={project.progress} className="h-1" />
                       </div>
@@ -331,7 +431,9 @@ export function FeaturedManagement({ featuredProperties, featuredProjects }: { f
                       <div className="grid grid-cols-2 gap-2 mb-3 text-xs text-muted-foreground">
                         <div className="flex items-center">
                           <Calendar className="h-3 w-3 mr-1" />
-                          <span className="truncate">{project.delivery_date}</span>
+                          <span className="truncate">
+                            {project.delivery_date}
+                          </span>
                         </div>
                         <div className="flex items-center">
                           <Building className="h-3 w-3 mr-1" />
@@ -346,7 +448,9 @@ export function FeaturedManagement({ featuredProperties, featuredProjects }: { f
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleToggleFeatured(project.id, "Emprendimiento")}
+                        onClick={() =>
+                          handleToggleFeatured(project.id, "Emprendimiento")
+                        }
                         className="w-full"
                       >
                         <StarOff className="h-3 w-3 mr-1" />
@@ -364,11 +468,22 @@ export function FeaturedManagement({ featuredProperties, featuredProjects }: { f
             <CardContent className="p-6">
               <div className="text-center">
                 <Star className="h-8 w-8 text-secondary mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-foreground mb-2">Cómo Gestionar Destacadas</h3>
+                <h3 className="text-lg font-semibold text-foreground mb-2">
+                  Cómo Gestionar Destacadas
+                </h3>
                 <div className="text-sm text-muted-foreground space-y-2 max-w-2xl mx-auto">
-                  <p>• Para agregar más destacadas, ve a "Propiedades" o "Emprendimientos" y marca las que desees</p>
-                  <p>• Las destacadas aparecen automáticamente en el carousel de la página principal</p>
-                  <p>• Se muestran 3 elementos por slide, creando múltiples slides según la cantidad</p>
+                  <p>
+                    • Para agregar más destacadas, ve a "Propiedades" o
+                    "Emprendimientos" y marca las que desees
+                  </p>
+                  <p>
+                    • Las destacadas aparecen automáticamente en el carousel de
+                    la página principal
+                  </p>
+                  <p>
+                    • Se muestran 3 elementos por slide, creando múltiples
+                    slides según la cantidad
+                  </p>
                   <p>• El carousel rota automáticamente cada 5 segundos</p>
                 </div>
               </div>
@@ -377,5 +492,5 @@ export function FeaturedManagement({ featuredProperties, featuredProjects }: { f
         </div>
       </div>
     </div>
-  )
+  );
 }

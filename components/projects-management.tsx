@@ -1,65 +1,83 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Progress } from "@/components/ui/progress"
-import { ProjectForm } from "@/components/project-form"
-import { AdminSidebar } from "@/components/admin-sidebar"
-import { TrendingUp, Plus, Search, Edit, Trash2, Star, StarOff, MapPin, Calendar, Building, Users } from "lucide-react"
-import { type Project } from "@/types/project"
-import Image from "next/image"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
+import { ProjectForm } from "@/components/project-form";
+import { AdminSidebar } from "@/components/admin-sidebar";
+import {
+  TrendingUp,
+  Plus,
+  Search,
+  Edit,
+  Trash2,
+  Star,
+  StarOff,
+  MapPin,
+  Calendar,
+  Building,
+  Users,
+} from "lucide-react";
+import { type Project } from "@/types/project";
+import Image from "next/image";
 // statusColors centralizado disponible en @/lib/project-status
-import { getCoverSrc } from "@/lib/media"
+import { getCoverSrc } from "@/lib/media";
+import { formatPrice } from "@/lib/utils";
 
 const statusColors = {
   "En Construcción": "bg-yellow-500",
   "En Venta": "bg-green-500",
   Próximamente: "bg-blue-500",
-}
+};
 
-export function ProjectsManagement({ allProjects }: { allProjects: Project[] }) {
-  const [projects, setProjects] = useState(allProjects)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [showForm, setShowForm] = useState(false)
-  const [editingProject, setEditingProject] = useState<Project | null>(null)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
+export function ProjectsManagement({
+  allProjects,
+}: {
+  allProjects: Project[];
+}) {
+  const [projects, setProjects] = useState(allProjects);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showForm, setShowForm] = useState(false);
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const filteredProjects = projects.filter(
     (project) =>
       project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.location.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+      project.location.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleAddProject = () => {
-    setEditingProject(null)
-    setShowForm(true)
-  }
+    setEditingProject(null);
+    setShowForm(true);
+  };
 
   const handleEditProject = (project: Project) => {
-    setEditingProject(project)
-    setShowForm(true)
-  }
+    setEditingProject(project);
+    setShowForm(true);
+  };
 
   const handleDeleteProject = (id: String) => {
     if (confirm("¿Estás seguro de que quieres eliminar este emprendimiento?")) {
-
       fetch(`/api/admin/emprendimientos/${id}`, {
-        method: 'DELETE',
-      }).then((res) => {
-        if (res.ok) {
-          setProjects(projects.filter((p) => p.id !== id))
-        } else {
-          console.error('Error al eliminar el emprendimiento');
-        }
-      }).catch((error) => {
-        console.error('Error al eliminar el emprendimiento', error);
-      });
+        method: "DELETE",
+      })
+        .then((res) => {
+          if (res.ok) {
+            setProjects(projects.filter((p) => p.id !== id));
+          } else {
+            console.error("Error al eliminar el emprendimiento");
+          }
+        })
+        .catch((error) => {
+          console.error("Error al eliminar el emprendimiento", error);
+        });
     }
-  }
+  };
 
   const handleToggleFeatured = (id: String) => {
     const project = projects.find((p) => p.id === id);
@@ -67,96 +85,111 @@ export function ProjectsManagement({ allProjects }: { allProjects: Project[] }) 
       const updatedProject = { ...project, is_featured: !project.is_featured };
 
       fetch(`/api/admin/emprendimientos/${id}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(updatedProject),
-      }).then((res) => {
-        if (res.ok) {
-          res.json().then((updatedProject) => {
-            setProjects(projects.map((p) => (p.id === id ? updatedProject : p)))
-          });
-        } else {
-          console.error('Error al destacar emprendimiento');
-        }
-      }).catch((error) => {
-        console.error('Error al destacar emprendimiento', error);
-      });
+      })
+        .then((res) => {
+          if (res.ok) {
+            res.json().then((updatedProject) => {
+              setProjects(
+                projects.map((p) => (p.id === id ? updatedProject : p))
+              );
+            });
+          } else {
+            console.error("Error al destacar emprendimiento");
+          }
+        })
+        .catch((error) => {
+          console.error("Error al destacar emprendimiento", error);
+        });
     }
-  }
+  };
 
-  const handleSaveProject = (projectData: Omit<Project, 'id'>, files?: File[]) => {
+  const handleSaveProject = (
+    projectData: Omit<Project, "id">,
+    files?: File[]
+  ) => {
     if (editingProject) {
       // Update via multipart (data + files)
-      setSubmitting(true)
-      const fd = new FormData()
-      fd.append('data', JSON.stringify(projectData))
+      setSubmitting(true);
+      const fd = new FormData();
+      fd.append("data", JSON.stringify(projectData));
       if (files && files.length > 0) {
         for (const f of files) {
-          fd.append('images', f)
+          fd.append("images", f);
         }
       }
       fetch(`/api/admin/emprendimientos/${editingProject.id}`, {
-        method: 'PUT',
+        method: "PUT",
         body: fd as any,
-      }).then((res) => {
-        if (res.ok) {
-          res.json().then((updatedProject) => {
-            setProjects(projects.map((p) => (p.id === editingProject.id ? updatedProject : p)))
-          })
-
-        } else {
-          console.error('Error al actualizar el emprendimiento');
-        }
       })
+        .then((res) => {
+          if (res.ok) {
+            res.json().then((updatedProject) => {
+              setProjects(
+                projects.map((p) =>
+                  p.id === editingProject.id ? updatedProject : p
+                )
+              );
+            });
+          } else {
+            console.error("Error al actualizar el emprendimiento");
+          }
+        })
         .catch((error) => {
-          console.error('Error al actualizar el emprendimiento', error);
+          console.error("Error al actualizar el emprendimiento", error);
         })
         .finally(() => {
-          setSubmitting(false)
-          setShowForm(false)
-          setEditingProject(null)
-        })
-
+          setSubmitting(false);
+          setShowForm(false);
+          setEditingProject(null);
+        });
     } else {
       // Create via multipart
-      setSubmitting(true)
-      const fd = new FormData()
-      fd.append('data', JSON.stringify(projectData))
+      setSubmitting(true);
+      const fd = new FormData();
+      fd.append("data", JSON.stringify(projectData));
       if (files && files.length > 0) {
         for (const f of files) {
-          fd.append('images', f)
+          fd.append("images", f);
         }
       }
-      fetch('/api/admin/emprendimientos', {
-        method: 'POST',
+      fetch("/api/admin/emprendimientos", {
+        method: "POST",
         body: fd as any,
-      }).then(async (res) => {
-        if (!res.ok) {
-          console.error('Error al crear el emprendimiento')
-          return
-        }
-        const json = await res.json()
-        if (json?.ok) {
-          if (json?.partialSuccess === true && json?.message) {
-            alert('El emprendimiento fue creado con éxito pero ocurrió un error subiendo las imágenes, intente subirlas nuevamente editándolo')
-          }
-          const created = { ...projectData, id: json.projectId }
-          setProjects([created, ...projects])
-        } else {
-          // Backward compat in case API returns created object
-          setProjects([json, ...projects])
-        }
-      }).catch((err) => {
-        console.error('Error al crear el emprendimiento', err)
-      }).finally(() => {
-        setSubmitting(false)
-        setShowForm(false)
-        setEditingProject(null)
       })
+        .then(async (res) => {
+          if (!res.ok) {
+            console.error("Error al crear el emprendimiento");
+            return;
+          }
+          const json = await res.json();
+          if (json?.ok) {
+            if (json?.partialSuccess === true && json?.message) {
+              alert(
+                "El emprendimiento fue creado con éxito pero ocurrió un error subiendo las imágenes, intente subirlas nuevamente editándolo"
+              );
+            }
+            const created = { ...projectData, id: json.projectId };
+            setProjects([created, ...projects]);
+          } else {
+            // Backward compat in case API returns created object
+            setProjects([json, ...projects]);
+          }
+        })
+        .catch((err) => {
+          console.error("Error al crear el emprendimiento", err);
+        })
+        .finally(() => {
+          setSubmitting(false);
+          setShowForm(false);
+          setEditingProject(null);
+        });
     }
-  }
+  };
 
   if (showForm) {
     return (
@@ -164,28 +197,38 @@ export function ProjectsManagement({ allProjects }: { allProjects: Project[] }) 
         project={editingProject}
         onSave={handleSaveProject}
         submitting={submitting}
-        
         onCancel={() => {
-          setShowForm(false)
-          setEditingProject(null)
+          setShowForm(false);
+          setEditingProject(null);
         }}
       />
-    )
+    );
   }
 
   return (
     <div className="min-h-screen bg-background">
-      <AdminSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} currentPage="emprendimientos" />
+      <AdminSidebar
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        currentPage="emprendimientos"
+      />
 
       <div className="lg:ml-64">
         <div className="p-6 lg:p-8">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
             <div>
-              <h1 className="text-3xl font-bold text-foreground mb-2 mt-8 md:mt-0">Gestión de Emprendimientos</h1>
-              <p className="text-muted-foreground">Administra todos los proyectos inmobiliarios</p>
+              <h1 className="text-3xl font-bold text-foreground mb-2 mt-8 md:mt-0">
+                Gestión de Emprendimientos
+              </h1>
+              <p className="text-muted-foreground">
+                Administra todos los proyectos inmobiliarios
+              </p>
             </div>
-            <Button onClick={handleAddProject} className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
+            <Button
+              onClick={handleAddProject}
+              className="bg-secondary hover:bg-secondary/90 text-secondary-foreground"
+            >
               <Plus className="h-4 w-4 mr-2" />
               Agregar Emprendimiento
             </Button>
@@ -220,7 +263,9 @@ export function ProjectsManagement({ allProjects }: { allProjects: Project[] }) 
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-muted-foreground">Destacados</p>
-                    <p className="text-2xl font-bold">{projects.filter((p) => p.is_featured).length}</p>
+                    <p className="text-2xl font-bold">
+                      {projects.filter((p) => p.is_featured).length}
+                    </p>
                   </div>
                   <Star className="h-8 w-8 text-secondary" />
                 </div>
@@ -234,7 +279,11 @@ export function ProjectsManagement({ allProjects }: { allProjects: Project[] }) 
               <Card key={project.id} className="overflow-hidden">
                 <div className="relative h-48">
                   {(() => {
-                    const coverSrc = getCoverSrc('emprendimientos', project.id, project.images)
+                    const coverSrc = getCoverSrc(
+                      "emprendimientos",
+                      project.id,
+                      project.images
+                    );
                     return (
                       <Image
                         src={coverSrc}
@@ -243,39 +292,56 @@ export function ProjectsManagement({ allProjects }: { allProjects: Project[] }) 
                         sizes="(min-width: 1024px) 50vw, 100vw"
                         className="object-cover"
                       />
-                    )
+                    );
                   })()}
-                  <div className="absolute top-2 left-2 flex gap-2">
+                  <div className="absolute top-2 left-2 flex flex-col gap-2 sm:flex-row">
                     {project.is_featured && (
                       <Badge className="bg-secondary text-secondary-foreground">
                         <Star className="h-3 w-3 mr-1" />
                         Destacado
                       </Badge>
                     )}
-                    <Badge className={`${statusColors[project.status as keyof typeof statusColors]} text-white`}>
+                    <Badge
+                      className={`${
+                        statusColors[
+                          project.status as keyof typeof statusColors
+                        ]
+                      } text-white`}
+                    >
                       {project.status}
                     </Badge>
                   </div>
-                  <div className="absolute top-2 right-2 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-semibold">
-                    Desde {project.price_from}
+                  <div className="absolute top-2 right-2 bg-primary text-primary-foreground px-2 py-1 rounded-full text-xs font-semibold">
+                    <span className="hidden sm:inline">Desde </span>
+                    {formatPrice(project.price_from, "USD")}
                   </div>
                 </div>
 
                 <CardContent className="p-4">
                   <div className="mb-4">
-                    <h3 className="font-semibold text-foreground mb-1 line-clamp-1">{project.name}</h3>
+                    <h3 className="font-semibold text-foreground mb-1 line-clamp-1">
+                      {project.name}
+                    </h3>
                     <div className="flex items-center text-muted-foreground mb-2">
                       <MapPin className="h-4 w-4 mr-1" />
-                      <span className="text-sm line-clamp-1">{project.location}</span>
+                      <span className="text-sm line-clamp-1">
+                        {project.location}
+                      </span>
                     </div>
-                    <p className="text-sm text-muted-foreground line-clamp-2">{project.description}</p>
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                      {project.description}
+                    </p>
                   </div>
 
                   {/* Progress */}
                   <div className="mb-4">
                     <div className="flex justify-between items-center mb-1">
-                      <span className="text-xs font-medium text-foreground">Progreso</span>
-                      <span className="text-xs text-muted-foreground">{project.progress}%</span>
+                      <span className="text-xs font-medium text-foreground">
+                        Progreso
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {project.progress}%
+                      </span>
                     </div>
                     <Progress value={project.progress} className="h-1.5" />
                   </div>
@@ -300,12 +366,19 @@ export function ProjectsManagement({ allProjects }: { allProjects: Project[] }) 
                   <div className="mb-4">
                     <div className="flex flex-wrap gap-1">
                       {project.amenities.slice(0, 3).map((amenity, index) => (
-                        <Badge key={index} variant="secondary" className="text-xs px-2 py-0">
+                        <Badge
+                          key={index}
+                          variant="secondary"
+                          className="text-xs px-2 py-0"
+                        >
                           {amenity}
                         </Badge>
                       ))}
                       {project.amenities.length > 3 && (
-                        <Badge variant="secondary" className="text-xs px-2 py-0">
+                        <Badge
+                          variant="secondary"
+                          className="text-xs px-2 py-0"
+                        >
                           +{project.amenities.length - 3}
                         </Badge>
                       )}
@@ -320,10 +393,18 @@ export function ProjectsManagement({ allProjects }: { allProjects: Project[] }) 
                       onClick={() => handleToggleFeatured(project.id)}
                       className="flex-1"
                     >
-                      {project.is_featured ? <StarOff className="h-4 w-4 mr-1" /> : <Star className="h-4 w-4 mr-1" />}
+                      {project.is_featured ? (
+                        <StarOff className="h-4 w-4 mr-1" />
+                      ) : (
+                        <Star className="h-4 w-4 mr-1" />
+                      )}
                       {project.is_featured ? "Quitar" : "Destacar"}
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => handleEditProject(project)}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEditProject(project)}
+                    >
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button
@@ -343,9 +424,13 @@ export function ProjectsManagement({ allProjects }: { allProjects: Project[] }) 
           {filteredProjects.length === 0 && (
             <div className="text-center py-12">
               <TrendingUp className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">No se encontraron emprendimientos</h3>
+              <h3 className="text-lg font-semibold text-foreground mb-2">
+                No se encontraron emprendimientos
+              </h3>
               <p className="text-muted-foreground mb-4">
-                {searchTerm ? "Intenta con otros términos de búsqueda" : "Comienza agregando tu primer emprendimiento"}
+                {searchTerm
+                  ? "Intenta con otros términos de búsqueda"
+                  : "Comienza agregando tu primer emprendimiento"}
               </p>
               {!searchTerm && (
                 <Button
@@ -361,5 +446,5 @@ export function ProjectsManagement({ allProjects }: { allProjects: Project[] }) 
         </div>
       </div>
     </div>
-  )
+  );
 }
